@@ -1,0 +1,2234 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Python Class 2 · Logic &amp; Data Structures</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <style>
+    /* Python logo + shared Python course bits (same block in every py-class file) */
+    .py-logo {
+      width: clamp(100px, 13vw, 150px);
+      aspect-ratio: 1;
+      margin: 0 auto 12px;
+      border-radius: 26px;
+      display: grid;
+      place-items: center;
+      font-size: clamp(3rem, 7vw, 4.6rem);
+      background: linear-gradient(135deg, #3776ab 0 50%, #ffd43b 50% 100%);
+      box-shadow: 0 0 50px rgba(55, 118, 171, .4);
+      animation: bob 4s ease-in-out infinite;
+    }
+
+    .slide>.py-logo {
+      width: clamp(100px, 13vw, 150px);
+    }
+
+    @keyframes bob {
+      50% {
+        transform: translateY(-8px) rotate(-3deg);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .py-logo {
+        animation: none;
+      }
+    }
+
+    .pyb {
+      color: #4b8bbe;
+    }
+
+    .pyy {
+      color: #eab308;
+    }
+
+    /* Interview question cards */
+    .iq {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid #eab308;
+      border-radius: 14px;
+      padding: 12px 16px;
+    }
+
+    .iq .q {
+      font-weight: 700;
+      margin: 0 0 6px;
+    }
+
+    .iq .q::before {
+      content: "🎯 ";
+    }
+
+    .iq p {
+      margin: 0;
+    }
+
+    .iq-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    @media (max-width: 860px) {
+      .iq-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .predict {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    @media (max-width: 960px) {
+      .predict {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .predict .card code {
+      display: block;
+      white-space: pre;
+      font-size: .9rem;
+      margin-bottom: 8px;
+    }
+
+    .chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 12px;
+    }
+
+    .chips button {
+      font: 600 .9rem var(--mono);
+      padding: 6px 12px;
+      border-radius: 99px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .chips button:hover {
+      border-color: #ffd43b;
+    }
+
+    /* Step-through code panel (used by the copy demo) */
+    .tcode {
+      font: 500 .95rem/1.4 var(--mono);
+      background: var(--code-bg, #0b1220);
+      border-radius: 14px;
+      padding: 10px 0;
+      color: #e2e8f0;
+      font-variant-ligatures: none;
+    }
+
+    .tcode div {
+      padding: 5px 16px;
+      opacity: .35;
+      border-left: 3px solid transparent;
+      transition: .25s;
+      white-space: pre;
+    }
+
+    .tcode div.done {
+      opacity: .75;
+    }
+
+    .tcode div.cur {
+      opacity: 1;
+      background: rgba(255, 212, 59, .12);
+      border-left-color: #ffd43b;
+    }
+
+    @keyframes pop {
+      40% {
+        transform: scale(1.06);
+      }
+    }
+
+    /* Compact code in tables / cards */
+    .mono {
+      font-family: var(--mono);
+    }
+
+    .tight .table th,
+    .tight .table td {
+      padding: 8px 12px;
+    }
+
+    .o1 {
+      color: var(--green);
+      font-weight: 700;
+      font-family: var(--mono);
+    }
+
+    .on {
+      color: var(--red);
+      font-weight: 700;
+      font-family: var(--mono);
+    }
+
+    .onl {
+      color: var(--yellow);
+      font-weight: 700;
+      font-family: var(--mono);
+    }
+
+    /* Demo 1: truthy / falsy sorter */
+    .tf-pool {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      min-height: 56px;
+    }
+
+    .tf-chip {
+      font: 700 1.2rem var(--mono);
+      padding: 10px 16px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+      cursor: pointer;
+      transition: transform .2s, border-color .2s, box-shadow .2s;
+      font-variant-ligatures: none;
+    }
+
+    .tf-chip:hover {
+      border-color: #ffd43b;
+    }
+
+    .tf-chip.sel {
+      border-color: #ffd43b;
+      box-shadow: 0 0 0 3px rgba(255, 212, 59, .35);
+      transform: translateY(-4px);
+    }
+
+    .tf-chip.placed {
+      cursor: default;
+      font-size: 1rem;
+      padding: 6px 12px;
+      animation: fadeUp .3s ease;
+    }
+
+    .tf-chip.wrong {
+      animation: shake .4s;
+      border-color: var(--red);
+    }
+
+    .tf-bins {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .tf-bin {
+      border: 2px dashed var(--border);
+      border-radius: 16px;
+      padding: 12px 14px;
+      min-height: 150px;
+      cursor: pointer;
+      transition: background .2s, border-color .2s;
+    }
+
+    .tf-bin h3 {
+      margin: 0 0 10px;
+    }
+
+    .tf-bin .tf-in {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tf-bin.t {
+      border-color: rgba(52, 211, 153, .55);
+    }
+
+    .tf-bin.f {
+      border-color: rgba(248, 113, 113, .55);
+    }
+
+    .tf-bin.t h3 {
+      color: var(--green);
+    }
+
+    .tf-bin.f h3 {
+      color: var(--red);
+    }
+
+    .tf-bin:hover {
+      background: var(--surface2);
+    }
+
+    .tf-bin .tf-chip.placed.t {
+      border-color: var(--green);
+    }
+
+    .tf-bin .tf-chip.placed.f {
+      border-color: var(--red);
+    }
+
+    .tf-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .tf-msg {
+      flex: 1;
+      min-width: 280px;
+      margin: 0;
+    }
+
+    .score {
+      font: 700 1.1rem var(--mono);
+      color: var(--accent);
+    }
+
+    /* Demo 2: list method visualizer */
+    .lv-wrap {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .lv-wrap {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .lv-var {
+      font: 700 1rem var(--mono);
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .lv-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-height: 96px;
+      align-items: flex-end;
+      padding: 10px;
+      border-radius: 14px;
+      border: 2px solid var(--border);
+      background: var(--surface2);
+    }
+
+    .lv-row.empty::before {
+      content: "[ ]  empty list";
+      font: 600 1rem var(--mono);
+      color: var(--muted);
+      align-self: center;
+    }
+
+    .lv-cell {
+      text-align: center;
+      animation: fadeUp .3s ease;
+    }
+
+    .lv-cell .ix {
+      font: 600 .8rem var(--mono);
+      color: var(--accent);
+    }
+
+    .lv-box {
+      min-width: 86px;
+      padding: 12px 10px;
+      border-radius: 12px;
+      border: 2px solid #3776ab;
+      background: var(--surface);
+      font: 700 1.05rem var(--mono);
+      margin-top: 4px;
+      transition: .3s;
+    }
+
+    .lv-box.new {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(52, 211, 153, .3);
+    }
+
+    .lv-box.gone {
+      border-color: var(--red);
+      background: rgba(248, 113, 113, .2);
+      transform: translateY(-14px);
+      opacity: .3;
+    }
+
+    .lv-box.nest {
+      border-style: dashed;
+      border-color: var(--pink);
+      display: flex;
+      gap: 4px;
+      padding: 6px;
+      font-size: .85rem;
+    }
+
+    .lv-box.nest span {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 8px;
+      background: var(--surface2);
+    }
+
+    .lv-ops {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+      align-items: center;
+    }
+
+    .lv-ops button {
+      font: 600 .92rem var(--mono);
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .lv-ops button:hover {
+      border-color: #ffd43b;
+    }
+
+    .lv-ops button.danger {
+      border-color: rgba(248, 113, 113, .5);
+    }
+
+    .lv-ops input {
+      width: 120px;
+      font: 600 1rem var(--mono);
+      padding: 8px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+    }
+
+    .lv-log {
+      font: 500 .95rem/1.5 var(--mono);
+      background: var(--code-bg);
+      color: #e2e8f0;
+      border-radius: 14px;
+      padding: 12px 14px;
+      min-height: 260px;
+      max-height: 330px;
+      overflow: auto;
+      font-variant-ligatures: none;
+    }
+
+    .lv-log .cmd {
+      color: #ffd43b;
+    }
+
+    .lv-log .res {
+      color: #93c5fd;
+    }
+
+    .lv-log .err {
+      color: #f87171;
+    }
+
+    .lv-log .note {
+      color: #94a3b8;
+      font-style: italic;
+    }
+
+    .lv-sorted {
+      margin-top: 10px;
+      min-height: 1.6em;
+      font: 600 1rem var(--mono);
+    }
+
+    /* Demo 3: shallow vs deep copy */
+    .cp-wrap {
+      display: grid;
+      grid-template-columns: minmax(300px, .9fr) 1.6fr;
+      gap: 18px;
+    }
+
+    @media (max-width: 900px) {
+      .cp-wrap {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .cp-stage {
+      display: grid;
+      grid-template-columns: .8fr 1.1fr 1fr;
+      gap: 12px;
+      min-height: 250px;
+    }
+
+    .cp-col h4 {
+      margin: 0 0 8px;
+      font-size: .78rem;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--muted);
+    }
+
+    .cp-name {
+      font: 700 1rem var(--mono);
+      padding: 7px 10px;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      background: var(--surface2);
+      border: 2px solid var(--border);
+      animation: fadeUp .3s ease;
+    }
+
+    .cp-name b {
+      font-weight: 600;
+      color: var(--muted);
+      font-size: .85rem;
+    }
+
+    .cp-outer {
+      border: 2px solid;
+      border-radius: 12px;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+      background: var(--surface);
+      animation: fadeUp .3s ease;
+    }
+
+    .cp-outer small,
+    .cp-inner small {
+      display: block;
+      font: 600 .72rem var(--font);
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .cp-slot {
+      display: inline-block;
+      font: 700 .85rem var(--mono);
+      padding: 3px 8px;
+      border-radius: 8px;
+      color: #111;
+      margin: 2px 4px 2px 0;
+    }
+
+    .cp-inner {
+      border: 3px solid;
+      border-radius: 12px;
+      padding: 8px 12px;
+      margin-bottom: 8px;
+      background: var(--surface);
+      font: 700 1.05rem var(--mono);
+      animation: fadeUp .3s ease;
+    }
+
+    .cp-inner.bump,
+    .cp-outer.bump {
+      animation: pop .45s ease;
+      box-shadow: 0 0 0 4px rgba(255, 212, 59, .45);
+    }
+
+    .cp-print {
+      font: 600 .95rem/1.6 var(--mono);
+      background: var(--code-bg);
+      color: #e2e8f0;
+      border-radius: 12px;
+      padding: 10px 14px;
+      margin-top: 10px;
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    .cp-print .ch {
+      color: #fca5a5;
+    }
+
+    .cp-print .ok {
+      color: #86efac;
+    }
+
+    .cp-msg {
+      margin-top: 10px;
+      min-height: 2.6em;
+    }
+
+    /* Pick-the-structure quiz: options in 2 columns */
+    .ds-pick .quiz {
+      padding: 14px 16px;
+    }
+
+    .ds-pick .quiz .q {
+      font-size: 1rem;
+      margin-bottom: 8px;
+    }
+
+    .ds-pick .quiz .opts {
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+
+    .ds-pick .quiz .explain {
+      font-size: .86rem;
+      padding: 8px 10px;
+      margin-top: 8px;
+    }
+
+    .compact .card {
+      padding: 14px 16px;
+    }
+
+    .compact .card h3 {
+      font-size: 1.1rem;
+    }
+
+    .compact .card p {
+      margin: 0;
+    }
+
+    .compact .card {
+      font-size: .95rem;
+    }
+
+    /* This deck is code-heavy: a little less vertical padding and a wider editor */
+    .slide {
+      padding-top: clamp(16px, 2.6vh, 28px);
+      padding-bottom: clamp(16px, 2.6vh, 28px);
+    }
+
+    .playground {
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+    }
+
+    @media (max-width: 900px) {
+      .playground {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body class="deck" data-class="2" data-course="Python Course" data-icon="🐍" data-title="Logic &amp; Data Structures"
+  data-duration="90">
+  <main class="slides">
+
+    <!-- 1 -->
+    <section class="slide title" data-title="Welcome">
+      <div class="py-logo">🐍</div>
+      <div>
+        <span class="kicker">Python: Zero to Interview-Ready · Class 2 of 4</span>
+        <h1><span class="grad">Logic</span> &amp; Data Structures</h1>
+        <p class="lead">Teach Python to make decisions, repeat work, and store data the smart way: the exact topics
+          behind most "predict the output" interview rounds.</p>
+      </div>
+      <div class="row">
+        <span class="pill yellow">⏱ 90 minutes</span>
+        <span class="pill blue">🔀 if / loops</span>
+        <span class="pill violet">📦 list · tuple · set · dict</span>
+        <span class="pill pink">🪞 Shallow vs deep copy</span>
+        <span class="pill green">🎯 Interview questions</span>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Press <b>T</b> to start the timer. Hook: "Swiggy, IRCTC and every UPI app run on exactly two things:
+            decisions and collections of data. Today you learn both."</li>
+          <li>Quick check of homework: ask 1–2 students to show the EMI calculator from Class 1.</li>
+          <li>Reminder: code boxes run <b>real Python</b> in the browser (first run ~5 sec, needs internet).</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 2 -->
+    <section class="slide" data-title="Today's plan">
+      <header>
+        <span class="kicker">Agenda · 90 min</span>
+        <h2>Today's plan 🗺️</h2>
+      </header>
+      <ol class="timeline">
+        <li class="step"><span class="time">00–15</span>
+          <div><b>🔀 Making decisions</b><small>if / elif / else, truthy &amp; falsy, ternary, match-case</small></div>
+        </li>
+        <li class="step"><span class="time">15–30</span>
+          <div><b>🔁 Loops</b><small>for, while, range, break / continue / pass, for-else, enumerate, zip</small>
+          </div>
+        </li>
+        <li class="step"><span class="time">30–60</span>
+          <div><b>📦 The big four collections</b><small>list, tuple, set, dict: what, when and why</small></div>
+        </li>
+        <li class="step"><span class="time">60–75</span>
+          <div><b>⚡ Pro level</b><small>Comprehensions, shallow vs deep copy, time complexity (Big-O)</small></div>
+        </li>
+        <li class="step"><span class="time">75–90</span>
+          <div><b>🎯 Interview corner, predict the output, quiz, practice</b></div>
+        </li>
+      </ol>
+      <aside class="notes">Reveal each row with →. Tell them the last 15 minutes are pure interview practice, so they
+        should note anything that confuses them for then.</aside>
+    </section>
+
+    <!-- 3 -->
+    <section class="slide" data-title="if / elif / else">
+      <header>
+        <span class="kicker">Decisions · 00–15 min</span>
+        <h2><code>if / elif / else</code>: your college grading system 🎓</h2>
+        <p class="lead">Checked top to bottom: the <b>first</b> True condition wins.</p>
+      </header>
+      <div class="playground" data-mode="py" data-height="400">
+        <script type="text/x-playground">
+        marks = 78
+        attendance = 82   # percent
+
+        if attendance < 75:
+            print("❌ Not eligible: attendance shortage")
+        elif marks >= 90:
+            print("Grade O 🏆")
+        elif marks >= 75:
+            print("Grade A ✨")
+        elif marks >= 50:
+            print("Grade B 👍")
+        else:
+            print("RA: re-appear 📚")
+
+        # Combine conditions with and / or / not
+        if marks >= 75 and attendance >= 90:
+            print("Scholarship approved 💰")
+        else:
+            print("No scholarship this semester")
+        </script>
+      </div>
+      <div class="grid cols-3 compact">
+        <div class="card step"><b>📏 The colon and the indent</b><br><span class="muted">Every <code>if</code> line
+            ends with <code>:</code> and its block is indented 4 spaces.</span></div>
+        <div class="card step"><b>🥇 Order matters</b><br><span class="muted">Put <code>&gt;= 90</code> before
+            <code>&gt;= 75</code>, or a 95 would get grade A.</span></div>
+        <div class="card step"><b>🔗 Chained compare</b><br><span class="muted"><code>if 50 &lt;= marks &lt; 75:</code>
+            is valid, readable Python.</span></div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Change <code>attendance</code> to 70: the first branch wins even with high marks. That's "first True
+            wins".</li>
+          <li>Swap the <code>&gt;= 90</code> and <code>&gt;= 75</code> blocks and set marks = 95 to show the order bug.
+          </li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 4 -->
+    <section class="slide" data-title="Demo: truthy or falsy?" id="tfDemo">
+      <header>
+        <span class="kicker">Interactive game · truthy &amp; falsy</span>
+        <h2>Truthy or falsy? Sort them! 🗑️</h2>
+        <p class="lead"><code>if value:</code> works for <b>any</b> value. Click a value, then a bin.</p>
+      </header>
+      <div class="demo">
+        <div class="tf-pool" id="tfPool"></div>
+        <div class="tf-bins">
+          <div class="tf-bin t" data-bin="t">
+            <h3>✅ Truthy <span class="muted" style="font-size:.85rem">(if runs)</span></h3>
+            <div class="tf-in"></div>
+          </div>
+          <div class="tf-bin f" data-bin="f">
+            <h3>🚫 Falsy <span class="muted" style="font-size:.85rem">(if skips)</span></h3>
+            <div class="tf-in"></div>
+          </div>
+        </div>
+        <div class="tf-bar">
+          <div class="callout info tf-msg" id="tfMsg">
+            <p>Pick a value from the top row.</p>
+          </div>
+          <span class="score" id="tfScore">0 / 0</span>
+          <button class="btn small ghost" id="tfAll">Reveal all</button>
+          <button class="btn small ghost" id="tfReset">↺ Reset</button>
+        </div>
+      </div>
+      <div class="callout tip step">
+        <p><b>The rule:</b> only <code>False</code>, <code>None</code>, zero (<code>0</code>, <code>0.0</code>) and
+          <b>empty</b> collections (<code>""</code>, <code>[]</code>, <code>()</code>, <code>{}</code>,
+          <code>set()</code>) are falsy. <b>Everything else is truthy.</b> So write <code>if cart:</code>, not
+          <code>if len(cart) &gt; 0:</code>.</p>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Call students up (or call out answers) one value at a time. The traps: <code>"0"</code>,
+            <code>"False"</code>, <code>" "</code>, <code>[0]</code> and <code>-1</code> are all <b>truthy</b>.</li>
+          <li>Wrong answers shake red and explain why. "Reveal all" sorts everything at once.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 5 -->
+    <section class="slide" data-title="Ternary & match-case">
+      <header>
+        <span class="kicker">Live code · one-liners and pattern matching</span>
+        <h2>Ternary expression &amp; <code>match-case</code> 🛵</h2>
+      </header>
+      <div class="playground" data-mode="py" data-height="430">
+          <script type="text/x-playground">
+          # Ternary: A if condition else B
+          age = 17
+          status = "Can vote 🗳️" if age >= 18 else "Too young"
+          print(status)
+
+          cart_total = 149
+          delivery = 0 if cart_total >= 199 else 30
+          print(f"Delivery fee: ₹{delivery}")
+
+          # match-case (Python 3.10+): Swiggy order status
+          order_status = "out_for_delivery"
+
+          match order_status:
+              case "placed":
+                  print("🧾 Restaurant got your order")
+              case "preparing" | "cooking":
+                  print("👨‍🍳 Food is being prepared")
+              case "out_for_delivery":
+                  print("🛵 Rider is on the way!")
+              case "delivered":
+                  print("✅ Enjoy your meal")
+              case _:
+                  print("❓ Unknown status")
+          </script>
+      </div>
+      <div class="grid cols-3 compact">
+        <div class="card step"><b>Ternary = if/else in one line</b><br><code>x = A if cond else B</code><br><span
+            class="muted">Use it to <b>pick a value</b>. Don't nest them.</span></div>
+        <div class="card step"><b><code>match-case</code> = a clean switch</b><br><span class="muted"><code>|</code>
+            means "or", <code>case _:</code> is the default. Python 3.10+.</span></div>
+        <div class="card bad step"><b>🎯 Interview</b><br><span class="muted">Python has <b>no</b>
+            <code>c ? a : b</code> and no <code>switch</code>. Its ternary is <code>a if c else b</code>.</span></div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Change <code>cart_total</code> to 250: delivery becomes 0. Change the status to "cooking" to show the
+            <code>|</code> pattern, then to "lost" for <code>case _</code>.</li>
+          <li>match-case can also match shapes (tuples, dicts, classes). Just mention it; it is advanced.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 6 -->
+    <section class="slide section-slide" data-title="Loops">
+      <span class="big-emoji">🔁</span>
+      <span class="kicker" style="justify-content:center">15–30 min</span>
+      <h1>Loops: let Python do the <span class="grad">boring repeats</span></h1>
+      <p class="lead">Print 10,000 hall tickets, check every UPI transaction, total every ball of an innings.</p>
+      <aside class="notes">Ask: "If IRCTC has 5 lakh passengers on the waiting list, would anyone write 5 lakh print
+        statements?" That's why loops exist.</aside>
+    </section>
+
+    <!-- 7 -->
+    <section class="slide" data-title="for, while, range">
+      <header>
+        <span class="kicker">Live code · IRCTC waiting list</span>
+        <h2><code>while</code>, <code>for</code> and <code>range()</code> 🚆</h2>
+      </header>
+      <div class="playground" data-mode="py" data-height="430">
+          <script type="text/x-playground">
+          # IRCTC: confirm waiting-list passengers as seats free up
+          waiting_list = ["Arun", "Divya", "Karthik", "Meena", "Rahul"]
+          free_seats = 3
+
+          # while: repeat as long as the condition is True
+          while free_seats > 0 and waiting_list:
+              passenger = waiting_list.pop(0)
+              free_seats -= 1
+              print(f"✅ {passenger} confirmed | seats left: {free_seats}")
+
+          print("Still waiting:", waiting_list)
+
+          # for: go through each item of a sequence
+          for coach in range(1, 4):
+              print(f"Coach S{coach}", end="  ")
+          print()
+          print(list(range(5)))
+          print(list(range(10, 0, -3)))
+          </script>
+      </div>
+      <div class="grid cols-4 compact">
+        <div class="card step"><b><code>for x in items:</code></b><br><span class="muted">You know <b>what</b> to loop
+            over: a list, string, range.</span></div>
+        <div class="card step"><b><code>while cond:</code></b><br><span class="muted">Loop <b>until</b> something
+            happens: seats run out, OTP correct.</span></div>
+        <div class="card step"><b><code>range(start, stop, step)</code></b><br><span class="muted">Stop is
+            <b>excluded</b>. Lazy: <code>range(10**9)</code> uses almost no memory.</span></div>
+        <div class="card bad step"><b>♾️ Infinite loop</b><br><span class="muted">Forget <code>free_seats -= 1</code>
+            and it never ends. Terminal: <kbd>Ctrl</kbd>+<kbd>C</kbd>.</span></div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Note <code>while ... and waiting_list</code>: an empty list is falsy (callback to the game).</li>
+          <li>Change <code>free_seats</code> to 10: the loop stops when the list is empty instead.</li>
+          <li><b>Don't</b> demonstrate an infinite loop live in the browser: it will freeze the tab.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 8 -->
+    <section class="slide" data-title="break, continue, pass, for-else">
+      <header>
+        <span class="kicker">Live code · loop control</span>
+        <h2><code>break</code> · <code>continue</code> · <code>pass</code> · <code>for-else</code> 🔎</h2>
+      </header>
+      <div class="playground" data-mode="py" data-height="430">
+          <script type="text/x-playground">
+          # Find a PNR in today's bookings
+          bookings = [4521, 7830, 1299, 6604, 3317]
+          search = 6604
+
+          for pnr in bookings:
+              if pnr == search:
+                  print(f"Found PNR {pnr} ✅")
+                  break
+          else:
+              # runs ONLY if the loop did NOT break
+              print("PNR not found ❌")
+
+          # continue: skip this round, keep looping
+          for over in range(1, 7):
+              if over == 4:
+                  continue          # rain stopped play in over 4
+              print("Over", over, end=" | ")
+          print()
+
+          # pass: a placeholder that does nothing
+          for pnr in bookings:
+              pass                  # TODO: send SMS later
+          print("pass keeps the code valid")
+          </script>
+      </div>
+      <div class="grid cols-4 compact">
+        <div class="card step"><b>🛑 break</b><br><span class="muted">Exit the loop immediately.</span></div>
+        <div class="card step"><b>⏭️ continue</b><br><span class="muted">Skip the rest of <i>this</i> round, go to
+            the next.</span></div>
+        <div class="card step"><b>🪑 pass</b><br><span class="muted">Does nothing. A placeholder where a block is
+            required.</span></div>
+        <div class="card accent step"><b>🎯 for-else</b><br><span class="muted"><code>else</code> runs only if the
+            loop ended <b>without</b> <code>break</code>. "else = no break".</span></div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Change <code>search</code> to 1111 to show the else branch running.</li>
+          <li>for-else surprises even experienced developers. It is a favourite "predict the output" question.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 9 -->
+    <section class="slide" data-title="enumerate & zip">
+      <header>
+        <span class="kicker">Live code · cricket scorecard</span>
+        <h2><code>enumerate()</code> and <code>zip()</code> 🏏</h2>
+        <p class="lead">Stop writing <code>for i in range(len(players))</code>. Python has better tools.</p>
+      </header>
+      <div class="playground" data-mode="py" data-height="400">
+          <script type="text/x-playground">
+          players = ["Rohit", "Gill", "Kohli", "Iyer"]
+          runs = [45, 12, 103, 38]
+          balls = [30, 15, 88, 40]
+
+          # enumerate gives (position, value) pairs
+          for pos, name in enumerate(players, start=1):
+              print(pos, name)
+
+          print("-" * 28)
+          # zip walks several lists together
+          for name, r, b in zip(players, runs, balls):
+              sr = r / b * 100
+              print(f"{name:<6} {r:>4} ({b}) SR {sr:6.1f}")
+
+          # zip + dict = an instant lookup table
+          scorecard = dict(zip(players, runs))
+          print(scorecard)
+          </script>
+      </div>
+      <div class="grid cols-3 compact">
+        <div class="card bad step"><b>😬 Not Pythonic</b><br><code>for i in range(len(players)):</code><br><span
+            class="muted">Works, but interviewers notice.</span></div>
+        <div class="card good step"><b>enumerate(seq, start=0)</b><br><span class="muted">When you need the
+            <b>index and the value</b>.</span></div>
+        <div class="card good step"><b>zip(a, b, ...)</b><br><span class="muted">Pairs items up. Stops at the
+            <b>shortest</b> list (no error!).</span></div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Interviewers notice <code>range(len(x))</code>. Using enumerate/zip signals you write "Pythonic" code.
+          </li>
+          <li>Remove "Iyer" from <code>players</code> only: zip silently drops Iyer's runs. Mention
+            <code>zip(..., strict=True)</code> (3.10+) raises an error instead.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 10 -->
+    <section class="slide section-slide" data-title="The big four">
+      <span class="kicker" style="justify-content:center">Data structures · 30–60 min</span>
+      <h1>The <span class="grad">big four</span> collections 📦</h1>
+      <div class="grid cols-4" style="text-align:left">
+        <div class="card step"><span class="icon">📋</span>
+          <h3>list <code>[ ]</code></h3>
+          <p class="muted">Ordered, changeable, duplicates OK.<br><b>Swiggy cart</b></p>
+        </div>
+        <div class="card step"><span class="icon">📍</span>
+          <h3>tuple <code>( )</code></h3>
+          <p class="muted">Ordered, <b>can't change</b>.<br><b>GPS location</b></p>
+        </div>
+        <div class="card step"><span class="icon">🎯</span>
+          <h3>set <code>{ }</code></h3>
+          <p class="muted">Unordered, <b>unique</b> items.<br><b>UPI transaction IDs</b></p>
+        </div>
+        <div class="card step"><span class="icon">🗂️</span>
+          <h3>dict <code>{k: v}</code></h3>
+          <p class="muted">Key → value lookup.<br><b>PNR → passenger</b></p>
+        </div>
+      </div>
+      <aside class="notes">Ask the class for one more real-life example per type before revealing the card. Keep this
+        slide in mind: "Which data structure would you use and why?" is one of the most common interview questions.
+      </aside>
+    </section>
+
+    <!-- 11 -->
+    <section class="slide" data-title="List essentials">
+      <header>
+        <span class="kicker">list · live code</span>
+        <h2>Lists: your Swiggy cart 🛒</h2>
+      </header>
+      <div class="playground" data-mode="py" data-height="440">
+          <script type="text/x-playground">
+          cart = ["Dosa", "Idli"]
+          cart.append("Vada")             # add ONE item at the end
+          cart.extend(["Coffee", "Tea"])  # add EACH item of a list
+          cart.insert(0, "Pongal")        # add at a position
+          print(cart)
+          print(cart[0], cart[-1], cart[1:3])
+
+          cart.remove("Tea")       # remove by VALUE (first match)
+          last = cart.pop()        # remove by INDEX (default last), returns it
+          del cart[1]              # delete by index or slice
+          print(cart, "| popped:", last)
+
+          prices = [120, 40, 65, 30]
+          print(sorted(prices))    # returns a NEW sorted list
+          print(prices)            # original unchanged
+          result = prices.sort(reverse=True)   # sorts IN PLACE
+          print(prices, result)    # .sort() returns None!
+          </script>
+      </div>
+      <div class="grid cols-4 compact">
+        <div class="card step"><b>➕ Add</b><br><span class="muted"><code>append(x)</code> one item ·
+            <code>extend(seq)</code> each item · <code>insert(i, x)</code></span></div>
+        <div class="card step"><b>➖ Remove</b><br><span class="muted"><code>remove(x)</code> by value ·
+            <code>pop(i)</code> by index, returns it · <code>del lst[i]</code></span></div>
+        <div class="card step"><b>🔤 Sort</b><br><span class="muted"><code>lst.sort()</code> in place → None ·
+            <code>sorted(x)</code> → new list</span></div>
+        <div class="card step"><b>✂️ Slice</b><br><span class="muted">Same as strings: <code>cart[1:3]</code>,
+            <code>cart[-1]</code>, <code>cart[::-1]</code></span></div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Slicing works exactly like strings (Class 1): <code>cart[1:3]</code>, <code>cart[::-1]</code>.</li>
+          <li>Ask before running: "What does <code>result</code> hold?" Most say the sorted list. It's
+            <code>None</code>. Classic bug: <code>prices = prices.sort()</code>.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 12 -->
+    <section class="slide" data-title="Demo: list methods" id="lvDemo">
+      <header>
+        <span class="kicker">Interactive · watch the list change</span>
+        <h2>List methods, visualised 🧱</h2>
+        <p class="lead">Green = added · red = removed · right = the Python you ran.</p>
+      </header>
+      <div class="lv-wrap">
+        <div class="demo">
+          <span class="demo-label">cart (a list object in memory)</span>
+          <div class="lv-row" id="lvRow"></div>
+          <div class="lv-sorted" id="lvSorted"></div>
+          <div class="lv-ops">
+            <label class="mono" for="lvItem">x =</label>
+            <input id="lvItem" value="Vada" aria-label="Item">
+            <button data-op="append">append(x)</button>
+            <button data-op="insert">insert(0, x)</button>
+            <button data-op="remove">remove(x)</button>
+          </div>
+          <div class="lv-ops">
+            <button data-op="extend">extend(["Tea", "Coffee"])</button>
+            <button data-op="appendList" class="danger">append(["Tea", "Coffee"])</button>
+          </div>
+          <div class="lv-ops">
+            <button data-op="pop">pop()</button>
+            <button data-op="pop0">pop(0)</button>
+            <button data-op="sort">sort()</button>
+            <button data-op="sorted">sorted(cart)</button>
+            <button data-op="reverse">reverse()</button>
+            <button data-op="reset" class="danger">↺ Reset</button>
+          </div>
+        </div>
+        <div>
+          <div class="lv-log" id="lvLog"></div>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Show the classic interview pair: click <b>extend</b> (2 new boxes) then <b>append(list)</b> (ONE nested
+            box). Ask for <code>len(cart)</code> after each.</li>
+          <li>After append(list), click <b>sort()</b>: Python raises TypeError because it can't compare a list with a
+            str.</li>
+          <li>Type an item that is not in the cart and click <b>remove(x)</b> to show ValueError. Pop until empty to
+            show IndexError.</li>
+          <li><b>sorted(cart)</b> shows a new list underneath while the cart itself stays the same.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 13 -->
+    <section class="slide" data-title="Tuples">
+      <header>
+        <span class="kicker">tuple · live code</span>
+        <h2>Tuples: data that should never change 📍</h2>
+      </header>
+      <div class="playground" data-mode="py" data-height="420">
+          <script type="text/x-playground">
+          location = (13.0827, 80.2707)    # Chennai (lat, long)
+          print(location[0], len(location))
+
+          # Packing and unpacking
+          result = "India", 287, 6         # packing: () optional
+          team, score, wickets = result    # unpacking
+          print(f"{team}: {score}/{wickets}")
+
+          # * collects "the rest" into a list
+          first, *middle, last = [1, 2, 3, 4, 5]
+          print(first, middle, last)
+
+          # The single-element trap
+          a = (5)
+          b = (5,)
+          print(type(a), type(b))
+
+          # Immutable! (try/except comes in Class 4)
+          try:
+              location[0] = 0
+          except TypeError as e:
+              print("TypeError:", e)
+          </script>
+      </div>
+      <div class="grid cols-4 compact">
+        <div class="card step"><b>🔒 Immutable</b><br><span class="muted">No append/remove/assign. Only
+            <code>count()</code> and <code>index()</code>.</span></div>
+        <div class="card bad step"><b>⚠️ <code>(5)</code> is just the int 5</b><br><span class="muted">The
+            <b>comma</b> makes a tuple: <code>(5,)</code></span></div>
+        <div class="card good step"><b>✅ Why use tuples?</b><br><span class="muted">Safe, a bit faster and smaller,
+            and <b>hashable</b>: can be a dict key.</span></div>
+        <div class="analogy step" data-label="🪪 Real-life example">
+          <p><b>Aadhaar details</b>: written once, read many times. A shopping
+            list changes daily: that's a list.</p>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Connect to Class 1: <code>a, b = b, a</code> swap is tuple packing + unpacking.</li>
+          <li>Ask: "Can a tuple contain a list?" Yes: <code>t = (1, [2, 3])</code> and <code>t[1].append(4)</code>
+            works, because the tuple still holds the same list object. Such a tuple is not hashable, though.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 14 -->
+    <section class="slide" data-title="Sets">
+      <header>
+        <span class="kicker">set · live code · UPI</span>
+        <h2>Sets: kill duplicates, compare groups 🎯</h2>
+      </header>
+      <div class="playground" data-mode="py" data-height="420">
+          <script type="text/x-playground">
+          # UPI transaction IDs from a statement (with duplicates!)
+          txn_ids = [5012, 5013, 5012, 5020, 5013, 5031, 5020]
+          unique = set(txn_ids)
+          print(len(txn_ids), "->", len(unique), "unique")
+          print(sorted(unique))
+
+          # Who is in which WhatsApp group?
+          college = {"Arun", "Divya", "Karthik", "Meena"}
+          cricket = {"Karthik", "Rahul", "Arun", "Sanjay"}
+          print(sorted(college | cricket))   # union: anyone
+          print(sorted(college & cricket))   # intersection: both
+          print(sorted(college - cricket))   # difference: only college
+          print(sorted(college ^ cricket))   # exactly one group
+
+          # Super-fast membership check: O(1)
+          print("Rahul" in cricket)
+
+          empty = {}        # careful: this is a DICT!
+          print(type(empty), type(set()))
+          </script>
+      </div>
+      <div class="grid cols-4 compact">
+        <div class="card step"><b>🧹 Unique only</b><br><span class="muted"><code>set(lst)</code> removes
+            duplicates (but loses order).</span></div>
+        <div class="card step"><b>🔀 No order, no index</b><br><span class="muted"><code>s[0]</code> is a
+            TypeError. Items must be hashable.</span></div>
+        <div class="card good step"><b>⚡ <code>x in s</code> is O(1)</b><br><span class="muted">Hash table: jumps
+            straight to the item, no scanning.</span></div>
+        <div class="callout warn step">
+          <p><code>{}</code> is an empty <b>dict</b>. An empty set is <code>set()</code>.</p>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>We print <code>sorted(...)</code> because a set has no guaranteed order: print a set of names twice in
+            two runs and the order can differ.</li>
+          <li>Methods: <code>add</code>, <code>remove</code> (KeyError if missing), <code>discard</code> (silent),
+            <code>union</code>, <code>intersection</code>, <code>difference</code>.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 15 -->
+    <section class="slide" data-title="Dictionaries">
+      <header>
+        <span class="kicker">dict · live code</span>
+        <h2>Dictionaries: instant lookup by key 🗂️</h2>
+      </header>
+      <div class="playground" data-mode="py" data-height="420">
+          <script type="text/x-playground">
+          scorecard = {"Rohit": 45, "Gill": 12, "Kohli": 103}
+
+          scorecard["Iyer"] = 38          # add a new key
+          scorecard["Gill"] += 5          # update a value
+          print(scorecard["Kohli"])
+
+          # print(scorecard["Pant"])      # KeyError!
+          print(scorecard.get("Pant"))     # None, no crash
+          print(scorecard.get("Pant", 0))  # with a default
+
+          for player, runs in scorecard.items():
+              star = " ⭐" if runs >= 50 else ""
+              print(f"{player:<6} {runs:>4}{star}")
+
+          print("Total:", sum(scorecard.values()))
+          print("Players:", list(scorecard.keys()))
+          print("Has Kohli?", "Kohli" in scorecard)
+          </script>
+      </div>
+      <div class="grid cols-4 compact">
+        <div class="card step"><b>🔑 Keys must be hashable</b><br><span class="muted">str, int, tuple: yes.
+            list, dict, set: no. Values: anything.</span></div>
+        <div class="card step"><b>🧭 Ordered</b><br><span class="muted">Since Python 3.7, dicts keep
+            <b>insertion order</b>.</span></div>
+        <div class="card step"><b>🔁 Looping</b><br><span class="muted"><code>for k in d</code> (keys),
+            <code>d.values()</code>, <code>d.items()</code> → (key, value) pairs.</span></div>
+        <div class="analogy step" data-label="🚆 Real-life example">
+          <p>An IRCTC <b>PNR</b> is a key: jump straight to the booking, no
+            scrolling through crores of records.</p>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Uncomment the KeyError line to show the error, then explain why <code>get()</code> is safer.</li>
+          <li>A duplicate key keeps the <b>last</b> value: <code>{"a": 1, "a": 2}</code> → <code>{'a': 2}</code>.
+          </li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 16 -->
+    <section class="slide" data-title="Counting with dicts">
+      <header>
+        <span class="kicker">dict power tools · word frequency</span>
+        <h2>Counting &amp; grouping: <code>get</code>, <code>setdefault</code>, <code>Counter</code> 📊</h2>
+        <p class="lead">"Count the frequency of each word" is asked in almost every Python interview.</p>
+      </header>
+      <div class="playground" data-mode="py" data-height="440">
+        <script type="text/x-playground">
+        from collections import Counter
+
+        review = "food was good delivery was fast food was hot"
+        words = review.split()
+
+        # 1. Classic way with get()
+        freq = {}
+        for w in words:
+            freq[w] = freq.get(w, 0) + 1
+        print(freq)
+
+        # 2. setdefault: group items into lists
+        orders = [("Arun", "Dosa"), ("Divya", "Idli"), ("Arun", "Vada")]
+        by_person = {}
+        for name, item in orders:
+            by_person.setdefault(name, []).append(item)
+        print(by_person)
+
+        # 3. The pro way: Counter (a dict subclass)
+        c = Counter(words)
+        print(c.most_common(2))
+        print(c["food"], c["biryani"])   # missing key -> 0, no KeyError
+        </script>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Write method 1 on the board first: it's the answer interviewers expect if they say "without
+            libraries".</li>
+          <li><code>setdefault(k, default)</code> returns the existing value, or inserts the default and returns it.
+            Mention <code>collections.defaultdict(list)</code> as the alternative.</li>
+          <li>Change the review text to a student's sentence and re-run.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 17 -->
+    <section class="slide" data-title="Comprehensions">
+      <header>
+        <span class="kicker">Pro level · 60–75 min</span>
+        <h2>Comprehensions: a loop in one line ✨</h2>
+        <p class="lead"><code>[expression for item in iterable if condition]</code></p>
+      </header>
+      <div class="playground" data-mode="py" data-height="420">
+          <script type="text/x-playground">
+          marks = [35, 92, 48, 76, 18, 88]
+
+          # List comprehension: filter
+          passed = [m for m in marks if m >= 40]
+          print(passed)
+
+          # Same thing as a normal loop
+          passed2 = []
+          for m in marks:
+              if m >= 40:
+                  passed2.append(m)
+          print(passed == passed2)
+
+          # Transform with if/else (ternary goes BEFORE for)
+          print(["P" if m >= 40 else "F" for m in marks])
+
+          # Dict comprehension: price with 18% GST
+          menu = {"Biryani": 250, "Paneer": 180, "Naan": 40}
+          print({item: round(p * 1.18) for item, p in menu.items()})
+
+          # Set comprehension: unique first letters
+          cities = ["Chennai", "Coimbatore", "Madurai", "Mumbai"]
+          print(sorted({c[0] for c in cities}))
+          </script>
+      </div>
+      <div class="grid cols-3 compact">
+        <div class="card step"><b>3 flavours</b><br><code>[x*2 for x in a]</code><br><code>{k: v for k, v in
+            d.items()}</code><br><code>{x % 3 for x in a}</code></div>
+        <div class="card step"><b>⚠️ Where does if go?</b><br><span class="muted"><b>Filter</b>: <code>if</code> at
+            the <b>end</b>.<br><b>Pick a value</b>: <code>a if c else b</code> at the <b>start</b>.</span></div>
+        <div class="card step"><b>🧐 Round brackets?</b><br><span class="muted"><code>(x for x in a)</code> is
+            <b>not</b> a tuple comprehension: it's a <b>generator</b> (Class 4).</span></div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Comprehensions are usually a little faster than append loops and much more readable, but don't cram
+            complex logic into one line.</li>
+          <li>Interview: "Is there a tuple comprehension?" No; use <code>tuple(x for x in ...)</code>.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 18 -->
+    <section class="slide" data-title="Demo: shallow vs deep copy" id="cpDemo">
+      <header>
+        <span class="kicker">Interactive · the #1 copying question</span>
+        <h2>Alias vs shallow copy vs deep copy 🪞</h2>
+        <p class="lead">Same colour = same object. Predict who changes before each line!</p>
+      </header>
+      <div class="cp-wrap">
+        <div>
+          <div class="tcode" id="cpCode"></div>
+          <div class="row" style="margin-top:12px">
+            <button class="btn" id="cpNext">Next line ▶</button>
+            <button class="btn ghost" id="cpReset">↺ Reset</button>
+          </div>
+          <div class="cp-print" id="cpPrint"></div>
+        </div>
+        <div class="demo">
+          <span class="demo-label">Python's memory</span>
+          <div class="cp-stage">
+            <div class="cp-col">
+              <h4>Names</h4>
+              <div id="cpNames"></div>
+            </div>
+            <div class="cp-col">
+              <h4>Outer lists</h4>
+              <div id="cpOuter"></div>
+            </div>
+            <div class="cp-col">
+              <h4>Inner lists</h4>
+              <div id="cpInner"></div>
+            </div>
+          </div>
+          <div class="callout info cp-msg" id="cpMsg">
+            <p>Press <b>Next line ▶</b>.</p>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Before line 5, ask: "We changed <code>original[0][0]</code>. Which of alias / shallow / deep see the
+            change?" Answer: alias and shallow (shared inner list), not deep.</li>
+          <li>Before line 6: "Now we append to the outer list. Who sees it?" Only alias: shallow has its own outer
+            list.</li>
+          <li>One-liner for interviews: "A shallow copy copies the container; a deep copy copies the container
+            <b>and everything inside it</b>, recursively."</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 19 -->
+    <section class="slide" data-title="Copy traps">
+      <header>
+        <span class="kicker">Live code · copying in practice</span>
+        <h2>The <code>[[0]*3]*3</code> trap &amp; <code>copy</code> module 🪤</h2>
+      </header>
+      <div class="playground" data-mode="py" data-height="420">
+          <script type="text/x-playground">
+          import copy
+
+          # Cinema seats: 3 rows x 3 seats
+          seats = [[0] * 3] * 3
+          seats[0][0] = 1          # book row 0, seat 0
+          print(seats)             # all rows booked?!
+
+          seats = [[0] * 3 for _ in range(3)]   # the fix
+          seats[0][0] = 1
+          print(seats)
+
+          # Shallow vs deep copy of a nested dict
+          team = {"name": "CSK", "players": ["Dhoni", "Jadeja"]}
+          shallow = copy.copy(team)     # or team.copy()
+          deep = copy.deepcopy(team)
+
+          team["players"].append("Gaikwad")
+          team["name"] = "Chennai"
+          print(shallow)
+          print(deep)
+          </script>
+      </div>
+      <div class="grid cols-3 compact">
+        <div class="card bad step"><b>Why <code>[[0]*3]*3</code> breaks</b><br><span class="muted"><code>* 3</code>
+            repeats the <b>reference</b>: one row object, three tags.</span></div>
+        <div class="card good step"><b>The fix</b><br><span class="muted">A comprehension builds a <b>new</b> row
+            each time: <code>[[0]*3 for _ in range(3)]</code></span></div>
+        <div class="card accent step"><b>Shallow vs deep</b><br><span class="muted">Shallow
+            (<code>copy.copy</code>, <code>lst[:]</code>, <code>.copy()</code>): new outer, <b>shared</b> inner.
+            Deep (<code>copy.deepcopy</code>): all new.</span></div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Ask why <code>shallow["name"]</code> is still "CSK": reassigning a key in <code>team</code> doesn't touch
+            the copy's own dict. Only the <b>shared inner list</b> leaks.</li>
+          <li><code>[0] * 3</code> itself is fine, because ints are immutable. The trap only bites with mutable inner
+            objects.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 20 -->
+    <section class="slide" data-title="Time complexity">
+      <header>
+        <span class="kicker">Big-O · why interviewers care</span>
+        <h2>How fast is each operation? ⏱️</h2>
+      </header>
+      <div class="tabs">
+        <div class="tab" data-label="📊 Big-O cheat sheet">
+        <div class="tight">
+          <table class="table">
+            <tr>
+              <th>Operation</th>
+              <th>list</th>
+              <th>set / dict</th>
+            </tr>
+            <tr>
+              <td><code>x in c</code></td>
+              <td class="on">O(n)</td>
+              <td class="o1">O(1)</td>
+            </tr>
+            <tr>
+              <td>get <code>c[i]</code> / <code>d[key]</code></td>
+              <td class="o1">O(1)</td>
+              <td class="o1">O(1)</td>
+            </tr>
+            <tr>
+              <td><code>append(x)</code> / <code>add(x)</code> / <code>d[k] = v</code></td>
+              <td class="o1">O(1)*</td>
+              <td class="o1">O(1)</td>
+            </tr>
+            <tr>
+              <td><code>pop()</code> from the end</td>
+              <td class="o1">O(1)</td>
+              <td>–</td>
+            </tr>
+            <tr>
+              <td><code>insert(0, x)</code> / <code>pop(0)</code></td>
+              <td class="on">O(n)</td>
+              <td>–</td>
+            </tr>
+            <tr>
+              <td><code>remove(x)</code> / <code>discard</code> / <code>del d[k]</code></td>
+              <td class="on">O(n)</td>
+              <td class="o1">O(1)</td>
+            </tr>
+            <tr>
+              <td><code>sort()</code> / <code>sorted()</code></td>
+              <td class="onl">O(n log n)</td>
+              <td>–</td>
+            </tr>
+          </table>
+          <p class="muted" style="font-size:.85rem;margin-top:6px">* amortised (average). O(1) for set/dict is the
+            average case.</p>
+        </div>
+        </div>
+        <div class="tab" data-label="🏁 Race: list vs set (live)">
+        <div class="playground" data-mode="py" data-height="380">
+          <script type="text/x-playground">
+          import time
+
+          n = 200_000
+          ids_list = list(range(n))
+          ids_set = set(ids_list)
+          target = n - 1     # worst case: the last item
+
+          start = time.perf_counter()
+          for _ in range(100):
+              target in ids_list
+          t_list = time.perf_counter() - start
+
+          start = time.perf_counter()
+          for _ in range(100):
+              target in ids_set
+          t_set = time.perf_counter() - start
+
+          print(f"list: {t_list * 1000:.1f} ms")
+          print(f"set : {t_set * 1000:.3f} ms")
+          print(f"set is ~{t_list / t_set:,.0f}x faster")
+          </script>
+        </div>
+        </div>
+      </div>
+      <div class="callout tip step">
+        <p><b>🎯 Interview tip:</b> checking "is this UPI ID already processed?" inside a loop with a list is O(n²)
+          overall; with a set it's O(n). And for an IRCTC-style queue, use <code>collections.deque</code>:
+          <code>popleft()</code> is O(1) while <code>list.pop(0)</code> is O(n).</p>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Go through the table first, then click the <b>🏁 Race</b> tab: the live code times 100 lookups in a
+            list vs a set.</li>
+          <li>The timing numbers change every run and machine; the point is the <b>gap</b> (usually hundreds to
+            thousands of times).</li>
+          <li>Why is list <code>insert(0, x)</code> O(n)? Every other item must shift one place right, like everyone
+            in a cinema row moving one seat.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 21 -->
+    <section class="slide" data-title="Comparisons interviewers ask">
+      <header>
+        <span class="kicker">Compare &amp; contrast · interview favourites</span>
+        <h2>List vs tuple, list vs array, and unhashable keys ⚖️</h2>
+      </header>
+      <div class="grid cols-3 compact" style="align-items:start">
+        <div class="stack">
+          <h3>📋 list vs 📍 tuple</h3>
+          <div class="tight">
+            <table class="table">
+              <tr>
+                <th></th>
+                <th>list</th>
+                <th>tuple</th>
+              </tr>
+              <tr>
+                <td>Mutable?</td>
+                <td>Yes</td>
+                <td>No</td>
+              </tr>
+              <tr>
+                <td>Syntax</td>
+                <td><code>[1, 2]</code></td>
+                <td><code>(1, 2)</code></td>
+              </tr>
+              <tr>
+                <td>Speed / memory</td>
+                <td>More</td>
+                <td>Less</td>
+              </tr>
+              <tr>
+                <td>Dict key?</td>
+                <td>No</td>
+                <td>Yes*</td>
+              </tr>
+              <tr>
+                <td>Use for</td>
+                <td>Changing data</td>
+                <td>Fixed records</td>
+              </tr>
+            </table>
+          </div>
+          <p class="muted" style="font-size:.82rem;margin:0">* if everything inside it is hashable too</p>
+        </div>
+        <div class="stack">
+          <h3>📋 list vs 🔢 array</h3>
+          <div class="card step">
+            <p><b>list</b>: holds <b>any mix</b> of types, stores references to objects.</p>
+          </div>
+          <div class="card step">
+            <p><b><code>array.array('i', [1, 2])</code></b>: one type only, stores raw numbers compactly. Less memory.
+            </p>
+          </div>
+          <div class="card step">
+            <p><b>NumPy array</b>: one type, super-fast maths on the whole array (<code>arr * 2</code>). Used in data
+              science.</p>
+          </div>
+        </div>
+        <div class="stack">
+          <h3>🔑 Why can't a list be a dict key?</h3>
+          <script type="text/x-code" data-lang="python" data-file="keys.py">
+          d = {(13, 80): "Chennai"}   # ✅ tuple
+          d = {[13, 80]: "Chennai"}   # ❌
+          # TypeError: unhashable type: 'list'
+          </script>
+          <div class="card accent step">
+            <p>A dict stores each key in a slot chosen by <code>hash(key)</code>. If the key could change (like a
+              list), its hash would change and the dict could <b>never find it again</b>. So only immutable
+              (hashable) objects can be keys.</p>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>For each column, ask the class to answer before revealing. These three come up again and again in
+            fresher interviews.</li>
+          <li>Analogy for hashing: a library shelf number calculated from the book title. If the title could change
+            after shelving, nobody could find the book.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 22 -->
+    <section class="slide" data-title="Pick the right structure">
+      <header>
+        <span class="kicker">Game · which data structure?</span>
+        <h2>Pick the right data structure 🧠</h2>
+        <p class="lead">Read the scenario, shout your answer, then click. Wrong answers shake!</p>
+      </header>
+      <div class="grid cols-3 ds-pick">
+        <div class="quiz" data-answer="set">
+          <p class="q">🧾 Detect duplicate UPI transaction IDs quickly</p>
+          <div class="opts"><button data-opt="list">list</button><button data-opt="tuple">tuple</button><button
+              data-opt="set">set</button><button data-opt="dict">dict</button></div>
+          <p class="explain">✅ <b>set</b>: unique items and O(1) <code>in</code> checks.</p>
+        </div>
+        <div class="quiz" data-answer="dict">
+          <p class="q">🚆 Find passenger details from a PNR number</p>
+          <div class="opts"><button data-opt="list">list</button><button data-opt="tuple">tuple</button><button
+              data-opt="set">set</button><button data-opt="dict">dict</button></div>
+          <p class="explain">✅ <b>dict</b>: PNR is the key, details are the value. O(1) lookup.</p>
+        </div>
+        <div class="quiz" data-answer="tuple">
+          <p class="q">📍 GPS coordinates of a restaurant</p>
+          <div class="opts"><button data-opt="list">list</button><button data-opt="tuple">tuple</button><button
+              data-opt="set">set</button><button data-opt="dict">dict</button></div>
+          <p class="explain">✅ <b>tuple</b>: a fixed (lat, long) pair that shouldn't change.</p>
+        </div>
+        <div class="quiz" data-answer="list">
+          <p class="q">🎵 A Spotify playlist: ordered, songs can repeat</p>
+          <div class="opts"><button data-opt="list">list</button><button data-opt="tuple">tuple</button><button
+              data-opt="set">set</button><button data-opt="dict">dict</button></div>
+          <p class="explain">✅ <b>list</b>: keeps order, allows duplicates, easy to add or remove.</p>
+        </div>
+        <div class="quiz" data-answer="set">
+          <p class="q">🏫 Students present on <i>both</i> Monday and Tuesday</p>
+          <div class="opts"><button data-opt="list">list</button><button data-opt="tuple">tuple</button><button
+              data-opt="set">set</button><button data-opt="dict">dict</button></div>
+          <p class="explain">✅ <b>set</b>: <code>monday &amp; tuesday</code> (intersection).</p>
+        </div>
+        <div class="quiz" data-answer="dict">
+          <p class="q">🏏 Runs scored by each player in a match</p>
+          <div class="opts"><button data-opt="list">list</button><button data-opt="tuple">tuple</button><button
+              data-opt="set">set</button><button data-opt="dict">dict</button></div>
+          <p class="explain">✅ <b>dict</b>: <code>{"Kohli": 103, ...}</code>, player → runs.</p>
+        </div>
+      </div>
+      <aside class="notes">Make it a team game: two halves of the class, a point per correct first answer. Ask the
+        winning team to justify each choice in one sentence: that justification is what interviewers grade.</aside>
+    </section>
+
+    <!-- 23 -->
+    <section class="slide" data-title="Interview corner (1)">
+      <header>
+        <span class="kicker">🎯 Interview corner · 75–90 min</span>
+        <h2>Questions you will be asked (1/2)</h2>
+        <p class="lead">Ask, let students answer out loud, then click to reveal the model answer.</p>
+      </header>
+      <div class="iq-grid">
+        <div class="iq">
+          <p class="q">What is the difference between a list and a tuple?</p>
+          <p class="spoiler">List is <b>mutable</b> (<code>[ ]</code>), tuple is <b>immutable</b> (<code>( )</code>).
+            Tuples are slightly faster, use less memory and are hashable, so they can be dict keys. Use a tuple for
+            fixed records, a list for data that changes.</p>
+        </div>
+        <div class="iq">
+          <p class="q"><code>append()</code> vs <code>extend()</code>?</p>
+          <p class="spoiler"><code>append(x)</code> adds <code>x</code> as <b>one</b> element (a list becomes a
+            nested list). <code>extend(seq)</code> adds <b>each</b> element of seq. <code>[1].append([2,3])</code> →
+            <code>[1, [2, 3]]</code>; extend → <code>[1, 2, 3]</code>.</p>
+        </div>
+        <div class="iq">
+          <p class="q"><code>sort()</code> vs <code>sorted()</code>?</p>
+          <p class="spoiler"><code>lst.sort()</code> sorts the list <b>in place</b> and returns <code>None</code>; only
+            for lists. <code>sorted(x)</code> returns a <b>new</b> list and works on any iterable (tuple, set, dict,
+            string). Both accept <code>key=</code> and <code>reverse=</code>.</p>
+        </div>
+        <div class="iq">
+          <p class="q">Why can't a list be a dictionary key?</p>
+          <p class="spoiler">Dict keys must be <b>hashable</b>: their hash must never change. A list is mutable, so
+            its hash could change and the dict would lose it. Python raises <code>TypeError: unhashable type:
+              'list'</code>. Use a tuple instead.</p>
+        </div>
+        <div class="iq">
+          <p class="q">What is the difference between shallow and deep copy?</p>
+          <p class="spoiler">A <b>shallow copy</b> (<code>copy.copy</code>, <code>lst[:]</code>) creates a new outer
+            object but <b>shares</b> nested objects. A <b>deep copy</b> (<code>copy.deepcopy</code>) recursively copies
+            everything, so changes to nested items never leak.</p>
+        </div>
+      </div>
+      <aside class="notes">Pick students at random. Coach the structure: definition → example → one extra detail
+        (e.g. "and tuples can be dict keys"). The extra detail is what gets them selected.</aside>
+    </section>
+
+    <!-- 24 -->
+    <section class="slide" data-title="Interview corner (2)">
+      <header>
+        <span class="kicker">🎯 Interview corner</span>
+        <h2>Questions you will be asked (2/2)</h2>
+      </header>
+      <div class="iq-grid">
+        <div class="iq">
+          <p class="q"><code>remove()</code> vs <code>pop()</code> vs <code>del</code>?</p>
+          <p class="spoiler"><code>remove(x)</code> deletes the first matching <b>value</b> (ValueError if absent).
+            <code>pop(i)</code> deletes by <b>index</b> and <b>returns</b> the item (default last).
+            <code>del lst[i]</code> is a statement; it can also delete slices or the whole variable.</p>
+        </div>
+        <div class="iq">
+          <p class="q">What is the time complexity of <code>x in list</code> vs <code>x in set</code>?</p>
+          <p class="spoiler">List: <b>O(n)</b>, it checks items one by one. Set (and dict keys): <b>O(1)</b> on
+            average, because it uses a hash table to jump straight to the slot.</p>
+        </div>
+        <div class="iq">
+          <p class="q">When does the <code>else</code> of a <code>for</code> loop run?</p>
+          <p class="spoiler">When the loop finishes <b>normally</b>, i.e. without hitting <code>break</code>. Common
+            use: searching. If found → break; else → "not found". Same for <code>while-else</code>.</p>
+        </div>
+        <div class="iq">
+          <p class="q">What is a list comprehension? Is it faster?</p>
+          <p class="spoiler">A one-line way to build a list: <code>[expr for x in seq if cond]</code>. Usually faster
+            than a for loop with <code>append</code> (less overhead) and more readable. Dict and set comprehensions
+            exist too; there is no tuple comprehension.</p>
+        </div>
+        <div class="iq">
+          <p class="q">What is the difference between a list and an array?</p>
+          <p class="spoiler">A list can hold <b>mixed types</b> and stores references. <code>array.array</code> and
+            NumPy arrays hold <b>one type</b>, stored compactly: less memory, and NumPy supports fast element-wise
+            maths. Use lists for general code, NumPy for heavy numeric work.</p>
+        </div>
+      </div>
+      <aside class="notes">If time is short, do the first four: they are the most frequently asked.</aside>
+    </section>
+
+    <!-- 25 -->
+    <section class="slide" data-title="Predict the output">
+      <header>
+        <span class="kicker">🎯 Interview round · trick questions</span>
+        <h2>Predict the output 🧠</h2>
+        <p class="lead">Guess first, then click. Each one tests a concept from today.</p>
+      </header>
+      <div class="predict">
+        <div class="card"><code>x = [[]] * 3
+x[0].append(1)
+print(x)</code><span class="spoiler"><b>[[1], [1], [1]]</b>: three references to the same inner list.</span></div>
+        <div class="card"><code>t = (1)
+print(type(t))</code><span class="spoiler"><b>&lt;class 'int'&gt;</b>: the comma makes a tuple, not the
+            brackets.</span></div>
+        <div class="card"><code>print({1, 2, 2, 3, True})</code><span class="spoiler"><b>{1, 2, 3}</b>:
+            <code>True == 1</code> and they hash the same, so it's a duplicate.</span></div>
+        <div class="card"><code>d = {1: "a", True: "b", 1.0: "c"}
+print(d)</code><span class="spoiler"><b>{1: 'c'}</b>: one key (the first one, 1); the last value wins.</span>
+        </div>
+        <div class="card"><code>nums = [3, 1, 2]
+print(nums.sort())</code><span class="spoiler"><b>None</b>: <code>sort()</code> works in place and returns
+            None.</span></div>
+        <div class="card"><code>lst = [1, 2, 3, 4]
+for x in lst:
+    lst.remove(x)
+print(lst)</code><span class="spoiler"><b>[2, 4]</b>: removing while looping makes the loop skip items.
+            Loop over a copy: <code>lst[:]</code>.</span></div>
+        <div class="card"><code>for i in range(3):
+    if i == 5:
+        break
+else:
+    print("done", i)</code><span class="spoiler"><b>done 2</b>: no break happened, so else runs; <code>i</code>
+            keeps its last value.</span></div>
+        <div class="card"><code>print(list(zip([1, 2, 3], "ab")))</code><span class="spoiler"><b>[(1, 'a'), (2,
+              'b')]</b>: zip stops at the shortest input.</span></div>
+      </div>
+      <aside class="notes">Split the class into two teams, 1 point per correct guess. Verify any disputed answer by
+        pasting it into the playground on slide 9 or 11.</aside>
+    </section>
+
+    <!-- 26 -->
+    <section class="slide" data-title="Common mistakes">
+      <header>
+        <span class="kicker">Watch out</span>
+        <h2>Common mistakes 🚧</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="card bad step">
+          <h3>Saving the result of sort()</h3><code>marks = marks.sort()</code>
+          <p class="muted" style="margin-top:8px">Now <code>marks</code> is <code>None</code>. Use
+            <code>marks.sort()</code> alone, or <code>sorted(marks)</code>.</p>
+        </div>
+        <div class="card bad step">
+          <h3>Changing a list while looping</h3><code>for x in lst: lst.remove(x)</code>
+          <p class="muted" style="margin-top:8px">Skips items. Loop over <code>lst[:]</code> or build a new list with a
+            comprehension.</p>
+        </div>
+        <div class="card bad step">
+          <h3><code>{}</code> as an empty set</h3><code>seen = {}</code>
+          <p class="muted" style="margin-top:8px">That's a dict. <code>seen.add(x)</code> → AttributeError. Use
+            <code>set()</code>.</p>
+        </div>
+        <div class="card bad step">
+          <h3>The "or" trap</h3><code>if city == "Chennai" or "Madurai":</code>
+          <p class="muted" style="margin-top:8px">Always True (a non-empty string is truthy). Write
+            <code>if city in ("Chennai", "Madurai"):</code></p>
+        </div>
+        <div class="card bad step">
+          <h3>"Copying" with =</h3><code>backup = cart</code>
+          <p class="muted" style="margin-top:8px">Same list, two names. Use <code>cart.copy()</code>, or
+            <code>copy.deepcopy</code> for nested data.</p>
+        </div>
+        <div class="card bad step">
+          <h3>Using d[key] for a maybe-missing key</h3><code>count[w] += 1</code>
+          <p class="muted" style="margin-top:8px">KeyError on the first word. Use <code>count.get(w, 0) + 1</code> or
+            <code>Counter</code>.</p>
+        </div>
+      </div>
+      <aside class="notes">Paste the "or" trap into a playground with <code>city = "Delhi"</code>: it still prints. It's
+        one of the most common bugs in fresher code tests.</aside>
+    </section>
+
+    <!-- 27 -->
+    <section class="slide" data-title="Quick quiz">
+      <header>
+        <span class="kicker">Recap</span>
+        <h2>⚡ Quick quiz</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="quiz" data-answer="b">
+          <p class="q">1. <code>nums = [1, 2, 3]</code><br><code>nums.append([4, 5])</code><br>What is
+            <code>len(nums)</code>?</p>
+          <div class="opts">
+            <button data-opt="a">5</button>
+            <button data-opt="b">4</button>
+            <button data-opt="c">Error</button>
+          </div>
+          <p class="explain">✅ <b>4</b>: append adds the whole list as <b>one</b> item:
+            <code>[1, 2, 3, [4, 5]]</code>.</p>
+        </div>
+        <div class="quiz" data-answer="b">
+          <p class="q">2. Which of these can be a dictionary key?</p>
+          <div class="opts">
+            <button data-opt="a">[1, 2]</button>
+            <button data-opt="b">(1, 2)</button>
+            <button data-opt="c">{1, 2}</button>
+          </div>
+          <p class="explain">✅ <b>(1, 2)</b>: tuples are immutable and hashable. Lists and sets are not.</p>
+        </div>
+        <div class="quiz" data-answer="c">
+          <p class="q">3. 1 million IDs. Which makes <code>x in ids</code> fastest?</p>
+          <div class="opts">
+            <button data-opt="a">list</button>
+            <button data-opt="b">tuple</button>
+            <button data-opt="c">set</button>
+          </div>
+          <p class="explain">✅ <b>set</b>: O(1) hash lookup. list and tuple scan item by item, O(n).</p>
+        </div>
+      </div>
+      <aside class="notes">Show of hands for each option first, then click.</aside>
+    </section>
+
+    <!-- 28 -->
+    <section class="slide" data-title="Recap">
+      <header>
+        <span class="kicker">Recap</span>
+        <h2>Today you learned… ✅</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="flip">
+          <div class="front"><span class="icon">🔀</span>
+            <h3>Decisions</h3>
+          </div>
+          <div class="back">
+            <p><code>if/elif/else</code> (first True wins), truthy/falsy, <code>a if c else b</code>,
+              <code>match-case</code>.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🔁</span>
+            <h3>Loops</h3>
+          </div>
+          <div class="back">
+            <p><code>for</code>/<code>while</code>, <code>range</code>, break/continue/pass, for-else = "no break",
+              <code>enumerate</code>, <code>zip</code>.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">📋</span>
+            <h3>list &amp; tuple</h3>
+          </div>
+          <div class="back">
+            <p>list: mutable, append vs extend, sort() returns None. tuple: immutable, <code>(1,)</code>, unpacking.
+            </p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🗂️</span>
+            <h3>set &amp; dict</h3>
+          </div>
+          <div class="back">
+            <p>set: unique, <code>| &amp; -</code>, O(1) <code>in</code>. dict: hashable keys, <code>get</code>,
+              <code>items()</code>, Counter.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">✨</span>
+            <h3>Comprehensions</h3>
+          </div>
+          <div class="back">
+            <p><code>[x for x in seq if cond]</code>, plus dict and set versions. No tuple comprehension.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🪞</span>
+            <h3>Copy &amp; Big-O</h3>
+          </div>
+          <div class="back">
+            <p>Shallow shares inner objects, deep copies all. <code>[[0]*3]*3</code> trap. list <code>in</code> O(n),
+              set O(1).</p>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">Ask a different student to explain each card before you flip it.</aside>
+    </section>
+
+    <!-- 29 -->
+    <section class="slide" data-title="To Practice">
+      <header>
+        <span class="kicker">To Practice</span>
+        <h2>📚 To Practice</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="card accent">
+          <span class="icon">🍛</span>
+          <h3>1. Restaurant bill</h3>
+          <p>Store a menu as a dict (<code>item → price</code>) and an order as a list of items (with repeats). Use
+            a loop and <code>Counter</code> or <code>get()</code> to print each item, quantity and amount, then
+            subtotal, 5% GST and total. Free delivery if total ≥ ₹199 (ternary).</p>
+        </div>
+        <div class="card">
+          <span class="icon">🎓</span>
+          <h3>2. Marks analyser</h3>
+          <p>From <code>{"Arun": 78, "Divya": 92, ...}</code> (8 students): print each student's grade with
+            if/elif, the topper, the class average, a list of passed students (comprehension), and
+            <code>{name: grade}</code> (dict comprehension).</p>
+        </div>
+        <div class="card">
+          <span class="icon">🎯</span>
+          <h3>3. Interview drills</h3>
+          <p>Without looking anything up: (a) find duplicates in a list, (b) first non-repeating character in
+            "swiss" (answer: w), (c) merge two dicts, (d) write answers to the 10 interview questions in this deck.
+          </p>
+        </div>
+      </div>
+      <div class="callout tip">
+        <p><b>Next class:</b> Functions &amp; OOP: <code>def</code>, <code>*args</code>/<code>**kwargs</code>, scope,
+          lambda, closures, classes, inheritance and dunder methods. 🧩</p>
+      </div>
+      <aside class="notes">Ask 2 students to demo the restaurant bill at the start of next class. Drill (b) is a very
+        common coding-round warm-up: hint, use a dict (or Counter) and then loop over the string again.</aside>
+    </section>
+
+    <!-- 30 -->
+    <section class="slide title" data-title="Thank you">
+      <div class="py-logo">🐍</div>
+      <h1>Thank you! <span class="grad">Questions?</span></h1>
+      <p class="lead">"There should be one, and preferably only one, obvious way to do it." Today that way was usually
+        a <b>dict</b> or a <b>set</b>. 😉</p>
+      <div class="row">
+        <a class="btn" href="py-class-03.html">Next: Class 3 →</a>
+        <a class="btn ghost" href="index.html">📋 Course hub</a>
+      </div>
+      <aside class="notes">Take open questions. Remind them: practise the "predict the output" round at home, out loud.
+      </aside>
+    </section>
+
+  </main>
+
+  <script src="assets/deck.js"></script>
+  <script>
+    /* Demo 1: truthy / falsy sorter */
+    (() => {
+      // [display, truthy?, explanation]
+      const VALUES = [
+        ['0', false, 'Zero is falsy.'],
+        ['-1', true, 'Any non-zero number is truthy, even negatives.'],
+        ['0.0', false, 'Zero as a float is still zero: falsy.'],
+        ['""', false, 'An empty string is falsy.'],
+        ['" "', true, 'A space is a character: the string is NOT empty, so truthy!'],
+        ['"0"', true, 'A non-empty string, even "0", is truthy.'],
+        ['"False"', true, 'Any non-empty string is truthy, even "False".'],
+        ['[]', false, 'An empty list is falsy.'],
+        ['[0]', true, 'The list has one item (it doesn\'t matter that the item is 0): truthy.'],
+        ['{}', false, 'An empty dict is falsy.'],
+        ['set()', false, 'An empty set is falsy.'],
+        ['()', false, 'An empty tuple is falsy.'],
+        ['(None,)', true, 'A tuple with one item is not empty: truthy.'],
+        ['None', false, 'None is always falsy.'],
+        ['False', false, 'False is, well, falsy.'],
+        ['"None"', true, 'A non-empty string is truthy.'],
+      ];
+      const pool = document.getElementById('tfPool'), msg = document.getElementById('tfMsg'),
+        score = document.getElementById('tfScore'), bins = document.querySelectorAll('#tfDemo .tf-bin');
+      let selected = null, right = 0, tries = 0;
+      const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+      function say(html, kind) {
+        msg.className = 'callout ' + (kind || 'info') + ' tf-msg';
+        msg.innerHTML = `<p>${html}</p>`;
+      }
+      function place(idx) {
+        const [txt, t] = VALUES[idx];
+        const chip = pool.querySelector(`[data-i="${idx}"]`);
+        if (chip) chip.remove();
+        const c = document.createElement('span');
+        c.className = 'tf-chip placed ' + (t ? 't' : 'f');
+        c.textContent = txt;
+        document.querySelector(`#tfDemo .tf-bin.${t ? 't' : 'f'} .tf-in`).appendChild(c);
+      }
+      function reset() {
+        selected = null; right = 0; tries = 0;
+        pool.innerHTML = '';
+        document.querySelectorAll('#tfDemo .tf-in').forEach(b => (b.innerHTML = ''));
+        VALUES.forEach(([txt], i) => {
+          const b = document.createElement('button');
+          b.type = 'button'; b.className = 'tf-chip'; b.dataset.i = i; b.textContent = txt;
+          pool.appendChild(b);
+        });
+        score.textContent = '0 / 0';
+        say('Pick a value from the top row, then click a bin.');
+      }
+      pool.addEventListener('click', e => {
+        const b = e.target.closest('.tf-chip'); if (!b) return;
+        pool.querySelectorAll('.tf-chip').forEach(x => x.classList.remove('sel'));
+        b.classList.add('sel'); selected = +b.dataset.i;
+        say(`<code>bool(${esc(VALUES[selected][0])})</code> is…? Click <b>Truthy</b> or <b>Falsy</b>.`);
+      });
+      bins.forEach(bin => bin.addEventListener('click', () => {
+        if (selected === null) { say('First click a value in the top row.', 'warn'); return; }
+        const [txt, t, why] = VALUES[selected];
+        const guessT = bin.dataset.bin === 't';
+        tries++;
+        if (guessT === t) {
+          right++; place(selected); selected = null;
+          say(`✅ Correct! <code>bool(${esc(txt)})</code> → <b>${t}</b>. ${why}`, 'tip');
+          if (!pool.children.length && window.Deck) window.Deck.confetti();
+        } else {
+          const chip = pool.querySelector(`[data-i="${selected}"]`);
+          chip.classList.remove('wrong'); void chip.offsetWidth; chip.classList.add('wrong');
+          say(`❌ Not quite. <code>bool(${esc(txt)})</code> is <b>${t}</b>. ${why}`, 'warn');
+        }
+        score.textContent = `${right} / ${tries}`;
+      }));
+      document.getElementById('tfAll').addEventListener('click', () => {
+        [...pool.querySelectorAll('.tf-chip')].forEach(c => place(+c.dataset.i));
+        selected = null;
+        say('All sorted. Notice: every <b>falsy</b> value is False, None, a zero, or empty.');
+      });
+      document.getElementById('tfReset').addEventListener('click', reset);
+      reset();
+    })();
+
+    /* Demo 2: list method visualizer */
+    (() => {
+      const START = ['Dosa', 'Idli', 'Poori'];
+      const row = document.getElementById('lvRow'), log = document.getElementById('lvLog'),
+        item = document.getElementById('lvItem'), sortedOut = document.getElementById('lvSorted');
+      let cart, fresh;
+      const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+      const pyStr = s => `'${s}'`;
+      const repr = v => Array.isArray(v) ? '[' + v.map(repr).join(', ') + ']' : pyStr(v);
+      function render(goneIdx) {
+        row.classList.toggle('empty', cart.length === 0);
+        row.innerHTML = cart.map((v, i) => {
+          const cls = 'lv-box' + (fresh.has(v) ? ' new' : '') + (Array.isArray(v) ? ' nest' : '') + (i === goneIdx ? ' gone' : '');
+          const inner = Array.isArray(v) ? v.map(x => `<span>${esc(pyStr(x))}</span>`).join('') : esc(pyStr(v));
+          return `<div class="lv-cell"><div class="ix">[${i}]</div><div class="${cls}">${inner}</div></div>`;
+        }).join('');
+      }
+      function write(cmd, res, kind, showCart) {
+        const d = document.createElement('div');
+        d.innerHTML = `<div class="cmd">&gt;&gt;&gt; ${esc(cmd)}</div>` + (res !== undefined && res !== '' ? `<div class="${kind || 'res'}">${esc(res)}</div>` : '');
+        log.appendChild(d);
+        const s = document.createElement('div');
+        s.innerHTML = `<div class="cmd">&gt;&gt;&gt; cart</div><div class="res">${esc(repr(cart))}   # len ${cart.length}</div>`;
+        if (showCart || kind !== 'err') log.appendChild(s);
+        log.scrollTop = log.scrollHeight;
+      }
+      function removeAt(i, after) {
+        render(i);
+        setTimeout(() => { cart.splice(i, 1); fresh = new Set(); render(); after && after(); }, 380);
+      }
+      // Mimics CPython 3.12 list.sort for short lists (run detection + binary insertion),
+      // so mixed list/str carts raise the same TypeError, with the same type order, as real Python.
+      function pyLt(a, b) {
+        const ta = Array.isArray(a) ? 'list' : 'str', tb = Array.isArray(b) ? 'list' : 'str';
+        if (ta !== tb) throw new Error(`TypeError: '<' not supported between instances of '${ta}' and '${tb}'`);
+        if (ta === 'str') return a < b;
+        for (let k = 0; k < Math.min(a.length, b.length); k++) if (a[k] !== b[k]) return pyLt(a[k], b[k]);
+        return a.length < b.length;
+      }
+      function pySort(a) { // sorts a in place; on error a keeps its partial order (like CPython)
+        const n = a.length;
+        if (n < 2) return;
+        let run = 2;
+        if (pyLt(a[1], a[0])) { while (run < n && pyLt(a[run], a[run - 1])) run++; a.splice(0, run, ...a.slice(0, run).reverse()); }
+        else { while (run < n && !pyLt(a[run], a[run - 1])) run++; }
+        for (let s = run; s < n; s++) {
+          const piv = a[s]; let l = 0, r = s;
+          while (l < r) { const p = l + ((r - l) >> 1); if (pyLt(piv, a[p])) r = p; else l = p + 1; }
+          a.splice(s, 1); a.splice(l, 0, piv);
+        }
+      }
+      const ops = {
+        append() { const x = item.value.trim() || 'Vada'; cart.push(x); fresh = new Set([x]); render(); write(`cart.append(${pyStr(x)})`); },
+        insert() { const x = item.value.trim() || 'Vada'; cart.unshift(x); fresh = new Set([x]); render(); write(`cart.insert(0, ${pyStr(x)})`); },
+        extend() { const a = 'Tea', b = 'Coffee'; cart.push(a, b); fresh = new Set([a, b]); render(); write(`cart.extend(['Tea', 'Coffee'])`); },
+        appendList() { const l = ['Tea', 'Coffee']; cart.push(l); fresh = new Set([l]); render(); write(`cart.append(['Tea', 'Coffee'])`, '# ONE item added: a nested list!', 'note'); },
+        remove() {
+          const x = item.value.trim() || 'Vada';
+          const i = cart.findIndex(v => v === x);
+          if (i < 0) { write(`cart.remove(${pyStr(x)})`, 'ValueError: list.remove(x): x not in list', 'err'); return; }
+          removeAt(i, () => write(`cart.remove(${pyStr(x)})`));
+        },
+        pop() {
+          if (!cart.length) { write('cart.pop()', 'IndexError: pop from empty list', 'err'); return; }
+          const v = cart[cart.length - 1];
+          removeAt(cart.length - 1, () => write('cart.pop()', repr(v)));
+        },
+        pop0() {
+          if (!cart.length) { write('cart.pop(0)', 'IndexError: pop from empty list', 'err'); return; }
+          const v = cart[0];
+          removeAt(0, () => write('cart.pop(0)', repr(v) + '   # O(n): every item shifts left'));
+        },
+        sort() {
+          fresh = new Set();
+          try { pySort(cart); } catch (e) { render(); write('cart.sort()', e.message + '  # list may be left partly sorted!', 'err', true); return; }
+          render(); write('cart.sort()', '# returns None, sorts IN PLACE', 'note');
+        },
+        sorted() {
+          const s = [...cart];
+          try { pySort(s); } catch (e) { write('sorted(cart)', e.message, 'err'); return; }
+          sortedOut.innerHTML = `<span class="muted">new list:</span> <span class="grad">${esc(repr(s))}</span> <span class="muted">(cart unchanged)</span>`;
+          fresh = new Set(); render();
+          write('sorted(cart)', repr(s) + '   # a NEW list');
+        },
+        reverse() { cart.reverse(); fresh = new Set(); render(); write('cart.reverse()', '# in place, returns None', 'note'); },
+        reset() {
+          cart = [...START]; fresh = new Set(); sortedOut.innerHTML = '';
+          log.innerHTML = `<div class="cmd">&gt;&gt;&gt; cart = ${esc(repr(cart))}</div><div class="note"># click a method on the left</div>`;
+          render();
+        }
+      };
+      document.querySelectorAll('#lvDemo [data-op]').forEach(b => b.addEventListener('click', () => {
+        if (b.dataset.op !== 'sorted') sortedOut.innerHTML = '';
+        ops[b.dataset.op]();
+      }));
+      ops.reset();
+    })();
+
+    /* Demo 3: alias vs shallow vs deep copy */
+    (() => {
+      const COLORS = { A: '#ffd43b', B: '#61dafb', C: '#f472b6', D: '#34d399', E: '#fb923c' };
+      const OUTC = { O1: '#a78bfa', O2: '#fb923c', O3: '#34d399' };
+      // [code, names{name:outer}, outers{id:[inner ids]}, inners{id:[values]}, message, bumpIds]
+      const STEPS = [
+        ['original = [[90, 85], [70, 60]]', { original: 'O1' }, { O1: ['A', 'B'] }, { A: [90, 85], B: [70, 60] },
+          'One <b>outer</b> list holding references to two <b>inner</b> lists (marks of 2 students).'],
+        ['alias = original', { original: 'O1', alias: 'O1' }, { O1: ['A', 'B'] }, { A: [90, 85], B: [70, 60] },
+          '<code>=</code> copies <b>nothing</b>. <code>alias</code> is a second name for the same outer list.'],
+        ['shallow = copy.copy(original)', { original: 'O1', alias: 'O1', shallow: 'O2' }, { O1: ['A', 'B'], O2: ['A', 'B'] }, { A: [90, 85], B: [70, 60] },
+          'A <b>new outer list</b>… but its slots point to the <b>same inner lists</b> A and B.', ['O2']],
+        ['deep = copy.deepcopy(original)', { original: 'O1', alias: 'O1', shallow: 'O2', deep: 'O3' }, { O1: ['A', 'B'], O2: ['A', 'B'], O3: ['C', 'D'] }, { A: [90, 85], B: [70, 60], C: [90, 85], D: [70, 60] },
+          'Deep copy builds a new outer list <b>and new inner lists</b> C and D. Nothing is shared.', ['O3', 'C', 'D']],
+        ['original[0][0] = 0', { original: 'O1', alias: 'O1', shallow: 'O2', deep: 'O3' }, { O1: ['A', 'B'], O2: ['A', 'B'], O3: ['C', 'D'] }, { A: [0, 85], B: [70, 60], C: [90, 85], D: [70, 60] },
+          'Inner list A changed. <b>original, alias AND shallow</b> all see it (they share A). <b>deep</b> is safe. 😱', ['A']],
+        ['original.append([50, 40])', { original: 'O1', alias: 'O1', shallow: 'O2', deep: 'O3' }, { O1: ['A', 'B', 'E'], O2: ['A', 'B'], O3: ['C', 'D'] }, { A: [0, 85], B: [70, 60], C: [90, 85], D: [70, 60], E: [50, 40] },
+          'The <b>outer</b> list O1 changed. Only <b>alias</b> sees it: shallow has its own outer list. 🎯', ['O1', 'E']],
+      ];
+      const code = document.getElementById('cpCode'), names = document.getElementById('cpNames'),
+        outer = document.getElementById('cpOuter'), inner = document.getElementById('cpInner'),
+        msg = document.getElementById('cpMsg'), printEl = document.getElementById('cpPrint');
+      code.innerHTML = '<div>import copy</div>' + STEPS.map(s => `<div>${s[0]}</div>`).join('');
+      let i = -1, prevPrint = {};
+      const NL = String.fromCharCode(10);
+      const val = (o, inn) => '[' + o.map(id => '[' + inn[id].join(', ') + ']').join(', ') + ']';
+      function render() {
+        [...code.children].forEach((d, k) => { d.className = k === 0 ? (i >= 0 ? 'done' : '') : (k - 1 < i ? 'done' : k - 1 === i ? 'cur' : ''); });
+        if (i < 0) {
+          names.innerHTML = outer.innerHTML = inner.innerHTML = '';
+          printEl.innerHTML = '<span style="color:#94a3b8"># print() of each name appears here</span>';
+          msg.innerHTML = '<p>Press <b>Next line ▶</b>.</p>'; prevPrint = {}; return;
+        }
+        const [, n, o, inn, m, bump = []] = STEPS[i];
+        names.innerHTML = Object.entries(n).map(([k, v]) => `<div class="cp-name" style="border-color:${OUTC[v]}">${k} <b>→ ${v}</b></div>`).join('');
+        outer.innerHTML = Object.entries(o).map(([k, slots]) => `<div class="cp-outer${bump.includes(k) ? ' bump' : ''}" style="border-color:${OUTC[k]}"><small>outer ${k}</small>${slots.map((s, j) => `<span class="cp-slot" style="background:${COLORS[s]}">[${j}]→${s}</span>`).join('')}</div>`).join('');
+        inner.innerHTML = Object.entries(inn).map(([k, v]) => `<div class="cp-inner${bump.includes(k) ? ' bump' : ''}" style="border-color:${COLORS[k]}"><small>inner ${k}</small>[${v.join(', ')}]</div>`).join('');
+        const lines = Object.entries(n).map(([k, v]) => {
+          const s = val(o[v], inn), changed = prevPrint[k] !== undefined && prevPrint[k] !== s;
+          return changed ? `<span class="ch">✎ ${k.padEnd(9)}${s}</span>` : `<span class="ok">  ${k.padEnd(9)}${s}</span>`;
+        });
+        prevPrint = Object.fromEntries(Object.entries(n).map(([k, v]) => [k, val(o[v], inn)]));
+        printEl.innerHTML = '<span style="color:#94a3b8">  # print(name) · ✎ red = changed by this line</span>' + NL + lines.join('\n');
+        msg.innerHTML = `<p>${m}</p>`;
+      }
+      document.getElementById('cpNext').addEventListener('click', () => {
+        if (i < STEPS.length - 1) {
+          // remember the state before this step so "changed" is relative to the previous line
+          if (i >= 0) { const [, n, o, inn] = STEPS[i]; prevPrint = Object.fromEntries(Object.entries(n).map(([k, v]) => [k, val(o[v], inn)])); }
+          i++; render();
+        }
+      });
+      document.getElementById('cpReset').addEventListener('click', () => { i = -1; render(); });
+      render();
+    })();
+  </script>
+</body>
+
+</html>

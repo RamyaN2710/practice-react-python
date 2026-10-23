@@ -1,0 +1,1202 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Class 17 · Updating Arrays and Objects in State</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <style>
+    /* --- Demo: mutate vs copy --- */
+    .mv {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    @media (max-width: 860px) {
+      .mv {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .mv-side {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .mv-side.bad {
+      border-top: 4px solid var(--red);
+    }
+
+    .mv-side.good {
+      border-top: 4px solid var(--green);
+    }
+
+    .mv-side h4 {
+      margin: 0;
+    }
+
+    .mv-label {
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .mv-boxes {
+      display: flex;
+      gap: 10px;
+      min-height: 92px;
+      align-items: stretch;
+    }
+
+    .mv-box {
+      flex: 1;
+      border: 2px dashed var(--accent);
+      border-radius: 14px;
+      padding: 8px 10px;
+      background: var(--surface2);
+      transition: opacity .5s, transform .5s;
+      animation: boxIn .45s ease;
+    }
+
+    .mv-box .addr {
+      font: 700 .78rem var(--mono);
+      color: var(--accent);
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .mv-box.old {
+      opacity: .35;
+      transform: scale(.92);
+      border-color: var(--muted);
+    }
+
+    .mv-box.old .addr {
+      color: var(--muted);
+    }
+
+    .mv-box.shake {
+      animation: wiggle .5s;
+    }
+
+    @keyframes boxIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px) scale(.95);
+      }
+    }
+
+    @keyframes wiggle {
+      25% {
+        transform: rotate(-2deg);
+      }
+
+      75% {
+        transform: rotate(2deg);
+      }
+    }
+
+    .chip {
+      display: inline-block;
+      font-size: .8rem;
+      padding: 3px 9px;
+      margin: 2px;
+      border-radius: 99px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+
+    .chip.new {
+      border-color: var(--yellow);
+      background: rgba(251, 191, 36, .2);
+      animation: boxIn .4s ease;
+    }
+
+    .mv-check {
+      font-size: .92rem;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      min-height: 46px;
+    }
+
+    .mv-check.no {
+      border-color: var(--red);
+      background: rgba(248, 113, 113, .12);
+    }
+
+    .mv-check.yes {
+      border-color: var(--green);
+      background: rgba(52, 211, 153, .12);
+    }
+
+    .mv-screen {
+      list-style: none;
+      margin: 0;
+      padding: 10px;
+      background: #fff;
+      color: #111;
+      border-radius: 12px;
+      min-height: 90px;
+      font-size: .9rem;
+    }
+
+    .mv-screen li {
+      padding: 3px 6px;
+      border-bottom: 1px solid #eef2f7;
+    }
+
+    .mv-screen.flash {
+      animation: scrFlash .9s ease;
+    }
+
+    @keyframes scrFlash {
+      0% {
+        box-shadow: 0 0 0 4px #34d399;
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 transparent;
+      }
+    }
+
+    .mv-count {
+      font-size: .8rem;
+      color: var(--muted);
+    }
+
+    .mv-count b.off {
+      color: var(--red);
+    }
+
+    /* --- Cheat sheet --- */
+    .cheat td code {
+      white-space: nowrap;
+    }
+  </style>
+</head>
+
+<body class="deck" data-class="17" data-title="Updating Arrays and Objects in State" data-duration="60">
+  <main class="slides">
+
+    <!-- 1 -->
+    <section class="slide title" data-title="Welcome">
+      <div class="react-logo"></div>
+      <div>
+        <span class="kicker">Week 4 · Core Concepts · Class 17</span>
+        <h1>Updating <span class="grad">Arrays &amp; Objects</span> in State</h1>
+        <p class="lead">Don't scribble on the original. Make a copy, change the copy, and hand it to React.</p>
+      </div>
+      <div class="row">
+        <span class="pill blue">⏱ 60 minutes</span>
+        <span class="pill violet">📋 Immutable updates</span>
+        <span class="pill pink">✨ Spread operator</span>
+        <span class="pill green">✅ Add, delete, update</span>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Press <b>T</b> to start the timer.</li>
+          <li>Today's promise: "By the end of the class you will build a to-do list where you can add and delete tasks."
+          </li>
+          <li>Ask: "Who has made a to-do list app or a cart before? What was hard about it?"</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 2 -->
+    <section class="slide" data-title="Today's plan">
+      <header>
+        <span class="kicker">Agenda</span>
+        <h2>Today's plan</h2>
+      </header>
+      <ol class="timeline">
+        <li class="step"><span class="time">00–05</span>
+          <div><b>🔁 Recap</b><small>State vs props and data flow (Class 16)</small></div>
+        </li>
+        <li class="step"><span class="time">05–15</span>
+          <div><b>🐛 The mystery bug</b><small>Why doesn't my cart update on screen?</small></div>
+        </li>
+        <li class="step"><span class="time">15–30</span>
+          <div><b>🧠 Immutability and spread</b><small>Copy, don't change. The "same box?" check.</small></div>
+        </li>
+        <li class="step"><span class="time">30–40</span>
+          <div><b>💻 Add, delete, update</b><small>Spread to add, filter to delete, map to update</small></div>
+        </li>
+        <li class="step"><span class="time">40–52</span>
+          <div><b>🧪 Class exercise</b><small>Add and delete tasks in a to-do list</small></div>
+        </li>
+        <li class="step"><span class="time">52–60</span>
+          <div><b>✅ Quiz, recap and To Practice</b><small>Check what stuck</small></div>
+        </li>
+      </ol>
+      <aside class="notes">Reveal each block with →. Tell students that today is very practical: almost every real app
+        (cart, chat, to-do, playlist) needs these exact patterns.</aside>
+    </section>
+
+    <!-- 3 -->
+    <section class="slide" data-title="Recap: Class 16">
+      <header>
+        <span class="kicker">Quick recap · 00–05 min</span>
+        <h2>Last class: state, props and data flow</h2>
+        <p class="lead">Tap a card only after someone in the class has answered it out loud.</p>
+      </header>
+      <div class="grid cols-4">
+        <div class="flip">
+          <div class="front"><span class="icon">⬇️</span>
+            <h3>One-way data flow</h3>
+          </div>
+          <div class="back">
+            <p>Data flows <b>down</b> from parent to child through props, like water flowing down a waterfall.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🏠</span>
+            <h3>Who owns state?</h3>
+          </div>
+          <div class="back">
+            <p>The component that creates the state is the <b>only one</b> that changes it, using its setter function.
+            </p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">⬆️</span>
+            <h3>Lifting state up</h3>
+          </div>
+          <div class="back">
+            <p>When two children need the same data, move the state to their <b>closest common parent</b>.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🎁</span>
+            <h3>Props vs state</h3>
+          </div>
+          <div class="back">
+            <p><b>Props</b>: read-only inputs from the parent. <b>State</b>: the component's own memory that can change.
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="callout info step">
+        <p><b>Today's link:</b> so far our state was mostly a number or a string. Real apps keep <b>lists</b> (tasks,
+          cart items, messages) and <b>objects</b> (a user profile) in state. Updating those needs one special rule.</p>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Pick a different student for each card. Flip only after they answer.</li>
+          <li>Pocket-money analogy from last class: parents (parent component) give money (props) and the child cannot
+            change how much the parents have.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 4 -->
+    <section class="slide" data-title="Hook: the mystery bug">
+      <header>
+        <span class="kicker">Hook · 05–15 min</span>
+        <h2>🐛 Rahul's cart is <span class="grad">broken</span>. Why?</h2>
+        <p class="lead">Click <b style="color:var(--text)">Add Biryani</b> a few times. Watch the screen, then watch the
+          console.</p>
+      </header>
+      <div class="playground" data-height="380" data-url="http://localhost:5173/cart">
+        <script type="text/x-playground">
+        import { useState } from "react";
+
+        function App() {
+          const [cart, setCart] = useState(["🍕 Pizza", "🥤 Cold coffee"]);
+
+          function addBiryani() {
+            cart.push("🍛 Biryani");   // changes the original array
+            setCart(cart);             // gives React the SAME array back
+            console.log("Cart in memory has", cart.length, "items");
+          }
+
+          return (
+            <div className="card">
+              <h2>🛵 FoodDash cart</h2>
+              <ul>
+                {cart.map((item, index) => <li key={index}>{item}</li>)}
+              </ul>
+              <button onClick={addBiryani}>Add Biryani</button>
+            </div>
+          );
+        }
+
+        export default App;
+      </script>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Click the button 3 times. The console says 3, 4, 5 items but the screen still shows 2. Ask: "Is the data
+            wrong, or is the screen wrong?" (The data changed, the screen didn't.)</li>
+          <li>Let students guess why. Don't fix it yet. Say: "By slide 8 you will know exactly why, and the fix is one
+            line."</li>
+          <li>Later, come back and change the two lines to <code>setCart([...cart, "🍛 Biryani"]);</code></li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 5 -->
+    <section class="slide" data-title="Immutability">
+      <div class="split">
+        <div>
+          <span class="kicker">Concept · 15–30 min</span>
+          <h2>The golden rule: <span class="grad">immutability</span></h2>
+          <p class="lead"><b style="color:var(--text)">Immutable</b> means "not changed". In React, we never change the
+            array or object that is already in state.</p>
+          <ul class="checklist">
+            <li class="step">Make a <b>new copy</b> of the array or object</li>
+            <li class="step">Change the <b>copy</b> (add, remove or edit)</li>
+            <li class="step">Give the copy to the <b>setter</b>: <code>setTasks(newCopy)</code></li>
+            <li class="step">React sees a new value and <b>re-renders</b> the screen</li>
+          </ul>
+        </div>
+        <div class="analogy step" data-label="📝 Real-life example">
+          <span class="big-emoji">📄</span>
+          <h3>The exam answer sheet</h3>
+          <p>You never scribble on the <b>original</b> answer sheet that the examiner has already checked. You take a
+            <b>photocopy</b>, make your corrections on the copy, and submit the copy.
+          </p>
+          <p class="muted">Now the examiner can clearly see: "This is a new sheet, let me check it again."</p>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Write the word "immutable" on the board. "Mutate" = change. "Im-mutable" = not changed.</li>
+          <li>Ask: "If you secretly change the original sheet, would the examiner notice? No! That is exactly our cart
+            bug."</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 6 -->
+    <section class="slide" data-title="The same box? check">
+      <header>
+        <span class="kicker">Concept · how React decides</span>
+        <h2>React asks one quick question: <span class="grad">"Is it the same box?"</span></h2>
+      </header>
+      <div class="split">
+        <div class="stack">
+          <script type="text/x-code" data-file="How React thinks" data-lang="js" data-hl="3">
+          // When you call setCart(newCart), React checks:
+
+          if (newCart === oldCart) {
+            // same box → nothing changed, skip the re-render 😴
+          } else {
+            // new box → re-render the screen ✅
+          }
+        </script>
+          <div class="callout tip step">
+            <p>React does <b>not</b> open the box and compare every item. That would be slow for a list of 10,000 items.
+              It only checks the <b>address</b> of the box. This is called a <b>reference check</b>.</p>
+          </div>
+        </div>
+        <div class="analogy step" data-label="📦 Real-life example">
+          <span class="big-emoji">💂</span>
+          <h3>The society watchman</h3>
+          <p>The watchman checks the <b>tracking number</b> on each parcel. He doesn't open it. Same tracking number?
+            "Already logged, ignore it."</p>
+          <p><code>push()</code> puts a new item inside the <b>same parcel</b>. Same tracking number, so the watchman
+            ignores it. A <b>new parcel</b> gets a new number, and he logs it.</p>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Key sentence: "React compares the box, not what is inside the box."</li>
+          <li>Ask: "So how do we make React notice a change?" Answer: give it a brand new box (a new array).</li>
+          <li>Next slide shows this visually.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 7 -->
+    <section class="slide" data-title="Demo: mutate vs copy" id="boxDemo">
+      <header>
+        <span class="kicker">Live demo</span>
+        <h2>Mutate vs copy: <span class="grad">watch the boxes</span></h2>
+        <p class="lead">Press both buttons a few times. Compare memory and screen on each side.</p>
+      </header>
+      <div class="mv">
+        <div class="mv-side bad" data-mode="mutate">
+          <h4>❌ Mutate the original</h4>
+          <span class="mv-label">🧠 Memory (state)</span>
+          <div class="mv-boxes"></div>
+          <div class="mv-check">React asks: "Is it the same box?"</div>
+          <span class="mv-label">📱 Screen</span>
+          <ul class="mv-screen"></ul>
+          <div class="row"><button class="btn small" data-add>tasks.push(newTask)</button><span class="mv-count"></span>
+          </div>
+        </div>
+        <div class="mv-side good" data-mode="copy">
+          <h4>✅ Make a new copy</h4>
+          <span class="mv-label">🧠 Memory (state)</span>
+          <div class="mv-boxes"></div>
+          <div class="mv-check">React asks: "Is it the same box?"</div>
+          <span class="mv-label">📱 Screen</span>
+          <ul class="mv-screen"></ul>
+          <div class="row"><button class="btn small primary" data-add>setTasks([...tasks, newTask])</button><span
+              class="mv-count"></span></div>
+        </div>
+      </div>
+      <div class="row"><button class="btn small" id="mvReset">↺ Reset both</button></div>
+      <aside class="notes">
+        <ul>
+          <li>Click the left button: the item goes into the <b>same box #101</b>. React says "same box", so the screen
+            does not change. The counter shows memory and screen are now out of sync (red).</li>
+          <li>Click the right button: a <b>new box</b> appears with a new number, the old box fades away, and the screen
+            flashes green because React re-rendered.</li>
+          <li>Ask: "Which side matches our broken FoodDash cart?" (The left side.)</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 8 -->
+    <section class="slide" data-title="The spread operator">
+      <header>
+        <span class="kicker">Concept · the copy machine</span>
+        <h2>The spread operator <code>...</code> makes copies</h2>
+        <p class="lead">Three dots mean "take everything out of this box and put it here".</p>
+      </header>
+      <div class="split">
+        <div class="tabs">
+          <div class="tab" data-label="Arrays">
+            <script type="text/x-code" data-file="spread-arrays.js" data-lang="js" data-hl="4,7">
+            const snacks = ["Samosa", "Vada pav"];
+
+            // copy the array
+            const copy = [...snacks];            // ["Samosa", "Vada pav"]
+
+            // copy + add one more at the end
+            const more = [...snacks, "Pani puri"];
+
+            console.log(copy === snacks);         // false → new box!
+          </script>
+          </div>
+          <div class="tab" data-label="Objects">
+            <script type="text/x-code" data-file="spread-objects.js" data-lang="js" data-hl="4,7">
+            const student = { name: "Sneha", course: "React", fees: 4999 };
+
+            // copy the object
+            const copy = { ...student };
+
+            // copy + change one key
+            const updated = { ...student, fees: 3999 };
+            // { name: "Sneha", course: "React", fees: 3999 }
+          </script>
+          </div>
+        </div>
+        <div class="analogy step" data-label="🍱 Real-life example">
+          <span class="big-emoji">🍱</span>
+          <h3>A new tiffin box</h3>
+          <p>Amma packs your lunch. You want to add a samosa, but the old box is full and already labelled. So you take
+            a <b>new tiffin box</b>, move <b>everything</b> from the old one into it (that's the <code>...</code>), and
+            add the samosa on top.</p>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Show both tabs. Point at <code>copy === snacks</code> being <b>false</b>: same items, but a different box.
+          </li>
+          <li>For objects: keys written <b>after</b> the spread win. So <code>fees: 3999</code> replaces the old fees.
+          </li>
+          <li>Common question: "Is it slow to copy?" No, for normal app data it is very fast.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 9 -->
+    <section class="slide" data-title="Adding items (syllabus code)">
+      <header>
+        <span class="kicker">Adding items · 30–40 min</span>
+        <h2>Adding a task the React way</h2>
+      </header>
+      <div class="split">
+        <script type="text/x-code" data-file="App.jsx" data-hl="1,4-5,7">
+        const [tasks, setTasks] = useState([]);
+
+        function addTask() {
+          setTasks((previousTasks) => [
+            ...previousTasks,
+            {
+              id: Date.now(),
+              title: "Learn React"
+            }
+          ]);
+        }
+      </script>
+        <div class="stack">
+          <div class="card step"><b>Line 1:</b> <code>tasks</code> starts as an <b>empty array</b> <code>[]</code>.
+          </div>
+          <div class="card step"><b>Line 4:</b> we pass a <b>function</b> to the setter. React gives us
+            <code>previousTasks</code>, the latest list.
+          </div>
+          <div class="card step"><b>Line 5:</b> <code>...previousTasks</code> copies all old tasks into a <b>new
+              array</b>.</div>
+          <div class="card step"><b>Line 7:</b> <code>Date.now()</code> gives a unique number (milliseconds), perfect
+            for a <b>key</b>.</div>
+          <div class="callout tip step">
+            <p><b>Why <code>previousTasks</code>?</b> Like asking the shopkeeper "What's the latest bill?" before adding
+              an item. You always add to the newest version.</p>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>This is the syllabus example. Read it line by line with the class.</li>
+          <li><code>setTasks([...tasks, newTask])</code> also works. The updater form <code>prev =&gt; [...]</code> is
+            safer when you update many times quickly (we saw this with counters).</li>
+          <li>Each task is an <b>object</b> with <code>id</code> and <code>title</code>, so it's an array of objects.
+          </li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 10 -->
+    <section class="slide" data-title="Try it: add tasks">
+      <header>
+        <span class="kicker">Live coding · Try it!</span>
+        <h2>The syllabus code, running live ✨</h2>
+        <p class="lead">Click <b style="color:var(--text)">+ Add task</b>. Then change <code>"Learn React"</code> to
+          something else.</p>
+      </header>
+      <div class="playground" data-height="420">
+        <script type="text/x-playground">
+        import { useState } from "react";
+
+        function App() {
+          const [tasks, setTasks] = useState([]);
+
+          function addTask() {
+            setTasks((previousTasks) => [
+              ...previousTasks,
+              {
+                id: Date.now(),
+                title: "Learn React"
+              }
+            ]);
+          }
+
+          return (
+            <div className="card">
+              <h2>✅ My tasks ({tasks.length})</h2>
+              <button onClick={addTask}>+ Add task</button>
+              <ul>
+                {tasks.map((task) => (
+                  <li key={task.id}>
+                    {task.title} <small style={{ color: "#94a3b8" }}>id: {task.id}</small>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          );
+        }
+
+        export default App;
+      </script>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Click a few times. Every task has a different id because time keeps moving.</li>
+          <li>Challenge: "Can someone make the new task appear at the <b>top</b>?" Answer:
+            <code>[newTask, ...previousTasks]</code>. Order inside the brackets decides the order on screen.
+          </li>
+          <li>Go back to slide 4 and fix the FoodDash cart now with <code>setCart([...cart, "🍛 Biryani"])</code>.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 11 -->
+    <section class="slide" data-title="Deleting with filter">
+      <header>
+        <span class="kicker">Deleting items</span>
+        <h2>Delete with <code>filter()</code>: keep what you want</h2>
+      </header>
+      <div class="split">
+        <div class="stack">
+          <script type="text/x-code" data-file="App.jsx" data-hl="3">
+          function deleteTask(id) {
+            // keep every task EXCEPT the one with this id
+            setTasks(tasks.filter((task) => task.id !== id));
+          }
+
+          // in the JSX:
+          <button onClick={() => deleteTask(task.id)}>❌</button>
+        </script>
+          <ul class="clean">
+            <li class="step"><code>filter()</code> returns a <b>new array</b>. The old one is untouched.</li>
+            <li class="step">Return <code>true</code> to keep an item, <code>false</code> to drop it.</li>
+            <li class="step">Read it as: "keep the tasks whose id is <b>not</b> this id".</li>
+          </ul>
+        </div>
+        <div class="analogy step" data-label="☕ Real-life example">
+          <span class="big-emoji">☕</span>
+          <h3>The chai strainer</h3>
+          <p>Pour chai through a strainer: the tea goes into a <b>new cup</b>, the tea leaves stay behind. You don't
+            pick the leaves out of the pan one by one.</p>
+          <p class="muted"><code>filter</code> pours your list through a test. Items that pass go into a new array.</p>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Stress <code>!==</code> (not equal). A common mistake is <code>===</code>, which deletes everything
+            <i>except</i> the clicked task.
+          </li>
+          <li>Also remind them: <code>onClick={() =&gt; deleteTask(task.id)}</code> needs the arrow function because we
+            pass an argument (Class 6).</li>
+          <li>Avoid <code>splice()</code>: it changes the original array.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 12 -->
+    <section class="slide" data-title="Updating objects">
+      <header>
+        <span class="kicker">Updating objects</span>
+        <h2>Change one key, <span class="grad">keep the rest</span></h2>
+      </header>
+      <div class="split">
+        <div class="stack">
+          <script type="text/x-code" data-file="Profile.jsx" data-hl="4">
+          const [user, setUser] = useState({ name: "Arun", city: "Pune", plan: "Free" });
+
+          // ✅ copy every key, then overwrite city
+          setUser({ ...user, city: "Bengaluru" });
+
+          // ❌ mutation: same box, screen won't update
+          user.city = "Bengaluru";
+          setUser(user);
+
+          // ❌ no spread: name and plan are LOST
+          setUser({ city: "Bengaluru" });
+        </script>
+        </div>
+        <div class="stack">
+          <div class="analogy step" data-label="🪪 Real-life example">
+            <span class="big-emoji">🪪</span>
+            <h3>Changing the address on your college ID</h3>
+            <p>The office gives you a <b>new form</b>. You copy your name, roll number and course exactly as before, and
+              write only the <b>new address</b>. Forget to copy the name? Your new ID card has no name!</p>
+          </div>
+          <div class="callout warn step">
+            <p><b>Nested objects:</b> copy each level you change:
+              <code>{ ...user, address: { ...user.address, pin: "560001" } }</code>
+            </p>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Walk through all three versions. Ask the class to predict what happens in each one before you explain.
+          </li>
+          <li>The third mistake is very common: students think <code>setUser</code> "merges" like old class components.
+            It does <b>not</b>; it replaces.</li>
+          <li>Nested objects: mention it briefly. Beginners should keep state flat when possible.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 13 -->
+    <section class="slide" data-title="Updating one item with map">
+      <header>
+        <span class="kicker">Updating one item in an array</span>
+        <h2>Update one item with <code>map()</code></h2>
+        <p class="lead">An array of objects (like cricket players) where only <b style="color:var(--text)">one</b>
+          object should change.</p>
+      </header>
+      <div class="split">
+        <div class="stack">
+          <script type="text/x-code" data-file="Scoreboard.jsx" data-hl="3-5">
+          function hitFour(id) {
+            setPlayers(
+              players.map((player) =>
+                player.id === id ? { ...player, runs: player.runs + 4 } : player
+              )
+            );
+          }
+        </script>
+          <div class="flow step">
+            <div class="node"><b>Rohit</b><small>32 runs</small><br><small>➡ copied as is</small></div>
+            <div class="node" style="border-color:var(--green)"><b>Virat</b><small>45 runs</small><br><small
+                style="color:var(--green)">➡ new object: 49</small></div>
+            <div class="node"><b>Gill</b><small>12 runs</small><br><small>➡ copied as is</small></div>
+          </div>
+        </div>
+        <div class="analogy step" data-label="🏏 Real-life example">
+          <span class="big-emoji">🏏</span>
+          <h3>The scorer's new sheet</h3>
+          <p>The scorer writes a fresh score sheet after every ball. For each batter he asks: "Is this the one who hit
+            the four?"</p>
+          <p><b>Yes:</b> write the new score. <b>No:</b> copy the old line exactly. That's <code>map()</code> with a
+            ternary.</p>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Read the ternary aloud: "If this is the player, make a new copy with more runs, otherwise keep the old
+            player."</li>
+          <li><code>map()</code> always returns a <b>new array</b> with the <b>same length</b>. <code>filter()</code>
+            can make it shorter.</li>
+          <li>To Practice uses this exact pattern to toggle a task's completed status.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 14 -->
+    <section class="slide" data-title="Cheat sheet">
+      <header>
+        <span class="kicker">Cheat sheet · screenshot this!</span>
+        <h2>The 4 patterns you will use every day</h2>
+      </header>
+      <table class="table cheat">
+        <tr>
+          <th>I want to…</th>
+          <th>✅ Do this (new copy)</th>
+          <th>❌ Not this (mutates)</th>
+        </tr>
+        <tr class="step">
+          <td><b>➕ Add</b> an item</td>
+          <td><code>setArr([...arr, item])</code></td>
+          <td><code>arr.push(item)</code></td>
+        </tr>
+        <tr class="step">
+          <td><b>🗑️ Remove</b> an item</td>
+          <td><code>setArr(arr.filter(x =&gt; x.id !== id))</code></td>
+          <td><code>arr.splice(i, 1)</code></td>
+        </tr>
+        <tr class="step">
+          <td><b>✏️ Update</b> one item</td>
+          <td><code>setArr(arr.map(x =&gt; x.id === id ? { ...x, done: true } : x))</code></td>
+          <td><code>arr[i].done = true</code></td>
+        </tr>
+        <tr class="step">
+          <td><b>🧾 Update</b> an object</td>
+          <td><code>setObj({ ...obj, key: value })</code></td>
+          <td><code>obj.key = value</code></td>
+        </tr>
+        <tr class="step">
+          <td><b>🔤 Sort</b> a copy</td>
+          <td><code>setArr([...arr].sort())</code></td>
+          <td><code>arr.sort()</code></td>
+        </tr>
+      </table>
+      <div class="callout tip step">
+        <p><b>Memory trick:</b> <b>S</b>pread to add, <b>F</b>ilter to remove, <b>M</b>ap to update. Like paying with
+          UPI: you never change the old receipt, every payment makes a <b>fresh</b> one. 💸</p>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Ask students to take a photo of this slide. It is the most useful slide today.</li>
+          <li>Other mutating methods to avoid on state: <code>pop</code>, <code>shift</code>, <code>unshift</code>,
+            <code>reverse</code>.
+          </li>
+          <li><code>[...arr].sort()</code>: copy first, then sort the copy.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 15 -->
+    <section class="slide" data-title="Playground: cart">
+      <header>
+        <span class="kicker">Live coding · all patterns together</span>
+        <h2>🛒 ShopKart cart: map, filter and object spread</h2>
+      </header>
+      <div class="playground" data-height="470" data-url="http://localhost:5173/cart">
+        <script type="text/x-playground">
+        import { useState } from "react";
+
+        function App() {
+          const [cart, setCart] = useState([
+            { id: 1, name: "🎧 Headphones", price: 1499, qty: 1 },
+            { id: 2, name: "📓 Notebook pack", price: 249, qty: 2 },
+            { id: 3, name: "☕ Chai mug", price: 199, qty: 1 }
+          ]);
+          const [user, setUser] = useState({ name: "Priya", city: "Chennai", plan: "Free" });
+
+          // UPDATE one item → map
+          function increase(id) {
+            setCart(cart.map((item) =>
+              item.id === id ? { ...item, qty: item.qty + 1 } : item
+            ));
+          }
+
+          // DELETE one item → filter
+          function remove(id) {
+            setCart(cart.filter((item) => item.id !== id));
+          }
+
+          // UPDATE an object → spread
+          function upgrade() {
+            setUser({ ...user, plan: "Plus ⭐" });
+          }
+
+          let total = 0;
+          cart.forEach((item) => { total = total + item.price * item.qty; });
+
+          return (
+            <div className="card">
+              <h2>Hi {user.name} from {user.city} ({user.plan})</h2>
+              {cart.map((item) => (
+                <p key={item.id}>
+                  {item.name} · ₹{item.price} × {item.qty}{" "}
+                  <button onClick={() => increase(item.id)}>+1</button>
+                  <button onClick={() => remove(item.id)}>Remove</button>
+                </p>
+              ))}
+              {cart.length === 0 && <p>Your cart is empty 🛒</p>}
+              <h3>Total: ₹{total}</h3>
+              <button onClick={upgrade}>Upgrade to Plus</button>
+            </div>
+          );
+        }
+
+        export default App;
+      </script>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Click +1, Remove and Upgrade. For each button ask: "Which pattern is this: spread, filter or map?"</li>
+          <li>Live challenge 1: add a <b>−1</b> button (map with <code>qty - 1</code>).</li>
+          <li>Live challenge 2: change the upgrade to also change <code>city</code>. Ask what happens if they remove
+            <code>...user</code> (the name disappears!).
+          </li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 16 -->
+    <section class="slide" data-title="Class exercise">
+      <header>
+        <span class="kicker">Class exercise · 40–52 min</span>
+        <h2>🧪 Build it: add and delete tasks</h2>
+        <p class="lead">Finish the 5 TODOs. When it works, add 3 tasks and delete the middle one.</p>
+      </header>
+      <div class="playground" data-height="450">
+        <script type="text/x-playground">
+        import { useState } from "react";
+
+        function App() {
+          const [tasks, setTasks] = useState([
+            { id: 1, title: "Revise JSX notes" },
+            { id: 2, title: "Buy chai for the study group ☕" }
+          ]);
+          const [text, setText] = useState("");
+
+          function addTask() {
+            // TODO 1: if text is empty, stop here (return)
+            // TODO 2: add { id: Date.now(), title: text } using the spread operator
+            // TODO 3: clear the input with setText("")
+          }
+
+          function deleteTask(id) {
+            // TODO 4: keep every task whose id is NOT this id (use filter)
+          }
+
+          return (
+            <div className="card">
+              <h2>📝 My To-Do List</h2>
+              <input
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                placeholder="New task..."
+              />
+              <button onClick={addTask}>Add</button>
+              <ul>
+                {tasks.map((task) => (
+                  <li key={task.id}>
+                    {task.title}{" "}
+                    {/* TODO 5: call deleteTask(task.id) when this is clicked */}
+                    <button>❌</button>
+                  </li>
+                ))}
+              </ul>
+              <p>{tasks.length} tasks</p>
+            </div>
+          );
+        }
+      </script>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Give 10 minutes. Walk around and look for <code>tasks.push</code>: that is the bug of the day!</li>
+          <li>Solution:
+            <code>if (!text) return; setTasks([...tasks, { id: Date.now(), title: text }]); setText("");</code> and
+            <code>setTasks(tasks.filter((t) =&gt; t.id !== id));</code> with
+            <code>onClick={() =&gt; deleteTask(task.id)}</code>.
+          </li>
+          <li>Fast finishers: show the count of tasks in the heading, or add the new task at the top.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 17 -->
+    <section class="slide" data-title="Common mistakes">
+      <header>
+        <span class="kicker">Watch out</span>
+        <h2>⚠️ Common mistakes</h2>
+      </header>
+      <div class="grid cols-2">
+        <div class="card bad step">
+          <h3>Using <code>push</code>, <code>splice</code>, <code>sort</code></h3>
+          <p class="muted">They change the original array. Same box, so the screen may not update.</p>
+          <p>✅ Use spread, <code>filter</code>, <code>map</code>, or copy first: <code>[...arr].sort()</code></p>
+        </div>
+        <div class="card bad step">
+          <h3>Forgetting <code>...obj</code></h3>
+          <p class="muted"><code>setUser({ city: "Delhi" })</code> throws away name and plan.</p>
+          <p>✅ <code>setUser({ ...user, city: "Delhi" })</code></p>
+        </div>
+        <div class="card bad step">
+          <h3><code>===</code> instead of <code>!==</code> in filter</h3>
+          <p class="muted">Clicking ❌ deletes every <i>other</i> task. 😱</p>
+          <p>✅ <code>tasks.filter((t) =&gt; t.id !== id)</code></p>
+        </div>
+        <div class="card bad step">
+          <h3>Forgetting the "else" in map</h3>
+          <p class="muted"><code>map(t =&gt; t.id === id &amp;&amp; {...t, done: true})</code> turns other tasks into
+            <code>false</code>.
+          </p>
+          <p>✅ Always return the old item: <code>? {...t, done: true} : t</code></p>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Reveal one card at a time and ask: "Who made this mistake in the exercise?" Make it okay to admit it.</li>
+          <li>Bonus: using the array index as a key breaks when you delete from the middle. Use <code>id</code>.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 18 -->
+    <section class="slide" data-title="Quick quiz">
+      <header>
+        <span class="kicker">Recap · 52–60 min</span>
+        <h2>⚡ Quick quiz</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="quiz" data-answer="b">
+          <p class="q">1. Which line adds a task correctly?</p>
+          <div class="opts">
+            <button data-opt="a"><code>tasks.push(task)</code></button>
+            <button data-opt="b"><code>setTasks([...tasks, task])</code></button>
+            <button data-opt="c"><code>tasks[tasks.length] = task</code></button>
+          </div>
+          <p class="explain">✅ Spread makes a <b>new array</b>, so React sees a new box and re-renders.</p>
+        </div>
+        <div class="quiz" data-answer="a">
+          <p class="q">2. How do you remove the task with id 3?</p>
+          <div class="opts">
+            <button data-opt="a"><code>tasks.filter(t =&gt; t.id !== 3)</code></button>
+            <button data-opt="b"><code>tasks.splice(3, 1)</code></button>
+            <button data-opt="c"><code>delete tasks[3]</code></button>
+          </div>
+          <p class="explain">✅ <code>filter</code> keeps every task that passes the test and returns a new array.</p>
+        </div>
+        <div class="quiz" data-answer="c">
+          <p class="q">3. <code>user = { name: "Arun", city: "Pune" }</code>. Move Arun to Delhi:</p>
+          <div class="opts">
+            <button data-opt="a"><code>setUser({ city: "Delhi" })</code></button>
+            <button data-opt="b"><code>user.city = "Delhi"</code></button>
+            <button data-opt="c"><code>setUser({ ...user, city: "Delhi" })</code></button>
+          </div>
+          <p class="explain">✅ Copy all keys with spread, then overwrite <code>city</code>. Option A loses the name!</p>
+        </div>
+      </div>
+      <aside class="notes">Let the class vote with fingers (1, 2 or 3) before you click. For question 3, ask why option
+        A is wrong.</aside>
+    </section>
+
+    <!-- 19 -->
+    <section class="slide" data-title="Recap">
+      <header>
+        <span class="kicker">Recap</span>
+        <h2>Today you learned… ✅</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="flip">
+          <div class="front"><span class="icon">📄</span>
+            <h3>Immutability</h3>
+          </div>
+          <div class="back">
+            <p>Never change state directly. Make a <b>copy</b>, change the copy, pass it to the setter (photocopy the
+              answer sheet).</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">📦</span>
+            <h3>"Same box?"</h3>
+          </div>
+          <div class="back">
+            <p>React compares the <b>reference</b> (the box), not the items inside. A new box means re-render.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🍱</span>
+            <h3>Spread <code>...</code></h3>
+          </div>
+          <div class="back">
+            <p>Copies everything from an array or object into a new one: <code>[...arr]</code>, <code>{...obj}</code>.
+            </p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">➕</span>
+            <h3>Add</h3>
+          </div>
+          <div class="back">
+            <p><code>setTasks(prev =&gt; [...prev, newTask])</code></p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">☕</span>
+            <h3>Delete</h3>
+          </div>
+          <div class="back">
+            <p><code>tasks.filter(t =&gt; t.id !== id)</code>, like a chai strainer.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🏏</span>
+            <h3>Update</h3>
+          </div>
+          <div class="back">
+            <p><code>map</code> + ternary for one item in a list, <code>{...obj, key: val}</code> for an object.</p>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">Ask a different student to explain each card before flipping it. If time is short, do just
+        "Add", "Delete" and "Update".</aside>
+    </section>
+
+    <!-- 20 -->
+    <section class="slide" data-title="To Practice">
+      <header>
+        <span class="kicker">To Practice</span>
+        <h2>📚 To Practice</h2>
+      </header>
+      <div class="grid cols-2">
+        <div class="card accent">
+          <span class="icon">✅</span>
+          <h3>1. Completed / not completed</h3>
+          <p>Extend today's to-do list:</p>
+          <ul class="checklist">
+            <li>Each task gets <code>done: false</code> when added</li>
+            <li>Clicking a task toggles <code>done</code> (use <b>map</b> + spread)</li>
+            <li>Done tasks show with a <s>line through</s> them</li>
+            <li>Bonus: show "3 of 5 done"</li>
+          </ul>
+        </div>
+        <div class="card">
+          <span class="icon">✍️</span>
+          <h3>2. Explain in your own words</h3>
+          <p>Write 4–5 lines: <b>Why shouldn't we directly mutate an array in state?</b></p>
+          <p class="muted">Use the words <i>reference</i>, <i>copy</i> and <i>re-render</i>. You can use the exam sheet
+            or the watchman example.</p>
+          <script type="text/x-code" data-file="hint.jsx">
+          // hint for the toggle
+          task.id === id ? { ...task, done: !task.done } : task
+        </script>
+        </div>
+      </div>
+      <div class="callout info">
+        <p><b>Next class:</b> Debugging and React best practices. We'll read real error messages, use React DevTools and
+          hunt bugs like detectives. 🐞🔍</p>
+      </div>
+      <aside class="notes">Remind students to bring their To Practice code to the next class: we may debug it together.
+        Line-through style: <code>style={{ textDecoration: task.done ? "line-through" : "none" }}</code>.</aside>
+    </section>
+
+    <!-- 21 -->
+    <section class="slide title" data-title="Thank you">
+      <div class="react-logo"></div>
+      <h1>Thank you! <span class="grad">Questions?</span></h1>
+      <p class="lead">"Don't change the box. Make a new one, and React will notice." 📦</p>
+      <div class="row">
+        <a class="btn" href="index.html">📋 Course plan</a>
+        <a class="btn primary" href="class-18.html">Next: Class 18 →</a>
+      </div>
+      <aside class="notes">Take final questions. If someone is stuck on the exercise, invite them to stay back for 5
+        minutes.</aside>
+    </section>
+
+  </main>
+
+  <script src="assets/deck.js"></script>
+  <script>
+    /* Demo: mutate vs copy */
+    (() => {
+      const root = document.getElementById('boxDemo');
+      const START = ['📚 Revise JSX','☕ Chai break'];
+      const EXTRA = ['🏏 Cricket practice','💸 Pay fees via UPI','🛒 Buy notebook','📞 Call Amma','🎬 Watch a tutorial'];
+      const sides = [...root.querySelectorAll('.mv-side')].map(el => ({
+        el,mode: el.dataset.mode,
+        boxes: el.querySelector('.mv-boxes'),check: el.querySelector('.mv-check'),
+        screen: el.querySelector('.mv-screen'),count: el.querySelector('.mv-count'),
+        btn: el.querySelector('[data-add]')
+      }));
+      let addr = 100;
+
+      function boxEl(id,items,newIdx) {
+        const b = document.createElement('div');
+        b.className = 'mv-box';
+        b.innerHTML = `<span class="addr">📦 box #${id}</span>` +
+          items.map((t,i) => `<span class="chip${i === newIdx ? ' new' : ''}">${t}</span>`).join('');
+        return b;
+      }
+      function paintScreen(s,flash) {
+        s.screen.innerHTML = s.shown.map(t => `<li>${t}</li>`).join('');
+        if (flash) { s.screen.classList.remove('flash'); void s.screen.offsetWidth; s.screen.classList.add('flash'); }
+      }
+      function paintCount(s) {
+        const off = s.items.length !== s.shown.length;
+        s.count.innerHTML = `Memory: <b class="${off ? 'off' : ''}">${s.items.length}</b> · Screen: <b class="${off ? 'off' : ''}">${s.shown.length}</b>`;
+      }
+      function reset() {
+        sides.forEach(s => {
+          s.id = ++addr; s.items = [...START]; s.shown = [...START]; s.n = 0;
+          s.boxes.innerHTML = ''; s.boxes.appendChild(boxEl(s.id,s.items,-1));
+          s.check.className = 'mv-check'; s.check.textContent = 'React asks: "Is it the same box?"';
+          paintScreen(s,false); paintCount(s);
+        });
+      }
+      sides.forEach(s => s.btn.addEventListener('click',() => {
+        const task = EXTRA[s.n++ % EXTRA.length];
+        if (s.mode === 'mutate') {
+          s.items.push(task);
+          const box = boxEl(s.id,s.items,s.items.length - 1);
+          box.classList.add('shake'); box.style.animation = 'wiggle .5s';
+          s.boxes.innerHTML = ''; s.boxes.appendChild(box);
+          s.check.className = 'mv-check no';
+          s.check.innerHTML = `Old box <b>#${s.id}</b> === new box <b>#${s.id}</b>? <b>Yes, same box.</b> Nothing changed, skip the re-render 😴`;
+        } else {
+          const oldId = s.id;
+          s.id = ++addr;
+          s.items = [...s.items,task];
+          const old = s.boxes.firstElementChild;
+          if (old) { old.classList.add('old'); old.querySelector('.addr').textContent = `📦 box #${oldId} (old)`; }
+          const fresh = boxEl(s.id,s.items,s.items.length - 1);
+          s.boxes.appendChild(fresh);
+          setTimeout(() => { if (old && old.parentNode) old.remove(); },900);
+          s.check.className = 'mv-check yes';
+          s.check.innerHTML = `Old box <b>#${oldId}</b> === new box <b>#${s.id}</b>? <b>No, it's a new box!</b> Re-render the screen ✅`;
+          s.shown = [...s.items];
+          setTimeout(() => paintScreen(s,true),350);
+        }
+        paintCount(s);
+      }));
+      root.querySelector('#mvReset').addEventListener('click',reset);
+      reset();
+    })();
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,1106 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Class 3 · JSX &amp; JavaScript Expressions</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <style>
+    /* --- Demo: ID card template --- */
+    .idc {
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: 20px;
+      align-items: center;
+    }
+
+    @media (max-width: 860px) {
+      .idc {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .id-card {
+      background: linear-gradient(135deg, #1e3a8a, #6d28d9);
+      color: #fff;
+      border-radius: 18px;
+      padding: 18px 20px;
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-columns: 86px 1fr;
+      gap: 16px;
+      align-items: center;
+      max-width: 460px;
+    }
+
+    .id-card .photo {
+      width: 86px;
+      height: 100px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, .18);
+      display: grid;
+      place-items: center;
+      font-size: 2.8rem;
+    }
+
+    .id-card .college {
+      grid-column: 1 / -1;
+      font-weight: 800;
+      letter-spacing: .08em;
+      font-size: .8rem;
+      opacity: .85;
+      border-bottom: 1px solid rgba(255, 255, 255, .25);
+      padding-bottom: 8px;
+    }
+
+    .id-card .row-f {
+      font-size: .95rem;
+      margin: 3px 0;
+    }
+
+    .id-card .row-f span {
+      opacity: .7;
+      font-size: .8rem;
+      display: inline-block;
+      width: 64px;
+    }
+
+    .blank {
+      background: rgba(251, 191, 36, .25);
+      border-bottom: 2px dashed #fbbf24;
+      padding: 0 6px;
+      border-radius: 4px;
+      font-weight: 700;
+      transition: background .3s;
+    }
+
+    .blank.flash {
+      animation: flashb .6s ease;
+    }
+
+    @keyframes flashb {
+      0% {
+        background: rgba(52, 211, 153, .7);
+      }
+    }
+
+    .id-inputs {
+      display: grid;
+      gap: 10px;
+    }
+
+    .id-inputs label {
+      display: grid;
+      grid-template-columns: 90px 1fr;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      font-size: .92rem;
+    }
+
+    .id-inputs input {
+      font: 500 .95rem var(--font);
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+    }
+
+    .jsx-live {
+      font: .9rem/1.7 var(--mono);
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 12px;
+      padding: 12px 16px;
+      white-space: pre;
+      overflow: auto;
+    }
+
+    .jsx-live .b {
+      color: #61dafb;
+      font-weight: 700;
+    }
+
+    .jsx-live .t {
+      color: #ff8fab;
+    }
+
+    .jsx-live .v {
+      color: #fbbf24;
+      font-style: italic;
+    }
+
+    /* --- Demo: fix the JSX --- */
+    .fix-wrap {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    @media (max-width: 860px) {
+      .fix-wrap {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .bugcode {
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 14px;
+      padding: 12px 0;
+      font: clamp(.8rem, 1.05vw, .95rem)/1.75 var(--mono);
+      box-shadow: var(--shadow);
+    }
+
+    .bugcode .ln {
+      display: block;
+      padding: 0 16px 0 44px;
+      position: relative;
+      white-space: pre;
+      cursor: pointer;
+      transition: background .2s;
+    }
+
+    .bugcode .ln::before {
+      content: attr(data-n);
+      position: absolute;
+      left: 12px;
+      color: #4b5785;
+      font-size: .8em;
+    }
+
+    .bugcode .ln:hover {
+      background: rgba(97, 218, 251, .1);
+    }
+
+    .bugcode .ln.found {
+      background: rgba(52, 211, 153, .16);
+      box-shadow: inset 3px 0 0 #34d399;
+    }
+
+    .bugcode .ln.nope {
+      animation: shake .4s;
+      background: rgba(248, 113, 113, .15);
+    }
+
+    .bugcode .ln .fixed {
+      color: #34d399;
+    }
+
+    .fix-panel {
+      display: grid;
+      gap: 10px;
+    }
+
+    .fix-score {
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .fix-score b {
+      color: var(--green);
+      font-size: 1.5rem;
+    }
+
+    .fix-log {
+      display: grid;
+      gap: 8px;
+      max-height: 330px;
+      overflow: auto;
+    }
+
+    .fix-log .card {
+      padding: 10px 14px;
+      font-size: .9rem;
+      animation: fadeUp .35s ease;
+    }
+
+    .fix-log .card b {
+      color: var(--green);
+    }
+
+    .tiffin {
+      font-size: 2.6rem;
+      letter-spacing: 6px;
+    }
+  </style>
+</head>
+
+<body class="deck" data-class="3" data-title="JSX & JavaScript Expressions" data-duration="60">
+  <main class="slides">
+
+    <!-- 1 -->
+    <section class="slide title" data-title="Welcome">
+      <div class="react-logo"></div>
+      <div>
+        <span class="kicker">Week 1 · React Foundations · Class 3</span>
+        <h1>JSX &amp; <span class="grad">JavaScript expressions</span></h1>
+        <p class="lead">Write HTML-like code inside JavaScript, and fill in the blanks with <code>{curly braces}</code>.
+        </p>
+      </div>
+      <div class="row">
+        <span class="pill blue">⏱ 60 minutes</span>
+        <span class="pill violet">✍️ JSX syntax</span>
+        <span class="pill pink">{ } Expressions</span>
+        <span class="pill green">📦 Fragments</span>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Start the timer with <b>T</b>.</li>
+          <li>Ask: "Did everyone manage to run their Vite project at home?" Quickly help anyone who is stuck after
+            class, not now.</li>
+          <li>Today is mostly about <b>syntax rules</b>. Keep it playful with the "Fix the JSX" game.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 2 -->
+    <section class="slide" data-title="Today's plan">
+      <header>
+        <span class="kicker">Agenda</span>
+        <h2>Today's plan</h2>
+      </header>
+      <ol class="timeline">
+        <li class="step"><span class="time">00–05</span>
+          <div><b>🔁 Quick recap</b><small>Node, npm, Vite, App.jsx and main.jsx</small></div>
+        </li>
+        <li class="step"><span class="time">05–15</span>
+          <div><b>✍️ What is JSX?</b><small>HTML-like syntax inside JavaScript</small></div>
+        </li>
+        <li class="step"><span class="time">15–25</span>
+          <div><b>{ } Curly braces</b><small>Variables and expressions inside JSX</small></div>
+        </li>
+        <li class="step"><span class="time">25–35</span>
+          <div><b>📏 The rules of JSX</b><small>className, one root element, fragments, closing tags, camelCase</small>
+          </div>
+        </li>
+        <li class="step"><span class="time">35–50</span>
+          <div><b>🐞 Fix the JSX + practice</b><small>Spot the errors, then build a student card</small></div>
+        </li>
+        <li class="step"><span class="time">50–60</span>
+          <div><b>✅ Quiz, recap and To Practice</b><small>Introduction card with variables</small></div>
+        </li>
+      </ol>
+      <aside class="notes">Reveal each block with →. Mention that today's rules will be used in every single class from
+        now on.</aside>
+    </section>
+
+    <!-- 3 -->
+    <section class="slide" data-title="Recap: Class 2">
+      <header>
+        <span class="kicker">Quick recap · 00–05 min</span>
+        <h2>Remember Class 2? 🛠️</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="quiz" data-answer="b">
+          <p class="q">Which command starts the dev server?</p>
+          <div class="opts">
+            <button data-opt="a">npm install</button>
+            <button data-opt="b">npm run dev</button>
+            <button data-opt="c">node -v</button>
+          </div>
+          <p class="explain">✅ <b>npm run dev</b> opens the app at <code>localhost:5173</code>.</p>
+        </div>
+        <div class="quiz" data-answer="a">
+          <p class="q">Where do we write our components?</p>
+          <div class="opts">
+            <button data-opt="a">In the src folder</button>
+            <button data-opt="b">In node_modules</button>
+            <button data-opt="c">In public</button>
+          </div>
+          <p class="explain">✅ <b>src</b> is the living room. We never edit node_modules.</p>
+        </div>
+        <div class="quiz" data-answer="c">
+          <p class="q">What does App.jsx do?</p>
+          <div class="opts">
+            <button data-opt="a">Downloads React</button>
+            <button data-opt="b">Stores the package list</button>
+            <button data-opt="c">Returns what we see on the page</button>
+          </div>
+          <p class="explain">✅ App is the <b>root component</b>. main.jsx renders it into <code>#root</code>.</p>
+        </div>
+      </div>
+      <aside class="notes">Let students vote with fingers (1, 2, 3) before you click. Quick and energetic, 3–4 minutes.
+      </aside>
+    </section>
+
+    <!-- 4 -->
+    <section class="slide" data-title="Hook: fill in the blanks" id="idCard">
+      <header>
+        <span class="kicker">Think first</span>
+        <h2>Every college ID card has the <span class="grad">same template</span> 🪪</h2>
+        <p class="lead">Only the blanks change. Type in the boxes and watch the blanks fill in.</p>
+      </header>
+      <div class="idc">
+        <div class="stack">
+          <div class="id-card">
+            <div class="college">🎓 SUNRISE COLLEGE OF ENGINEERING</div>
+            <div class="photo">🧑‍🎓</div>
+            <div>
+              <div class="row-f"><span>Name</span> <b class="blank" data-f="name">Arun</b></div>
+              <div class="row-f"><span>Course</span> <b class="blank" data-f="course">B.Tech CSE</b></div>
+              <div class="row-f"><span>Year</span> <b class="blank" data-f="year">2</b></div>
+            </div>
+          </div>
+          <div class="id-inputs">
+            <label>Name <input data-in="name" value="Arun"></label>
+            <label>Course <input data-in="course" value="B.Tech CSE"></label>
+            <label>Year <input data-in="year" value="2" type="number" min="1" max="4"></label>
+          </div>
+        </div>
+        <div class="stack">
+          <div class="jsx-live" aria-live="polite"></div>
+          <div class="callout tip">
+            <p>The <b>template</b> is JSX. The <b>blanks</b> are <code>{curly braces}</code>. The values come from
+              <b>JavaScript variables</b>.
+            </p>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Ask a student for their name and course, then type it in. The yellow blanks update, and the JSX on the
+            right shows the variable values.</li>
+          <li>Ask: "The college prints 5,000 ID cards. Do they design 5,000 cards?" No, one template with blanks. That
+            is exactly how JSX with curly braces works.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 5 -->
+    <section class="slide" data-title="What is JSX?">
+      <div class="split">
+        <div>
+          <span class="kicker">Concept · 05–15 min</span>
+          <h2>What is JSX? ✍️</h2>
+          <p class="lead"><b style="color:var(--text)">JSX lets us describe what the UI should look like using syntax
+              that resembles HTML inside JavaScript.</b></p>
+          <ul class="checklist">
+            <li class="step">JSX = <b>J</b>ava<b>S</b>cript + <b>X</b>ML (HTML-like tags)</li>
+            <li class="step">It <b>looks</b> like HTML, but it is <b>not</b> HTML</li>
+            <li class="step">The browser can't read JSX directly. <b>Vite (with Babel)</b> converts it to plain
+              JavaScript</li>
+            <li class="step">Because it is JavaScript, we can mix in <b>variables and logic</b></li>
+          </ul>
+        </div>
+        <div class="stack">
+          <div class="analogy step" data-label="🗣️ Real-life example">
+            <span class="big-emoji">🗣️</span>
+            <h3>Hinglish for code</h3>
+            <p>"Bro, kal movie chalein?" mixes Hindi and English in one sentence, and everyone understands.</p>
+            <p>JSX mixes <b>HTML</b> and <b>JavaScript</b> in one file, and React understands it.</p>
+          </div>
+          <div class="card step">
+            <p style="margin:0 0 8px"><b>What does the browser really run?</b> Click to reveal.</p>
+            <p style="margin:0"><code>&lt;h1&gt;Hello&lt;/h1&gt;</code> becomes <span
+                class="spoiler"><code>React.createElement("h1", null, "Hello")</code></span></p>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Read the definition slowly, it is from the syllabus.</li>
+          <li>Click the blurred spoiler. Say: "Nobody writes createElement by hand, JSX is the shortcut. But knowing
+            this helps you understand the rules later."</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 6 -->
+    <section class="slide" data-title="Syllabus example">
+      <header>
+        <span class="kicker">Code example</span>
+        <h2>Your first JSX with a variable</h2>
+      </header>
+      <div class="split">
+        <script type="text/x-code" data-file="App.jsx" data-hl="2,5">
+        function App() {
+          const name = "Arun";
+          return (
+            <>
+              <h1>Hello, {name}</h1>
+              <p>Welcome to our class.</p>
+            </>
+          );
+        }
+      </script>
+        <div class="stack">
+          <div class="card step"><span class="icon">📦</span><b>Line 2:</b> a normal JavaScript variable called
+            <code>name</code>.
+          </div>
+          <div class="card step"><span class="icon">{ }</span><b>Line 5:</b> <code>{name}</code> means "put the
+            <b>value</b> of name here". The screen shows <b>Hello, Arun</b>.
+          </div>
+          <div class="card step"><span class="icon">🎁</span><b>Lines 4 and 7:</b> <code>&lt;&gt; &lt;/&gt;</code> is a
+            <b>fragment</b>, an invisible box that wraps the h1 and p together.
+          </div>
+          <div class="card step"><span class="icon">↩️</span><b>Line 3:</b> <code>return (</code> with brackets lets JSX
+            span many lines.</div>
+        </div>
+      </div>
+      <aside class="notes">Point at each highlighted line as you reveal the cards. Ask: "What will the screen show if I
+        change Arun to Priya?" Then confirm on the next slide.</aside>
+    </section>
+
+    <!-- 7 -->
+    <section class="slide" data-title="Curly braces">
+      <header>
+        <span class="kicker">Curly braces · 15–25 min</span>
+        <h2><code>{ }</code> = a window into JavaScript 🪟</h2>
+        <p class="lead">Anything inside curly braces is <b style="color:var(--text)">JavaScript</b>. React shows the <b
+            style="color:var(--text)">result</b>.</p>
+      </header>
+      <div class="split">
+        <table class="table">
+          <tr>
+            <th>You write</th>
+            <th>Screen shows</th>
+          </tr>
+          <tr class="step">
+            <td><code>{name}</code></td>
+            <td>Arun</td>
+          </tr>
+          <tr class="step">
+            <td><code>{2 + 3}</code></td>
+            <td>5</td>
+          </tr>
+          <tr class="step">
+            <td><code>{name.toUpperCase()}</code></td>
+            <td>ARUN</td>
+          </tr>
+          <tr class="step">
+            <td><code>{price * qty}</code></td>
+            <td>360 (₹120 × 3)</td>
+          </tr>
+          <tr class="step">
+            <td><code>{age &gt;= 18 ? "Adult" : "Minor"}</code></td>
+            <td>Adult</td>
+          </tr>
+          <tr class="step">
+            <td><code>"name"</code> (no braces)</td>
+            <td>name 😅 (just the text)</td>
+          </tr>
+        </table>
+        <div class="analogy step" data-label="💌 Real-life example">
+          <span class="big-emoji">💌</span>
+          <h3>A wedding invitation</h3>
+          <p>The printer has one design: "You are invited to the wedding of <b>____</b> and <b>____</b> on <b>____</b>."
+          </p>
+          <p>Each family fills in their own names and date. In JSX, the blanks are <code>{ }</code> and the names come
+            from variables.</p>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Reveal row by row and ask the class to predict the "Screen shows" column first.</li>
+          <li>The last row is the most common beginner mistake: forgetting the braces prints the word itself.</li>
+          <li>The ternary <code>? :</code> is a sneak peek of Class 8 (conditional rendering).</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 8 -->
+    <section class="slide" data-title="Playground: expressions">
+      <header>
+        <span class="kicker">Live coding · Try it!</span>
+        <h2>Play with expressions 🧮</h2>
+        <p class="lead">Change the variables and add your own <code>{ }</code>. Watch the console too.</p>
+      </header>
+      <div class="playground" data-height="430">
+        <script type="text/x-playground">
+        function App() {
+          const name = "Priya";
+          const city = "Chennai";
+          const chaiPrice = 15;
+          const cups = 4;
+          const year = new Date().getFullYear();
+
+          console.log("Rendering card for", name);
+
+          return (
+            <div className="card">
+              <h1>Hello, {name.toUpperCase()} 👋</h1>
+              <p>I live in {city}.</p>
+              <p>{cups} cups of chai cost ₹{chaiPrice * cups}.</p>
+              <p>It is {year}. Next year is {year + 1}.</p>
+              <p>Lucky number: {Math.floor(Math.random() * 10)}</p>
+            </div>
+          );
+        }
+
+        export default App;
+      </script>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Change <code>cups</code> to 10 and watch the total change. That is math inside braces.</li>
+          <li>Press ▶ Run a few times: the lucky number changes, because the expression runs again each time.</li>
+          <li>Try removing the braces around <code>city</code> to show the "just text" mistake.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 9 -->
+    <section class="slide" data-title="className">
+      <header>
+        <span class="kicker">JSX rule 1</span>
+        <h2>Use <code>className</code>, not <code>class</code> 🏷️</h2>
+      </header>
+      <div class="grid cols-2">
+        <div class="card bad">
+          <h3>❌ HTML habit</h3>
+          <script type="text/x-code" data-file="App.jsx">
+          <div class="card">Hello</div>
+        </script>
+          <p class="muted" style="margin-top:10px"><code>class</code> is a <b>reserved word</b> in JavaScript (used for
+            making classes), so JSX can't use it.</p>
+        </div>
+        <div class="card good">
+          <h3>✅ JSX way</h3>
+          <script type="text/x-code" data-file="App.jsx">
+          <div className="card">Hello</div>
+        </script>
+          <p class="muted" style="margin-top:10px">The CSS stays the same: <code>.card { ... }</code> in your CSS file
+            still works.</p>
+        </div>
+      </div>
+      <div class="analogy step" data-label="🏏 Real-life example">
+        <p><b>Two players with the same name:</b> if a cricket team already has a "Rohit" as captain, the new Rohit gets
+          called "Ro" on the field to avoid confusion. JavaScript already uses the word <code>class</code>, so JSX calls
+          it <code>className</code>.</p>
+      </div>
+      <aside class="notes">Show the playground from the previous slide: it already uses <code>className="card"</code>.
+        Tip: VS Code with the React snippets extension autocompletes className for you.</aside>
+    </section>
+
+    <!-- 10 -->
+    <section class="slide" data-title="One root element">
+      <header>
+        <span class="kicker">JSX rule 2 · 25–35 min</span>
+        <h2>Return <span class="grad">one</span> root element (or a fragment) 🎁</h2>
+      </header>
+      <div class="split">
+        <div class="tabs">
+          <div class="tab" data-label="❌ Two roots">
+            <script type="text/x-code" data-file="App.jsx" data-hl="3,4">
+            function App() {
+              return (
+                <h1>Hello</h1>
+                <p>Welcome!</p>
+              );
+            }
+            // Error: Adjacent JSX elements must be
+            // wrapped in an enclosing tag
+          </script>
+          </div>
+          <div class="tab" data-label="✅ Wrap in a div">
+            <script type="text/x-code" data-file="App.jsx" data-hl="3,6">
+            function App() {
+              return (
+                <div>
+                  <h1>Hello</h1>
+                  <p>Welcome!</p>
+                </div>
+              );
+            }
+          </script>
+          </div>
+          <div class="tab" data-label="✅ Fragment <> </>">
+            <script type="text/x-code" data-file="App.jsx" data-hl="3,6">
+            function App() {
+              return (
+                <>
+                  <h1>Hello</h1>
+                  <p>Welcome!</p>
+                </>
+              );
+            }
+            // <> </> adds NO extra div to the page
+          </script>
+          </div>
+        </div>
+        <div class="analogy step" data-label="🍱 Real-life example">
+          <div class="tiffin">🍚 🍛 🥗 → 🍱</div>
+          <h3>Pack everything in one tiffin box</h3>
+          <p>Your mom doesn't send rice, curry and salad as three loose plates. She packs them into <b>one tiffin
+              box</b>.</p>
+          <p>A component must <b>return one thing</b>. A <code>&lt;div&gt;</code> is a real box. A fragment
+            <code>&lt;&gt;&lt;/&gt;</code> is an <b>invisible</b> box: it groups things but adds nothing to the page.
+          </p>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Click through the three tabs. On the first tab, read the real error message aloud. Students will see it
+            often.</li>
+          <li>Why the rule? Remember <code>createElement</code>: a function can only return one value.</li>
+          <li>When to use which: fragment when you don't need styling, div when you want a className on the wrapper.
+          </li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 11 -->
+    <section class="slide" data-title="More JSX rules">
+      <header>
+        <span class="kicker">JSX rules 3–5</span>
+        <h2>Three more rules to remember 📏</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="card step">
+          <span class="icon">🔒</span>
+          <h3>Close every tag</h3>
+          <p class="muted">Even tags that are "empty" in HTML must close with <code>/&gt;</code>.</p>
+          <p><code>&lt;img src="a.png" /&gt;</code><br><code>&lt;br /&gt;</code> <code>&lt;input /&gt;</code></p>
+        </div>
+        <div class="card step">
+          <span class="icon">🐫</span>
+          <h3>camelCase attributes</h3>
+          <p class="muted">Two-word attributes join with a capital letter.</p>
+          <p><code>onclick</code> → <code>onClick</code><br><code>for</code> →
+            <code>htmlFor</code><br><code>tabindex</code> → <code>tabIndex</code>
+          </p>
+        </div>
+        <div class="card step">
+          <span class="icon">🧮</span>
+          <h3>Expressions, not statements</h3>
+          <p class="muted">Braces need something that <b>gives a value</b>.</p>
+          <p>✅ <code>{isMember ? "Gold" : "Free"}</code><br>❌ <code>{if (isMember) { ... }}</code></p>
+        </div>
+      </div>
+      <div class="analogy step" data-label="🧾 Real-life example">
+        <p><b>Expression vs statement:</b> an <b>expression</b> is like a calculator answer: "₹120 × 3" gives
+          <b>360</b>, which you can write on the bill. A <b>statement</b> is like an instruction: "if it rains, take an
+          umbrella". You can't write an instruction on the bill. Braces want an <b>answer</b>.
+        </p>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>For the expression rule, ask: "Does it produce a value I can print?" If yes, it can go in braces.</li>
+          <li>Put the <code>if</code> <b>above</b> the return (outside JSX) or use the ternary inside. We'll practise
+            this properly in Class 8.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 12 -->
+    <section class="slide" data-title="Game: fix the JSX" id="fixJsx">
+      <header>
+        <span class="kicker">Game · 35–40 min</span>
+        <h2>🐞 Fix the JSX: find all 5 bugs</h2>
+        <p class="lead">Click on a line you think is wrong. Correct guesses get fixed in green.</p>
+      </header>
+      <div class="fix-wrap">
+        <div class="bugcode" aria-label="Buggy code"></div>
+        <div class="fix-panel">
+          <div class="fix-score">Bugs found: <b class="fix-n">0</b> / 5</div>
+          <div class="row">
+            <button class="btn small" data-fx="hint">💡 Hint</button>
+            <button class="btn small" data-fx="reset">↺ Reset</button>
+          </div>
+          <div class="fix-log">
+            <div class="card muted fix-start">Hmm… this component crashes. Can you spot why? Read every line carefully.
+            </div>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Let students shout out the line numbers, then click them. A wrong click shakes red ("this line is fine").
+          </li>
+          <li>The 5 bugs: two roots (return line), <code>class</code>, unclosed <code>&lt;img&gt;</code>,
+            <code>for</code> instead of <code>htmlFor</code>, and <code>if</code> inside braces.
+          </li>
+          <li>The hint button highlights a remaining bug if the class gets stuck.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 13 -->
+    <section class="slide" data-title="Playground: student profile">
+      <header>
+        <span class="kicker">Live coding</span>
+        <h2>Build a student profile card together 🧑‍🎓</h2>
+      </header>
+      <div class="playground" data-height="450">
+        <script type="text/x-playground">
+        function App() {
+          const name = "Rahul Sharma";
+          const college = "Sunrise College";
+          const course = "B.Sc Computer Science";
+          const year = 2;
+          const skills = "HTML, CSS, JavaScript";
+          const isHosteller = true;
+
+          return (
+            <div className="card profile">
+              <div className="avatar">🧑‍🎓</div>
+              <h2>{name}</h2>
+              <p className="muted">{course} · Year {year}</p>
+              <p>🏫 {college}</p>
+              <p>💻 Skills: {skills}</p>
+              <p>🏠 {isHosteller ? "Lives in the hostel" : "Day scholar"}</p>
+              <hr className="line" />
+              <p>Learning React, one tag at a time 🚀</p>
+            </div>
+          );
+        }
+
+        export default App;
+      </script>
+        <script type="text/x-playground-css">
+        .profile { max-width: 360px; text-align: center; }
+        .avatar { font-size: 3.5rem; }
+        .muted { color: #64748b; }
+        .line { border: 0; border-top: 2px dashed #cbd5e1; }
+      </script>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Type with the class: change the name, course and year to a student's details.</li>
+          <li>Flip <code>isHosteller</code> to <code>false</code> and watch the text change.</li>
+          <li>Point out <code>className</code>, the self-closing <code>&lt;hr /&gt;</code> and the single root
+            <code>&lt;div&gt;</code>.
+          </li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 14 -->
+    <section class="slide" data-title="Exercise: student details">
+      <header>
+        <span class="kicker">Class exercise · 40–50 min</span>
+        <h2>🧪 Show a student's name, age and course</h2>
+        <p class="lead">Store each detail in a <b style="color:var(--text)">JavaScript variable</b>, then show it with
+          <code>{ }</code>.
+        </p>
+      </header>
+      <div class="playground" data-height="380">
+        <script type="text/x-playground">
+        function App() {
+          // TODO 1: create three variables: name, age and course
+          const name = "Your name";
+
+
+          return (
+            <div className="card">
+              {/* TODO 2: show the name inside the h1 using { } */}
+              <h1>Student: ???</h1>
+
+              {/* TODO 3: show age and course in two <p> tags */}
+
+              {/* BONUS: show "Adult" or "Minor" with age >= 18 ? ... : ... */}
+              {/* BONUS: show the age next year with {age + 1} */}
+            </div>
+          );
+        }
+
+        export default App;
+      </script>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Give 6–7 minutes. Walk around.</li>
+          <li>Common mistakes: writing <code>"{name}"</code> with quotes (shows the braces as text), using
+            <code>class</code>, putting two elements outside the div, typing <code>{Name}</code> with the wrong capital
+            (variable not defined).
+          </li>
+          <li>If the preview shows a red error box, read it together: it usually names the exact problem.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 15 -->
+    <section class="slide" data-title="Common mistakes">
+      <header>
+        <span class="kicker">Common mistakes</span>
+        <h2>⚠️ JSX mistakes everyone makes (once!)</h2>
+      </header>
+      <table class="table">
+        <tr>
+          <th>❌ Mistake</th>
+          <th>✅ Fix</th>
+          <th>Why</th>
+        </tr>
+        <tr class="step">
+          <td><code>&lt;p&gt;Hello name&lt;/p&gt;</code></td>
+          <td><code>&lt;p&gt;Hello {name}&lt;/p&gt;</code></td>
+          <td>Without braces it is plain text</td>
+        </tr>
+        <tr class="step">
+          <td><code>&lt;img src={photo} alt="me"&gt;</code></td>
+          <td><code>&lt;img src={photo} alt="me" /&gt;</code></td>
+          <td>Every tag must close</td>
+        </tr>
+        <tr class="step">
+          <td><code>&lt;div class="box"&gt;</code></td>
+          <td><code>&lt;div className="box"&gt;</code></td>
+          <td><code>class</code> is reserved in JS</td>
+        </tr>
+        <tr class="step">
+          <td>Two tags side by side in <code>return</code></td>
+          <td>Wrap in <code>&lt;div&gt;</code> or <code>&lt;&gt; &lt;/&gt;</code></td>
+          <td>Return only one root</td>
+        </tr>
+        <tr class="step">
+          <td><code>{student}</code> where student is an object</td>
+          <td><code>{student.name}</code></td>
+          <td>React can't print a whole object</td>
+        </tr>
+        <tr class="step">
+          <td><code>return</code> on its own line, JSX below</td>
+          <td><code>return (</code> on the same line</td>
+          <td>JavaScript stops at a lonely <code>return</code></td>
+        </tr>
+      </table>
+      <aside class="notes">The object mistake gives "Objects are not valid as a React child". Show it live in a
+        playground if time allows: <code>const s = { name: "Arun" }</code> then <code>{s}</code>.</aside>
+    </section>
+
+    <!-- 16 -->
+    <section class="slide" data-title="Quick quiz">
+      <header>
+        <span class="kicker">Recap · 50–60 min</span>
+        <h2>⚡ Quick quiz</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="quiz" data-answer="b">
+          <p class="q">1. How do you show the variable <code>city</code> in JSX?</p>
+          <div class="opts">
+            <button data-opt="a">"city"</button>
+            <button data-opt="b">{city}</button>
+            <button data-opt="c">(city)</button>
+          </div>
+          <p class="explain">✅ Curly braces open a window into JavaScript.</p>
+        </div>
+        <div class="quiz" data-answer="c">
+          <p class="q">2. Which attribute adds a CSS class in JSX?</p>
+          <div class="opts">
+            <button data-opt="a">class</button>
+            <button data-opt="b">cssClass</button>
+            <button data-opt="c">className</button>
+          </div>
+          <p class="explain">✅ <code>className</code>, because <code>class</code> is a reserved word in JavaScript.</p>
+        </div>
+        <div class="quiz" data-answer="a">
+          <p class="q">3. What does <code>&lt;&gt; &lt;/&gt;</code> do?</p>
+          <div class="opts">
+            <button data-opt="a">Groups elements without adding an extra tag</button>
+            <button data-opt="b">Creates an empty paragraph</button>
+            <button data-opt="c">Comments out the code</button>
+          </div>
+          <p class="explain">✅ A <b>fragment</b> is an invisible tiffin box. 🍱</p>
+        </div>
+      </div>
+      <aside class="notes">Vote first, then click. If Q3 is shaky, go back to the tiffin box slide.</aside>
+    </section>
+
+    <!-- 17 -->
+    <section class="slide" data-title="Recap">
+      <header>
+        <span class="kicker">Recap</span>
+        <h2>Today you learned… ✅</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="flip">
+          <div class="front"><span class="icon">✍️</span>
+            <h3>JSX</h3>
+          </div>
+          <div class="back">
+            <p>HTML-like syntax inside JavaScript to <b>describe the UI</b>.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">{ }</span>
+            <h3>Curly braces</h3>
+          </div>
+          <div class="back">
+            <p>Fill-in-the-blanks: show the <b>value</b> of any JavaScript expression.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🏷️</span>
+            <h3>className</h3>
+          </div>
+          <div class="back">
+            <p>Use <code>className</code> instead of <code>class</code>.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🍱</span>
+            <h3>One root</h3>
+          </div>
+          <div class="back">
+            <p>Return one element. Wrap siblings in a div or a fragment <code>&lt;&gt;&lt;/&gt;</code>.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🔒</span>
+            <h3>Close &amp; camelCase</h3>
+          </div>
+          <div class="back">
+            <p><code>&lt;img /&gt;</code>, <code>onClick</code>, <code>htmlFor</code>.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🧮</span>
+            <h3>Expressions only</h3>
+          </div>
+          <div class="back">
+            <p>Braces need a <b>value</b>. Use <code>? :</code> instead of <code>if</code>.</p>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">Ask students to say the rule before flipping. A fun twist: ask them to give an example that
+        breaks each rule.</aside>
+    </section>
+
+    <!-- 18 -->
+    <section class="slide" data-title="To Practice">
+      <header>
+        <span class="kicker">To Practice</span>
+        <h2>📚 To Practice</h2>
+      </header>
+      <div class="grid cols-2">
+        <div class="card accent">
+          <span class="icon">🪪</span>
+          <h3>Main task: personal introduction card</h3>
+          <p>In <code>App.jsx</code>, create variables and show them with JSX expressions:</p>
+          <ul class="checklist">
+            <li>Your <b>name</b>, <b>city</b> and <b>course</b></li>
+            <li>Your <b>age</b> and your age next year <code>{age + 1}</code></li>
+            <li>A favourite <b>food</b> or hobby</li>
+            <li>Use <code>className</code> and one fragment or wrapper div</li>
+          </ul>
+        </div>
+        <div class="card">
+          <span class="icon">⭐</span>
+          <h3>Extra practice: student profile card</h3>
+          <p>Make a profile card like the one from class with an emoji avatar, college name and skills.</p>
+          <p class="muted">Bonus: use a ternary to show "Hosteller" or "Day scholar".</p>
+        </div>
+      </div>
+      <div class="callout info">
+        <p><b>Next class:</b> Components and reusable UI. We'll split a page into <code>&lt;Header /&gt;</code>,
+          <code>&lt;ProfileCard /&gt;</code> and <code>&lt;Footer /&gt;</code>, and learn import and export. 🧱
+        </p>
+      </div>
+      <aside class="notes">Ask students to keep their To Practice project. We'll split it into components next class.
+      </aside>
+    </section>
+
+    <!-- 19 -->
+    <section class="slide title" data-title="Thank you">
+      <div class="react-logo"></div>
+      <h1>Thank you! <span class="grad">Questions?</span></h1>
+      <p class="lead">"JSX is the template, curly braces are the blanks." ✍️</p>
+      <div class="row">
+        <a class="btn" href="index.html">📋 Course plan</a>
+        <a class="btn primary" href="class-04.html">Next: Class 4 →</a>
+      </div>
+      <aside class="notes">Collect one doubt from 2–3 students and answer it quickly.</aside>
+    </section>
+
+  </main>
+
+  <script src="assets/deck.js"></script>
+  <script>
+    /* Demo: ID card template with live JSX */
+    (() => {
+      const root = document.getElementById('idCard');
+      const out = root.querySelector('.jsx-live');
+      const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      const vals = {};
+      root.querySelectorAll('[data-in]').forEach(inp => { vals[inp.dataset.in] = inp.value; });
+      const t = s => `<span class="t">${s}</span>`;
+      const b = (k) => `<span class="b">{${k}}</span>`;
+      function paint() {
+        out.innerHTML =
+          `const name = <span class="v">"${esc(vals.name)}"</span>;\n` +
+          `const course = <span class="v">"${esc(vals.course)}"</span>;\n` +
+          `const year = <span class="v">${esc(vals.year || 0)}</span>;\n\n` +
+          `return (\n  ${t('&lt;div className="id-card"&gt;')}\n` +
+          `    ${t('&lt;p&gt;')}Name: ${b('name')}${t('&lt;/p&gt;')}\n` +
+          `    ${t('&lt;p&gt;')}Course: ${b('course')}${t('&lt;/p&gt;')}\n` +
+          `    ${t('&lt;p&gt;')}Year: ${b('year')}${t('&lt;/p&gt;')}\n` +
+          `  ${t('&lt;/div&gt;')}\n);`;
+      }
+      root.querySelectorAll('[data-in]').forEach(inp => inp.addEventListener('input',() => {
+        const k = inp.dataset.in;
+        vals[k] = inp.value;
+        const blank = root.querySelector(`[data-f="${k}"]`);
+        blank.textContent = inp.value || '____';
+        blank.classList.remove('flash'); void blank.offsetWidth; blank.classList.add('flash');
+        paint();
+      }));
+      paint();
+    })();
+
+    /* Demo: fix the JSX game */
+    (() => {
+      const root = document.getElementById('fixJsx');
+      const box = root.querySelector('.bugcode');
+      const log = root.querySelector('.fix-log');
+      const nEl = root.querySelector('.fix-n');
+      const LINES = [
+        { c: 'function App() {' },
+        { c: '  const name = "Sneha";' },
+        { c: '  const isMember = true;' },
+        { c: '  return (',bug: 'Two root elements',fix: '  return (  <>  ...  </>',why: 'The h1, img, label and p sit side by side. Wrap them in <b>&lt;&gt; &lt;/&gt;</b> or a div.' },
+        { c: '    <h1 class="title">Hello, {name}</h1>',bug: 'class instead of className',fix: '    <h1 className="title">Hello, {name}</h1>',why: '<b>class</b> is a reserved word in JavaScript. Use <b>className</b>.' },
+        { c: '    <img src="sneha.png" alt="Sneha">',bug: 'Unclosed img tag',fix: '    <img src="sneha.png" alt="Sneha" />',why: 'In JSX every tag must close. Empty tags end with <b>/&gt;</b>.' },
+        { c: '    <label for="email">Email</label>',bug: 'for instead of htmlFor',fix: '    <label htmlFor="email">Email</label>',why: '<b>for</b> is a JavaScript keyword (for loops). JSX uses <b>htmlFor</b>.' },
+        { c: '    <p>{if (isMember) { "Gold member" }}</p>',bug: 'Statement inside braces',fix: '    <p>{isMember ? "Gold member" : "Free user"}</p>',why: '<b>if</b> is a statement, not a value. Use a ternary <b>? :</b> inside braces.' },
+        { c: '  );' },
+        { c: '}' }
+      ];
+      const total = LINES.filter(l => l.bug).length;
+      const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      let found = 0;
+      function reset() {
+        found = 0; nEl.textContent = '0';
+        box.innerHTML = '';
+        log.innerHTML = '<div class="card muted">Hmm… this component crashes. Can you spot why? Read every line carefully.</div>';
+        LINES.forEach((l,i) => {
+          const el = document.createElement('span');
+          el.className = 'ln'; el.dataset.n = i + 1; el.textContent = l.c;
+          el.addEventListener('click',() => {
+            if (el.classList.contains('found')) return;
+            if (!l.bug) {
+              el.classList.remove('nope'); void el.offsetWidth; el.classList.add('nope');
+              return;
+            }
+            el.classList.add('found');
+            el.innerHTML = `<span class="fixed">${esc(l.fix)}</span>`;
+            found++; nEl.textContent = found;
+            const c = document.createElement('div');
+            c.className = 'card';
+            c.innerHTML = `<b>✓ Line ${i + 1}: ${l.bug}</b><br>${l.why}`;
+            log.prepend(c);
+            if (found === total) {
+              const w = document.createElement('div');
+              w.className = 'card'; w.style.borderColor = 'var(--green)';
+              w.innerHTML = '🎉 <b>All 5 bugs fixed!</b> You are now a JSX doctor.';
+              log.prepend(w);
+              if (window.Deck) Deck.confetti();
+            }
+          });
+          box.appendChild(el);
+        });
+      }
+      root.querySelector('[data-fx="reset"]').addEventListener('click',reset);
+      root.querySelector('[data-fx="hint"]').addEventListener('click',() => {
+        const idx = LINES.findIndex((l,i) => l.bug && !box.children[i].classList.contains('found'));
+        if (idx < 0) return;
+        const el = box.children[idx];
+        el.animate([{ background: 'rgba(251,191,36,.35)' },{ background: 'transparent' }],{ duration: 1400 });
+      });
+      reset();
+    })();
+  </script>
+</body>
+
+</html>

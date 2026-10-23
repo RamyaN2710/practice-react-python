@@ -1,0 +1,1268 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Class 1 · Introduction to React</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <style>
+    /* --- Demo: old way vs React way --- */
+    .phones {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 760px) {
+      .phones {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .phone {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 26px;
+      padding: 14px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .phone h4 {
+      margin: 0 0 10px;
+      text-align: center;
+    }
+
+    .feed {
+      background: #fff;
+      color: #111;
+      border-radius: 16px;
+      padding: 12px;
+      min-height: 230px;
+      position: relative;
+    }
+
+    .post-img {
+      height: 120px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #fbbf24, #f472b6, #a78bfa);
+      display: grid;
+      place-items: center;
+      font-size: 3rem;
+    }
+
+    .post-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+      font-weight: 600;
+    }
+
+    .heart {
+      font-size: 1.6rem;
+      background: none;
+      border: 0;
+      cursor: pointer;
+      transition: transform .2s;
+      padding: 0;
+    }
+
+    .heart.pop {
+      animation: pop .35s ease;
+    }
+
+    @keyframes pop {
+      50% {
+        transform: scale(1.45);
+      }
+    }
+
+    .likes.flash {
+      animation: flash .6s ease;
+      border-radius: 6px;
+    }
+
+    @keyframes flash {
+      0% {
+        background: #bbf7d0;
+      }
+
+      100% {
+        background: transparent;
+      }
+    }
+
+    .reload-cover {
+      position: absolute;
+      inset: 0;
+      background: #fff;
+      display: none;
+      place-items: center;
+      border-radius: 16px;
+      font-weight: 600;
+      color: #64748b;
+    }
+
+    .reload-cover.on {
+      display: grid;
+    }
+
+    .spinner {
+      width: 34px;
+      height: 34px;
+      border: 4px solid #e2e8f0;
+      border-top-color: #3b82f6;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 8px;
+    }
+
+    .reload-count {
+      font-size: .8rem;
+      text-align: center;
+      margin-top: 8px;
+      color: var(--muted);
+    }
+
+    /* --- Demo: component spotter --- */
+    .site {
+      background: #fff;
+      color: #111;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      font-size: .9rem;
+    }
+
+    .site [data-comp] {
+      position: relative;
+      transition: outline .2s, background .2s;
+      outline: 3px solid transparent;
+      outline-offset: -3px;
+    }
+
+    .site.show [data-comp] {
+      outline-color: var(--c);
+    }
+
+    .site.show [data-comp]::after {
+      content: attr(data-comp);
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      background: var(--c);
+      color: #fff;
+      font: 700 .68rem var(--mono);
+      padding: 2px 7px;
+      border-radius: 6px;
+      z-index: 2;
+    }
+
+    .site [data-comp].pick {
+      outline-color: var(--c);
+      background: color-mix(in srgb, var(--c) 10%, transparent);
+    }
+
+    .s-nav {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: #131921;
+      color: #fff;
+      --c: #ef4444;
+    }
+
+    .s-nav .logo {
+      font-weight: 800;
+    }
+
+    .s-nav .search {
+      flex: 1;
+      background: #fff;
+      border-radius: 8px;
+      padding: 6px 10px;
+      color: #64748b;
+      --c: #f59e0b;
+    }
+
+    .s-nav .cart {
+      --c: #10b981;
+    }
+
+    .s-body {
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      gap: 12px;
+      padding: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .s-body {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .s-side {
+      background: #f1f5f9;
+      border-radius: 10px;
+      padding: 10px;
+      --c: #8b5cf6;
+    }
+
+    .s-side div {
+      padding: 4px 0;
+    }
+
+    .s-products {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .s-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 10px;
+      text-align: center;
+      --c: #3b82f6;
+    }
+
+    .s-card .em {
+      font-size: 2rem;
+    }
+
+    .s-card button {
+      margin-top: 6px;
+      background: #fbbf24;
+      border: 0;
+      border-radius: 99px;
+      padding: 4px 10px;
+      font-weight: 600;
+      font-size: .75rem;
+    }
+
+    .s-foot {
+      background: #232f3e;
+      color: #cbd5e1;
+      padding: 12px 16px;
+      text-align: center;
+      --c: #ec4899;
+    }
+
+    .comp-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .comp-legend button {
+      border: 2px solid var(--c);
+      color: var(--text);
+      background: var(--surface);
+      border-radius: 99px;
+      padding: 6px 12px;
+      font: 600 .85rem var(--font);
+      cursor: pointer;
+    }
+
+    .comp-legend button.on {
+      background: var(--c);
+      color: #fff;
+    }
+
+    /* --- Demo: virtual DOM --- */
+    .vdom {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 16px;
+      align-items: center;
+    }
+
+    @media (max-width: 760px) {
+      .vdom {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .dom-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .dom-panel h4 {
+      margin: 0 0 10px;
+    }
+
+    .dom-node {
+      font-family: var(--mono);
+      font-size: .85rem;
+      padding: 7px 10px;
+      margin: 6px 0;
+      border-radius: 8px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      transition: background .4s, border-color .4s;
+    }
+
+    .dom-node.ind {
+      margin-left: 22px;
+    }
+
+    .dom-node.changed {
+      background: rgba(251, 191, 36, .25);
+      border-color: var(--yellow);
+    }
+
+    .dom-node.patched {
+      animation: patch 1.2s ease;
+    }
+
+    @keyframes patch {
+
+      0%,
+      60% {
+        background: rgba(52, 211, 153, .35);
+        border-color: var(--green);
+      }
+    }
+
+    .vdom-arrow {
+      text-align: center;
+      font-size: .85rem;
+      color: var(--muted);
+    }
+
+    .vdom-arrow b {
+      display: block;
+      font-size: 2rem;
+      color: var(--accent);
+    }
+
+    /* --- Real-world apps --- */
+    .app-tile {
+      text-align: center;
+    }
+
+    .app-tile .icon {
+      font-size: 2.4rem;
+    }
+
+    .app-tile small {
+      color: var(--muted);
+      display: block;
+    }
+  </style>
+</head>
+
+<body class="deck" data-class="1" data-title="Introduction to React" data-duration="60">
+  <main class="slides">
+
+    <!-- 1 -->
+    <section class="slide title" data-title="Welcome">
+      <div class="react-logo"></div>
+      <div>
+        <span class="kicker">Week 1 · React Foundations · Class 1</span>
+        <h1>Introduction to <span class="grad">React</span></h1>
+        <p class="lead">Build websites like LEGO: small, reusable blocks that snap together into big apps.</p>
+      </div>
+      <div class="row">
+        <span class="pill blue">⏱ 60 minutes</span>
+        <span class="pill violet">🧱 Components</span>
+        <span class="pill pink">⚡ Virtual DOM</span>
+        <span class="pill green">💻 First React page</span>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Welcome everyone and introduce yourself. Press <b>T</b> to start the class timer.</li>
+          <li>Set expectations: 20 classes over 4 weeks, ending in a real project and a presentation.</li>
+          <li>Promise: "By the end of today, you will see your own React page running."</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 2 -->
+    <section class="slide" data-title="Today's plan">
+      <header>
+        <span class="kicker">Agenda</span>
+        <h2>Today's plan</h2>
+      </header>
+      <ol class="timeline">
+        <li class="step"><span class="time">00–10</span>
+          <div><b>👋 Introduction</b><small>How do websites show changing content?</small></div>
+        </li>
+        <li class="step"><span class="time">10–20</span>
+          <div><b>🤔 Why React?</b><small>Reusable components: navbar, card, footer</small></div>
+        </li>
+        <li class="step"><span class="time">20–30</span>
+          <div><b>🧠 React concepts</b><small>Components, JSX, declarative UI and the Virtual DOM</small></div>
+        </li>
+        <li class="step"><span class="time">30–45</span>
+          <div><b>💻 Live coding</b><small>Create a React app and build a welcome page</small></div>
+        </li>
+        <li class="step"><span class="time">45–55</span>
+          <div><b>🧪 Student practice</b><small>Customize your name, heading and button</small></div>
+        </li>
+        <li class="step"><span class="time">55–60</span>
+          <div><b>✅ Recap and To Practice</b><small>Review, quiz and next steps</small></div>
+        </li>
+      </ol>
+      <aside class="notes">Press → to reveal each block. Keep an eye on the timer in the top bar. It turns yellow 5
+        minutes before the end.</aside>
+    </section>
+
+    <!-- 3 -->
+    <section class="slide" data-title="Warm-up question">
+      <header class="center">
+        <span class="kicker">Warm-up · 00–10 min</span>
+        <h2>How does a website change content <span class="grad">without reloading</span>?</h2>
+        <p class="lead">Think about apps you use every day…</p>
+      </header>
+      <div class="grid cols-3">
+        <div class="card hover step"><span class="icon">❤️</span>
+          <h3>Instagram likes</h3>
+          <p class="muted">You tap the heart, the count goes up instantly and the page stays where it is.</p>
+        </div>
+        <div class="card hover step"><span class="icon">🛵</span>
+          <h3>Food delivery tracking</h3>
+          <p class="muted">"Order picked up" → "On the way" → "Arriving". The status changes live.</p>
+        </div>
+        <div class="card hover step"><span class="icon">🏏</span>
+          <h3>Live cricket score</h3>
+          <p class="muted">The score changes every ball, but the page never reloads.</p>
+        </div>
+      </div>
+      <div class="callout info step">
+        <p><b>Ask the class:</b> "What actually changes on the screen, and what stays the same?" Only a <i>small
+            part</i> changes. Remember that idea, because it is the heart of React.</p>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Let 2–3 students answer. Ask for their favourite apps.</li>
+          <li>Steer them towards: "only one small part of the screen updates".</li>
+          <li>Transition: "Let me show you the difference between the old way and the React way."</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 4 -->
+    <section class="slide" data-title="Demo: old way vs React way" id="likeDemo">
+      <header>
+        <span class="kicker">Live demo</span>
+        <h2>Old way vs <span class="grad">React way</span></h2>
+        <p class="lead">Tap the heart on both phones. Which one feels better?</p>
+      </header>
+      <div class="phones">
+        <div class="phone">
+          <h4>🐢 Old way: reload the whole page</h4>
+          <div class="feed">
+            <div class="post-img">🏖️</div>
+            <div class="post-bar"><button class="heart" data-mode="old" aria-label="Like">🤍</button><span
+                class="likes">120 likes</span></div>
+            <p style="margin:.4em 0 0;font-size:.85rem">beach_day · Sunset vibes 🌅</p>
+            <div class="reload-cover">
+              <div>
+                <div class="spinner"></div>Reloading entire page…
+              </div>
+            </div>
+          </div>
+          <div class="reload-count">Full page reloads: <b class="n-old">0</b></div>
+        </div>
+        <div class="phone" style="border-color:rgba(97,218,251,.5)">
+          <h4>⚛️ React way: update only what changed</h4>
+          <div class="feed">
+            <div class="post-img">🏖️</div>
+            <div class="post-bar"><button class="heart" data-mode="react" aria-label="Like">🤍</button><span
+                class="likes">120 likes</span></div>
+            <p style="margin:.4em 0 0;font-size:.85rem">beach_day · Sunset vibes 🌅</p>
+          </div>
+          <div class="reload-count">Full page reloads: <b>0</b>. Only the ❤️ and the number changed.</div>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Click the left heart: the whole "page" blanks and reloads. That was the experience on many older websites.
+          </li>
+          <li>Click the right heart: it is instant and only the heart and number change. That is what React makes easy.
+          </li>
+          <li>Ask: "Which would you rather use 100 times a day?"</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 5 -->
+    <section class="slide" data-title="What is React?">
+      <div class="split">
+        <div>
+          <span class="kicker">Definition</span>
+          <h2>What is React?</h2>
+          <p class="lead"><b style="color:var(--text)">React is a JavaScript library for building user interfaces</b>,
+            the part of an app you see and click.</p>
+          <ul class="checklist">
+            <li class="step">Created by <b>Meta (Facebook)</b>, released as open source in <b>2013</b></li>
+            <li class="step">Builds the UI from small reusable pieces called <b>components</b></li>
+            <li class="step">You describe <i>what</i> the screen should look like, and React handles <i>how</i> to
+              update it</li>
+            <li class="step">Used by millions of developers and one of the most in-demand frontend skills</li>
+          </ul>
+        </div>
+        <div class="analogy step">
+          <span class="big-emoji">🧱</span>
+          <h3>React is like LEGO</h3>
+          <p>A LEGO castle is built from small bricks. You build each brick once and reuse it everywhere: windows,
+            doors, towers.</p>
+          <p>A React app works the same way: <b>Navbar + ProductCard + Footer</b> snap together to make a full website.
+          </p>
+        </div>
+      </div>
+      <aside class="notes">Stress the word <b>library</b>: React focuses only on the UI (the view). Routing and data
+        fetching come from other tools, which we will learn later.</aside>
+    </section>
+
+    <!-- 6 -->
+    <section class="slide" data-title="Why do we need React?">
+      <header>
+        <span class="kicker">Why React · 10–20 min</span>
+        <h2>Why do we need React?</h2>
+        <p class="lead">Plain HTML and JavaScript work, but big apps get messy fast. Tap each card to see React's fix.
+        </p>
+      </header>
+      <div class="grid cols-4">
+        <div class="flip">
+          <div class="front"><span class="icon">📋</span>
+            <h3>Copy-paste code</h3>
+            <p class="muted">Same navbar HTML pasted on 20 pages</p>
+          </div>
+          <div class="back">
+            <h3>✅ Components</h3>
+            <p>Write <code>&lt;Navbar /&gt;</code> once and reuse it everywhere. Fix it once and every page is fixed.
+            </p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🔧</span>
+            <h3>Manual DOM updates</h3>
+            <p class="muted">Find each element and change it by hand</p>
+          </div>
+          <div class="back">
+            <h3>✅ Automatic UI</h3>
+            <p>Change the data and React updates the screen for you.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🔀</span>
+            <h3>Out-of-sync screens</h3>
+            <p class="muted">Cart says 3 items, badge says 2 😬</p>
+          </div>
+          <div class="back">
+            <h3>✅ Single source of truth</h3>
+            <p>The data (state) lives in one place and every part of the UI reads from it.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🍝</span>
+            <h3>Spaghetti code</h3>
+            <p class="muted">One 3,000-line JS file nobody understands</p>
+          </div>
+          <div class="back">
+            <h3>✅ Organized files</h3>
+            <p>Each component lives in its own small file that is easy to read and test.</p>
+          </div>
+        </div>
+      </div>
+      <div class="analogy step">
+        <p><b>Restaurant menu board:</b> if the price of a dosa changes, would you repaint the whole board? No. You swap
+          <i>just that price card</i>. React does the same thing for web pages.
+        </p>
+      </div>
+      <aside class="notes">Let students tap the cards (or tap them yourself). The menu board analogy sets up the Virtual
+        DOM idea that comes later.</aside>
+    </section>
+
+    <!-- 7 -->
+    <section class="slide" data-title="Imperative vs declarative">
+      <header>
+        <span class="kicker">Big idea</span>
+        <h2>Declarative UI: say <span class="grad">what</span>, not <span class="grad">how</span></h2>
+      </header>
+      <div class="grid cols-2">
+        <div class="card bad">
+          <span class="icon">🚕</span>
+          <h3>Imperative (plain JavaScript)</h3>
+          <p class="muted">Like guiding an auto driver at every turn:</p>
+          <p>"Go straight… turn left… stop at the signal… turn right… stop here."</p>
+          <p class="muted" style="font-size:.9rem">You write <b>every step</b>: find the element, change its text, add a
+            class, remove a class…</p>
+        </div>
+        <div class="card good">
+          <span class="icon">📱</span>
+          <h3>Declarative (React)</h3>
+          <p class="muted">Like booking a cab in an app:</p>
+          <p>"Take me to the <b>Railway Station</b>."</p>
+          <p class="muted" style="font-size:.9rem">You describe <b>the result</b> ("when count is 5, show 5"), and React
+            works out the steps.</p>
+        </div>
+      </div>
+      <div class="tabs step">
+        <div class="tab" data-label="Plain JavaScript (imperative)">
+          <script type="text/x-code" data-file="script.js" data-lang="js">
+          let count = 0;
+          const btn = document.getElementById("btn");
+          const label = document.getElementById("label");
+
+          btn.addEventListener("click", () => {
+            count = count + 1;
+            label.textContent = "Count: " + count;   // update the DOM by hand
+          });
+        </script>
+        </div>
+        <div class="tab" data-label="React (declarative)">
+          <script type="text/x-code" data-file="App.jsx" data-hl="7">
+          import { useState } from "react";
+
+          function App() {
+            const [count, setCount] = useState(0);
+            return (
+              <button onClick={() => setCount(count + 1)}>
+                Count: {count}   {/* React keeps this in sync */}
+              </button>
+            );
+          }
+        </script>
+        </div>
+      </div>
+      <aside class="notes">Students don't need to understand <code>useState</code> yet (that is Class 7). Point out that
+        in React we never write <code>textContent = ...</code>. We only describe what to show.</aside>
+    </section>
+
+    <!-- 8 -->
+    <section class="slide" data-title="HTML, CSS, JS vs React">
+      <header>
+        <span class="kicker">Comparison</span>
+        <h2>HTML, CSS, JavaScript… and React?</h2>
+      </header>
+      <div class="grid cols-4">
+        <div class="card step"><span class="icon">🧱</span>
+          <h3>HTML</h3>
+          <p class="muted">The <b>structure</b>: walls, doors and rooms of a house.</p>
+        </div>
+        <div class="card step"><span class="icon">🎨</span>
+          <h3>CSS</h3>
+          <p class="muted">The <b>style</b>: paint, curtains and decoration.</p>
+        </div>
+        <div class="card step"><span class="icon">⚡</span>
+          <h3>JavaScript</h3>
+          <p class="muted">The <b>behaviour</b>: electricity, switches and fans.</p>
+        </div>
+        <div class="card accent step"><span class="icon">🏗️</span>
+          <h3>React</h3>
+          <p class="muted">A <b>smart builder</b> that uses all three to make <b>ready-made rooms</b> you can reuse.</p>
+        </div>
+      </div>
+      <table class="table step">
+        <tr>
+          <th></th>
+          <th>Plain HTML + JS</th>
+          <th>React</th>
+        </tr>
+        <tr>
+          <td><b>Reuse UI</b></td>
+          <td>Copy and paste HTML</td>
+          <td>Reusable components</td>
+        </tr>
+        <tr>
+          <td><b>Updating the screen</b></td>
+          <td>Manual DOM changes</td>
+          <td>Automatic when data changes</td>
+        </tr>
+        <tr>
+          <td><b>Code organisation</b></td>
+          <td>Big files, mixed logic</td>
+          <td>Small, focused component files</td>
+        </tr>
+        <tr>
+          <td><b>Best for</b></td>
+          <td>Simple static pages</td>
+          <td>Interactive apps (dashboards, shops, social media)</td>
+        </tr>
+      </table>
+      <aside class="notes">Important: React does <b>not replace</b> HTML, CSS or JS. It is built on top of them. We
+        still write HTML-like code (JSX), CSS and JavaScript.</aside>
+    </section>
+
+    <!-- 9 -->
+    <section class="slide" data-title="What is a component?" id="spotter">
+      <header>
+        <span class="kicker">React concepts · 20–30 min</span>
+        <h2>What is a <span class="grad">component</span>?</h2>
+        <p class="lead">A component is a <b style="color:var(--text)">reusable, independent piece of UI</b>. Let's find
+          the components in this shopping website.</p>
+      </header>
+      <div class="comp-legend">
+        <button data-show="all" style="--c:#61dafb">👀 Show all components</button>
+        <button data-pick="Navbar" style="--c:#ef4444">Navbar</button>
+        <button data-pick="SearchBar" style="--c:#f59e0b">SearchBar</button>
+        <button data-pick="CartIcon" style="--c:#10b981">CartIcon</button>
+        <button data-pick="Sidebar" style="--c:#8b5cf6">Sidebar</button>
+        <button data-pick="ProductCard" style="--c:#3b82f6">ProductCard ×3</button>
+        <button data-pick="Footer" style="--c:#ec4899">Footer</button>
+      </div>
+      <div class="site">
+        <div class="s-nav" data-comp="Navbar">
+          <span class="logo">🛍️ ShopKart</span>
+          <span class="search" data-comp="SearchBar">🔍 Search for products…</span>
+          <span class="cart" data-comp="CartIcon">🛒 Cart (2)</span>
+        </div>
+        <div class="s-body">
+          <div class="s-side" data-comp="Sidebar"><b>Categories</b>
+            <div>📱 Mobiles</div>
+            <div>👕 Fashion</div>
+            <div>📚 Books</div>
+            <div>🏠 Home</div>
+          </div>
+          <div class="s-products">
+            <div class="s-card" data-comp="ProductCard">
+              <div class="em">🎧</div><b>Headphones</b>
+              <div>₹1,499</div><button>Add to cart</button>
+            </div>
+            <div class="s-card" data-comp="ProductCard">
+              <div class="em">⌚</div><b>Smart Watch</b>
+              <div>₹2,999</div><button>Add to cart</button>
+            </div>
+            <div class="s-card" data-comp="ProductCard">
+              <div class="em">👟</div><b>Sneakers</b>
+              <div>₹1,999</div><button>Add to cart</button>
+            </div>
+          </div>
+        </div>
+        <div class="s-foot" data-comp="Footer">© 2026 ShopKart · About · Contact · Help</div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Ask students to call out the parts <i>before</i> you click "Show all".</li>
+          <li>Key insight: <b>ProductCard is written once</b> and used 3 times with different data (it could be 3,000
+            times on a real site).</li>
+          <li>Components can sit inside components: SearchBar and CartIcon live inside the Navbar.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 10 -->
+    <section class="slide" data-title="Component tree">
+      <header>
+        <span class="kicker">Components</span>
+        <h2>Components fit together like a family tree</h2>
+      </header>
+      <div class="split">
+        <div class="stack">
+          <div class="flow" style="flex-direction:column;align-items:center">
+            <div class="node step" style="max-width:none;border-color:var(--accent)"><span
+                class="icon">🏠</span><b>&lt;App /&gt;</b><small>the whole page</small></div>
+            <div class="arrow step">↓</div>
+            <div class="flow step" style="width:100%">
+              <div class="node"><b>&lt;Navbar /&gt;</b><small>SearchBar, CartIcon</small></div>
+              <div class="node"><b>&lt;Sidebar /&gt;</b><small>categories</small></div>
+              <div class="node"><b>&lt;ProductList /&gt;</b><small>3 × ProductCard</small></div>
+              <div class="node"><b>&lt;Footer /&gt;</b><small>links</small></div>
+            </div>
+          </div>
+        </div>
+        <div class="analogy step" data-label="🍪 Real-life example">
+          <span class="big-emoji">🍪</span>
+          <h3>A component is a cookie cutter</h3>
+          <p>You make the cutter (the component) <b>once</b>, then press out as many cookies as you like. Each cookie
+            can have different toppings (different data).</p>
+          <p class="muted">One <code>ProductCard</code> shape → headphones, watch, sneakers…</p>
+        </div>
+      </div>
+      <script type="text/x-code" data-file="App.jsx" class="step">
+      function App() {
+        return (
+          <>
+            <Navbar />
+            <Sidebar />
+            <ProductList />
+            <Footer />
+          </>
+        );
+      }
+    </script>
+      <aside class="notes">Don't go deep into syntax. Show that the <i>code</i> mirrors the <i>picture</i>: the page is
+        just a list of components.</aside>
+    </section>
+
+    <!-- 11 -->
+    <section class="slide" data-title="JSX sneak peek">
+      <div class="split">
+        <div>
+          <span class="kicker">Concept</span>
+          <h2>JSX: HTML-like code inside JavaScript</h2>
+          <p class="lead">React components return <b style="color:var(--text)">JSX</b>. It looks like HTML, but it lives
+            inside JavaScript.</p>
+          <ul class="clean">
+            <li class="step">A component is just a <b>JavaScript function</b></li>
+            <li class="step">It <b>returns</b> what should appear on the screen</li>
+            <li class="step">Component names start with a <b>Capital letter</b></li>
+            <li class="step">We'll master JSX in <b>Class 3</b> 🚀</li>
+          </ul>
+        </div>
+        <div class="stack">
+          <script type="text/x-code" data-file="App.jsx" data-hl="1,2">
+          function App() {
+            return <h1>Welcome to React</h1>;
+          }
+
+          export default App;
+        </script>
+          <div class="card step">
+            <p style="margin:0"><b>Guess:</b> what does the browser actually run? <span class="spoiler">👉
+                <code>React.createElement("h1", null, "Welcome to React")</code>. JSX is converted into plain JavaScript
+                behind the scenes.</span></p>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">Click the blurred text to reveal it. This is the code example from the syllabus. Read it line
+        by line: function → return → JSX → export.</aside>
+    </section>
+
+    <!-- 12 -->
+    <section class="slide" data-title="Virtual DOM" id="vdomDemo">
+      <header>
+        <span class="kicker">Concept · high level</span>
+        <h2>The <span class="grad">Virtual DOM</span>: React's smart shortcut</h2>
+        <p class="lead">React keeps a lightweight copy of the page in memory, compares old and new, and updates <b
+            style="color:var(--text)">only what changed</b>.</p>
+      </header>
+      <div class="vdom">
+        <div class="dom-panel">
+          <h4>🧠 Virtual DOM (in memory)</h4>
+          <div class="dom-node">&lt;div class="product"&gt;</div>
+          <div class="dom-node ind" data-k="name">&lt;h3&gt;Headphones&lt;/h3&gt;</div>
+          <div class="dom-node ind" data-k="price">&lt;p&gt;₹1,499&lt;/p&gt;</div>
+          <div class="dom-node ind" data-k="stock">&lt;span&gt;In stock&lt;/span&gt;</div>
+        </div>
+        <div class="vdom-arrow"><b>⇄</b>compare<br>(diffing)</div>
+        <div class="dom-panel">
+          <h4>🌐 Real DOM (browser screen)</h4>
+          <div class="dom-node">&lt;div class="product"&gt;</div>
+          <div class="dom-node ind" data-r="name">&lt;h3&gt;Headphones&lt;/h3&gt;</div>
+          <div class="dom-node ind" data-r="price">&lt;p&gt;₹1,499&lt;/p&gt;</div>
+          <div class="dom-node ind" data-r="stock">&lt;span&gt;In stock&lt;/span&gt;</div>
+        </div>
+      </div>
+      <div class="row">
+        <button class="btn primary" data-v="price">💸 Apply discount</button>
+        <button class="btn" data-v="stock">📦 Toggle stock</button>
+        <span class="muted" id="vdomMsg">Click a button and watch which line changes.</span>
+      </div>
+      <div class="analogy step" data-label="📝 Real-life example">
+        <p><b>Spot the difference:</b> like the newspaper puzzle, React compares two pictures (before and after) and
+          fixes only the differences, instead of redrawing the whole page.</p>
+      </div>
+      <aside class="notes">Keep it high-level. Yellow = React found a difference in memory; green = React patched only
+        that line on the real screen. The other lines are untouched, and that is why React is fast.</aside>
+    </section>
+
+    <!-- 13 -->
+    <section class="slide" data-title="Where is React used?">
+      <header>
+        <span class="kicker">Real world</span>
+        <h2>Where is React used?</h2>
+        <p class="lead">You probably used a React app today without knowing it.</p>
+      </header>
+      <div class="grid cols-4">
+        <div class="card hover app-tile step"><span class="icon">📘</span><b>Facebook</b><small>where React was
+            born</small></div>
+        <div class="card hover app-tile step"><span class="icon">📸</span><b>Instagram</b><small>web app</small></div>
+        <div class="card hover app-tile step"><span class="icon">💬</span><b>WhatsApp Web</b><small>chat in the
+            browser</small></div>
+        <div class="card hover app-tile step"><span class="icon">🎬</span><b>Netflix</b><small>browsing and UI</small>
+        </div>
+        <div class="card hover app-tile step"><span class="icon">🏡</span><b>Airbnb</b><small>bookings</small></div>
+        <div class="card hover app-tile step"><span class="icon">🚗</span><b>Uber</b><small>web experience</small></div>
+        <div class="card hover app-tile step"><span class="icon">🎮</span><b>Discord</b><small>chat and
+            communities</small></div>
+        <div class="card hover app-tile step"><span class="icon">📊</span><b>Dashboards</b><small>banking, HR and admin
+            panels</small></div>
+      </div>
+      <div class="callout tip step">
+        <p><b>Bonus:</b> <b>React Native</b> uses the same ideas to build <b>mobile apps</b> for Android and iOS. Learn
+          React once, then use it on the web and on mobile.</p>
+      </div>
+      <aside class="notes">Ask: "Which of these have you used this week?" Mention that React skills are among the most
+        requested in frontend job postings.</aside>
+    </section>
+
+    <!-- 14 -->
+    <section class="slide" data-title="Exercise: spot components">
+      <header class="center">
+        <span class="kicker">Class exercise · 3 min</span>
+        <h2>🕵️ Component detective</h2>
+        <p class="lead">Open Amazon, Flipkart, YouTube or any familiar website. Find <b style="color:var(--text)">five
+            components</b>.</p>
+      </header>
+      <div class="grid cols-3">
+        <div class="card step"><span class="icon">1️⃣</span>
+          <h3>Look for repeats</h3>
+          <p class="muted">Anything that appears again and again (product tiles, video thumbnails) is a component.</p>
+        </div>
+        <div class="card step"><span class="icon">2️⃣</span>
+          <h3>Give it a name</h3>
+          <p class="muted">Use PascalCase, e.g. <code>VideoCard</code>, <code>SearchBar</code>,
+            <code>RatingStars</code>.
+          </p>
+        </div>
+        <div class="card step"><span class="icon">3️⃣</span>
+          <h3>Share it</h3>
+          <p class="muted">Which component appears the most times on the page?</p>
+        </div>
+      </div>
+      <div class="callout info step">
+        <p><b>Example answers on YouTube:</b> <code>Header</code>, <code>SearchBar</code>, <code>VideoCard</code>,
+          <code>Sidebar</code>, <code>SubscribeButton</code>, <code>CommentBox</code>.
+        </p>
+      </div>
+      <aside class="notes">Give 3 minutes. Pick 2–3 students to share their answers. Praise good names and gently
+        correct names like "box1".</aside>
+    </section>
+
+    <!-- 15 -->
+    <section class="slide section-slide" data-title="Live coding">
+      <span class="big-emoji">💻</span>
+      <span class="kicker" style="justify-content:center">30–45 min</span>
+      <h1>Let's write <span class="grad">real React</span></h1>
+      <p class="lead">We'll create a React project and build a welcome page together.</p>
+      <aside class="notes">Switch to VS Code if Node is installed. If not, use the live playground on the next slides.
+        It runs real React in the browser.</aside>
+    </section>
+
+    <!-- 16 -->
+    <section class="slide" data-title="Create a React app">
+      <header>
+        <span class="kicker">Live coding · Step 1</span>
+        <h2>Create a React app in 4 commands</h2>
+        <p class="lead">We'll explore every file in detail in <b style="color:var(--text)">Class 2</b>. Today, just
+          watch the magic.</p>
+      </header>
+      <div class="split">
+        <script type="text/x-code" data-lang="bash">
+        # 1. Create the project (Vite = fast build tool)
+        $ npm create vite@latest my-app -- --template react
+        # 2. Go into the folder
+        $ cd my-app
+        # 3. Download React and its friends
+        $ npm install
+        # 4. Start the development server 🚀
+        $ npm run dev
+      </script>
+        <div class="stack">
+          <div class="card step"><span class="icon">📦</span><b>npm</b> is like an app store for code: it downloads
+            React for us.</div>
+          <div class="card step"><span class="icon">⚡</span><b>Vite</b> (French for "fast") creates the project and runs
+            it instantly.</div>
+          <div class="card step"><span class="icon">🌐</span>Open <code>http://localhost:5173</code> to see the app.
+          </div>
+        </div>
+      </div>
+      <aside class="notes">Run this live. While <code>npm install</code> runs, explain that it downloads React into the
+        <code>node_modules</code> folder.
+      </aside>
+    </section>
+
+    <!-- 17 -->
+    <section class="slide" data-title="Build a welcome page">
+      <header>
+        <span class="kicker">Live coding · Step 2 · Try it!</span>
+        <h2>Your first React page ✨</h2>
+        <p class="lead">Edit the code on the left. The page on the right updates <b style="color:var(--text)">live</b>,
+          just like in Vite.</p>
+      </header>
+      <div class="playground" data-height="430">
+        <script type="text/x-playground">
+        function App() {
+          const name = "Priya";
+
+          return (
+            <div className="card">
+              <h1>Welcome to React 👋</h1>
+              <p>Hello, I am {name} and this is my first React page!</p>
+              <button onClick={() => alert("You clicked me! 🎉")}>
+                Say hello
+              </button>
+            </div>
+          );
+        }
+
+        export default App;
+      </script>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Change the heading text and watch it update.</li>
+          <li>Change <code>name</code> to a student's name. Point out the <code>{curly braces}</code> (Class 3 topic).
+          </li>
+          <li>Click the button: it is a real React app running in the browser.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 18 -->
+    <section class="slide" data-title="Student practice">
+      <header>
+        <span class="kicker">Student practice · 45–55 min</span>
+        <h2>🧪 Your turn: make it yours!</h2>
+      </header>
+      <div class="grid cols-4">
+        <div class="card"><span class="icon">✏️</span><b>1.</b> Put <b>your name</b> in the <code>name</code> variable
+        </div>
+        <div class="card"><span class="icon">🔤</span><b>2.</b> Change the <b>heading</b></div>
+        <div class="card"><span class="icon">🔘</span><b>3.</b> Change the <b>button text</b> and alert message</div>
+        <div class="card"><span class="icon">⭐</span><b>Bonus:</b> add a <b>list of 3 hobbies</b> using
+          <code>&lt;ul&gt;</code>
+        </div>
+      </div>
+      <div class="playground" data-height="360">
+        <script type="text/x-playground">
+        function App() {
+          // TODO 1: put your name here
+          const name = "Your Name";
+
+          return (
+            <div className="card">
+              {/* TODO 2: change the heading */}
+              <h1>Hello World</h1>
+              <p>My name is {name}.</p>
+
+              {/* TODO 3: change the button text and message */}
+              <button onClick={() => alert("Hi!")}>Click me</button>
+
+              {/* BONUS: add a <ul> with 3 hobbies */}
+            </div>
+          );
+        }
+      </script>
+      </div>
+      <aside class="notes">Walk around the class. Common mistakes: removing a closing tag, or deleting the
+        <code>return (</code> parenthesis. The red error box in the preview shows exactly what went wrong. Use it as a
+        teaching moment.
+      </aside>
+    </section>
+
+    <!-- 19 -->
+    <section class="slide" data-title="Quick quiz">
+      <header>
+        <span class="kicker">Recap · 55–60 min</span>
+        <h2>⚡ Quick quiz</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="quiz" data-answer="b">
+          <p class="q">1. What is React?</p>
+          <div class="opts">
+            <button data-opt="a">A programming language</button>
+            <button data-opt="b">A JavaScript library for building UIs</button>
+            <button data-opt="c">A database</button>
+          </div>
+          <p class="explain">✅ React is a <b>library</b> made by Meta for building user interfaces.</p>
+        </div>
+        <div class="quiz" data-answer="c">
+          <p class="q">2. A reusable piece of UI is called a…</p>
+          <div class="opts">
+            <button data-opt="a">Module</button>
+            <button data-opt="b">Template</button>
+            <button data-opt="c">Component</button>
+          </div>
+          <p class="explain">✅ <b>Components</b> are the LEGO bricks of React.</p>
+        </div>
+        <div class="quiz" data-answer="a">
+          <p class="q">3. What does the Virtual DOM help React do?</p>
+          <div class="opts">
+            <button data-opt="a">Update only the parts that changed</button>
+            <button data-opt="b">Store data in the cloud</button>
+            <button data-opt="c">Design logos</button>
+          </div>
+          <p class="explain">✅ It compares old vs new and patches <b>only the differences</b>.</p>
+        </div>
+      </div>
+      <aside class="notes">Let the class vote by show of hands first, then click the answer. A wrong answer shakes; the
+        right one throws confetti 🎉.</aside>
+    </section>
+
+    <!-- 20 -->
+    <section class="slide" data-title="Recap">
+      <header>
+        <span class="kicker">Recap</span>
+        <h2>Today you learned… ✅</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="flip">
+          <div class="front"><span class="icon">⚛️</span>
+            <h3>What is React?</h3>
+          </div>
+          <div class="back">
+            <p>A JavaScript <b>library</b> by Meta for building <b>user interfaces</b>.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🤔</span>
+            <h3>Why React?</h3>
+          </div>
+          <div class="back">
+            <p>Reusable components, automatic UI updates and organized code.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">📱</span>
+            <h3>Declarative UI</h3>
+          </div>
+          <div class="back">
+            <p>Tell React <b>what</b> to show (like booking a cab), not <b>how</b> to change it step by step.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🧱</span>
+            <h3>Component</h3>
+          </div>
+          <div class="back">
+            <p>A reusable piece of UI, like a LEGO brick or a cookie cutter.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🧠</span>
+            <h3>Virtual DOM</h3>
+          </div>
+          <div class="back">
+            <p>An in-memory copy of the page. React compares it and updates only what changed.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">💻</span>
+            <h3>First app</h3>
+          </div>
+          <div class="back">
+            <p><code>npm create vite@latest</code> → <code>npm install</code> → <code>npm run dev</code></p>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">Ask a different student to "flip" and explain each card in their own words before you reveal
+        it.</aside>
+    </section>
+
+    <!-- 21 -->
+    <section class="slide" data-title="To Practice">
+      <header>
+        <span class="kicker">To Practice</span>
+        <h2>📚 To Practice</h2>
+      </header>
+      <div class="grid cols-2">
+        <div class="card accent">
+          <span class="icon">🌐</span>
+          <h3>Main task</h3>
+          <p>Write down <b>five real-world websites or apps</b> that use reusable UI components.</p>
+          <p class="muted">For each one, name <b>one component</b> that repeats (e.g. YouTube → <code>VideoCard</code>).
+          </p>
+        </div>
+        <div class="card">
+          <span class="icon">⭐</span>
+          <h3>Bonus</h3>
+          <p>Create a <b>personal introduction page</b> in the playground (or your own Vite app):</p>
+          <ul class="checklist">
+            <li>Your name and a heading</li>
+            <li>A short paragraph about you</li>
+            <li>A button with a fun message</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout info">
+        <p><b>Next class:</b> Environment setup: Node.js, VS Code and Vite, and what every file in the project does. 🛠️
+      </div>
+      <aside class="notes">Share the installation links: nodejs.org (LTS version) and code.visualstudio.com.</aside>
+    </section>
+
+    <!-- 22 -->
+    <section class="slide title" data-title="Thank you">
+      <div class="react-logo"></div>
+      <h1>Thank you! <span class="grad">Questions?</span></h1>
+      <p class="lead">"Every big app is just small components working together." ⚛️</p>
+      <div class="row">
+        <a class="btn" href="index.html">📋 Course plan</a>
+        <a class="btn primary" href="class-02.html">Next: Class 2 →</a>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="assets/deck.js"></script>
+  <script>
+    /* Demo: old way vs React way */
+    (() => {
+      const root = document.getElementById('likeDemo');
+      let oldReloads = 0;
+      root.querySelectorAll('.heart').forEach(btn => {
+        let liked = false,count = 120;
+        const feed = btn.closest('.feed');
+        const label = feed.querySelector('.likes');
+        btn.addEventListener('click',() => {
+          liked = !liked; count += liked ? 1 : -1;
+          if (btn.dataset.mode === 'old') {
+            const cover = feed.querySelector('.reload-cover');
+            cover.classList.add('on');
+            root.querySelector('.n-old').textContent = ++oldReloads;
+            setTimeout(() => { btn.textContent = liked ? '❤️' : '🤍'; label.textContent = count + ' likes'; cover.classList.remove('on'); },1300);
+          } else {
+            btn.textContent = liked ? '❤️' : '🤍';
+            label.textContent = count + ' likes';
+            btn.classList.remove('pop'); label.classList.remove('flash');
+            void btn.offsetWidth;
+            btn.classList.add('pop'); label.classList.add('flash');
+          }
+        });
+      });
+    })();
+
+    /* Demo: component spotter */
+    (() => {
+      const root = document.getElementById('spotter');
+      const site = root.querySelector('.site');
+      const buttons = root.querySelectorAll('.comp-legend button');
+      buttons.forEach(b => b.addEventListener('click',() => {
+        const wasOn = b.classList.contains('on');
+        buttons.forEach(x => x.classList.remove('on'));
+        site.classList.remove('show');
+        site.querySelectorAll('.pick').forEach(x => x.classList.remove('pick'));
+        if (wasOn) return;
+        b.classList.add('on');
+        if (b.dataset.show) site.classList.add('show');
+        else site.querySelectorAll(`[data-comp="${b.dataset.pick}"]`).forEach(x => x.classList.add('pick'));
+      }));
+    })();
+
+    /* Demo: virtual DOM diffing */
+    (() => {
+      const root = document.getElementById('vdomDemo');
+      const msg = root.querySelector('#vdomMsg');
+      const state = { price: ['₹1,499','₹999 🔥'],stock: ['In stock','Out of stock'] };
+      const idx = { price: 0,stock: 0 };
+      const tags = { price: 'p',stock: 'span' };
+      root.querySelectorAll('[data-v]').forEach(b => b.addEventListener('click',() => {
+        const k = b.dataset.v;
+        idx[k] = 1 - idx[k];
+        const html = `&lt;${tags[k]}&gt;${state[k][idx[k]]}&lt;/${tags[k]}&gt;`;
+        const v = root.querySelector(`[data-k="${k}"]`),r = root.querySelector(`[data-r="${k}"]`);
+        v.innerHTML = html; v.classList.add('changed');
+        msg.textContent = '🧠 React found 1 difference in memory…';
+        setTimeout(() => {
+          r.innerHTML = html; r.classList.remove('patched'); void r.offsetWidth; r.classList.add('patched');
+          v.classList.remove('changed');
+          msg.textContent = '✅ Only 1 line updated on the real screen. The other 3 were untouched!';
+        },900);
+      }));
+    })();
+  </script>
+</body>
+
+</html>

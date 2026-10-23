@@ -1,0 +1,2079 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Python Class 4 · Advanced Python &amp; Interview Prep</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <style>
+    /* Python logo + shared Python course bits (same block in every py-class file) */
+    .py-logo {
+      width: clamp(100px, 13vw, 150px);
+      aspect-ratio: 1;
+      margin: 0 auto 12px;
+      border-radius: 26px;
+      display: grid;
+      place-items: center;
+      font-size: clamp(3rem, 7vw, 4.6rem);
+      background: linear-gradient(135deg, #3776ab 0 50%, #ffd43b 50% 100%);
+      box-shadow: 0 0 50px rgba(55, 118, 171, .4);
+      animation: bob 4s ease-in-out infinite;
+    }
+
+    .slide>.py-logo {
+      width: clamp(100px, 13vw, 150px);
+    }
+
+    @keyframes bob {
+      50% {
+        transform: translateY(-8px) rotate(-3deg);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .py-logo {
+        animation: none;
+      }
+    }
+
+    .pyb {
+      color: #4b8bbe;
+    }
+
+    .pyy {
+      color: #eab308;
+    }
+
+    /* Interview question cards */
+    .iq {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid #eab308;
+      border-radius: 14px;
+      padding: 12px 16px;
+    }
+
+    .iq .q {
+      font-weight: 700;
+      margin: 0 0 6px;
+    }
+
+    .iq .q::before {
+      content: "🎯 ";
+    }
+
+    .iq p {
+      margin: 0;
+    }
+
+    .iq-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    @media (max-width: 860px) {
+      .iq-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .iq-grid.tight .iq {
+      padding: 9px 14px;
+      font-size: .93rem;
+    }
+
+    .predict {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    @media (max-width: 960px) {
+      .predict {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .predict .card {
+      padding: 12px 14px;
+    }
+
+    .predict .card code {
+      display: block;
+      white-space: pre;
+      font-size: .92rem;
+      margin-bottom: 8px;
+      overflow-x: auto;
+    }
+
+    .chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 12px;
+    }
+
+    .chips button {
+      font: 600 .9rem var(--mono);
+      padding: 6px 12px;
+      border-radius: 99px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .chips button:hover,
+    .chips button.on {
+      border-color: #ffd43b;
+    }
+
+    .chips button.on {
+      background: rgba(255, 212, 59, .18);
+    }
+
+    /* Code-trace panel shared by the demos */
+    .tcode {
+      font: 500 .95rem/1.4 var(--mono);
+      background: var(--code-bg, #0b1220);
+      border-radius: 14px;
+      padding: 10px 0;
+      color: #e2e8f0;
+      font-variant-ligatures: none;
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    .tcode div {
+      padding: 4px 16px;
+      opacity: .45;
+      border-left: 4px solid transparent;
+      transition: .25s;
+      position: relative;
+      min-height: 1.4em;
+    }
+
+    .tcode div.done {
+      opacity: .85;
+      border-left-color: rgba(52, 211, 153, .6);
+    }
+
+    .tcode div.cur {
+      opacity: 1;
+      background: rgba(255, 212, 59, .16);
+      border-left-color: #ffd43b;
+    }
+
+    .tcode div.boom {
+      opacity: 1;
+      background: rgba(248, 113, 113, .22);
+      border-left-color: #f87171;
+    }
+
+    .tcode div.skip {
+      opacity: .55;
+      text-decoration: line-through;
+      text-decoration-color: #f87171;
+    }
+
+    .tcode div[data-tag]::after {
+      content: attr(data-tag);
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font: 700 .72rem var(--font);
+      padding: 2px 8px;
+      border-radius: 99px;
+      background: #ffd43b;
+      color: #111;
+      text-decoration: none;
+    }
+
+    .tcode div.boom[data-tag]::after {
+      background: #f87171;
+    }
+
+    .tcode div.skip[data-tag]::after {
+      background: #64748b;
+      color: #fff;
+    }
+
+    .term {
+      font: 500 .95rem/1.5 var(--mono);
+      background: #0f172a;
+      color: #e2e8f0;
+      border-radius: 12px;
+      padding: 10px 14px;
+      min-height: 92px;
+    }
+
+    .term div {
+      animation: fadeUp .3s ease;
+    }
+
+    .term .err {
+      color: #fca5a5;
+    }
+
+    .term .muted-line {
+      color: #64748b;
+      font-style: italic;
+    }
+
+    .demo-msg {
+      min-height: 3.4em;
+    }
+
+    /* Demo 1: exception tracer */
+    .trace {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 18px;
+    }
+
+    .trace .call {
+      font: 700 1.05rem var(--mono);
+      color: var(--accent);
+      margin: 0 0 8px;
+    }
+
+    /* Demo 2: generator vending machine */
+    .vend {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 18px;
+    }
+
+    .tray {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      min-height: 46px;
+      align-items: center;
+      padding: 8px 10px;
+      border-radius: 12px;
+      border: 2px dashed var(--border);
+      margin: 6px 0 10px;
+    }
+
+    .tok {
+      font: 800 1rem var(--mono);
+      padding: 6px 12px;
+      border-radius: 10px;
+      background: #ffd43b;
+      color: #111;
+      animation: drop .45s ease;
+    }
+
+    .tok.stop {
+      background: #f87171;
+      color: #fff;
+    }
+
+    @keyframes drop {
+      from {
+        transform: translateY(-24px);
+        opacity: 0;
+      }
+    }
+
+    .mem-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 4px 10px;
+      align-items: center;
+      margin-top: 8px;
+      font-size: .9rem;
+    }
+
+    .mem-row code {
+      font-size: .82rem;
+    }
+
+    .meter {
+      grid-column: 1 / -1;
+      height: 20px;
+      border-radius: 99px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .meter i {
+      display: block;
+      height: 100%;
+      width: 0;
+      border-radius: 99px;
+      transition: width 1.2s ease;
+    }
+
+    /* Demo 3: decorator gift wrap */
+    .gw-layer {
+      border: 2px dashed var(--border);
+      border-radius: 16px;
+      padding: 10px 14px 14px;
+      transition: .3s;
+      background: var(--surface);
+    }
+
+    .gw-layer+.gw-layer,
+    .gw-layer .gw-layer {
+      margin-top: 8px;
+    }
+
+    .gw-name {
+      font: 700 .95rem var(--mono);
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .gw-name small {
+      font: 500 .78rem var(--font);
+      color: var(--muted);
+    }
+
+    .gw-layer.timer {
+      --c: #fbbf24;
+    }
+
+    .gw-layer.login {
+      --c: #a78bfa;
+    }
+
+    .gw-layer.core {
+      --c: #34d399;
+      text-align: center;
+    }
+
+    .gw-layer .gw-name {
+      color: var(--c);
+    }
+
+    .gw-layer.on {
+      border-style: solid;
+      border-color: var(--c);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 30%, transparent), 0 0 30px color-mix(in srgb, var(--c) 35%, transparent);
+    }
+
+    .gw-layer.blocked {
+      opacity: .35;
+      filter: grayscale(1);
+    }
+
+    .gw-caller {
+      text-align: center;
+      font: 700 .95rem var(--mono);
+      padding: 6px;
+      border-radius: 12px;
+      border: 2px dashed var(--border);
+      margin-bottom: 8px;
+      transition: .3s;
+    }
+
+    .gw-caller.on {
+      border-style: solid;
+      border-color: var(--accent);
+      box-shadow: var(--glow);
+    }
+
+    .switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .switch input {
+      width: 20px;
+      height: 20px;
+      accent-color: #34d399;
+    }
+
+    /* Misc */
+    .tiny {
+      font-size: .85rem;
+    }
+
+    .complexity {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .big-done {
+      font-size: clamp(3rem, 8vw, 5.5rem);
+      line-height: 1;
+    }
+  </style>
+</head>
+
+<body class="deck" data-class="4" data-course="Python Course" data-icon="🐍"
+  data-title="Advanced Python &amp; Interview Prep" data-duration="90">
+  <main class="slides">
+
+    <!-- 1 -->
+    <section class="slide title" data-title="Welcome">
+      <div class="py-logo">🐍</div>
+      <div>
+        <span class="kicker">Python: Zero to Interview-Ready · Class 4 of 4 · Final class</span>
+        <h1><span class="grad">Advanced Python</span> &amp; Interview Prep</h1>
+        <p class="lead">Exceptions, generators, decorators and the GIL, then a full mock interview: coding
+          problems, rapid-fire questions and trick outputs.</p>
+      </div>
+      <div class="row">
+        <span class="pill yellow">⏱ 90 minutes</span>
+        <span class="pill blue">▶ Live Python in the browser</span>
+        <span class="pill violet">🎁 Decorators</span>
+        <span class="pill pink">⚙️ Generators</span>
+        <span class="pill green">🎯 Mock interview</span>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Press <b>T</b> to start the timer. Open with: "This is the last class. After today you should be able to
+            walk into a Python interview and handle both the theory and the coding round."</li>
+          <li>Part A (~55 min) is advanced Python. Part B (~35 min) is pure interview practice.</li>
+          <li>Playgrounds run real Python (first run ~5 sec, needs internet).</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 2 -->
+    <section class="slide" data-title="Today's plan">
+      <header>
+        <span class="kicker">Agenda · 90 min</span>
+        <h2>Today's plan 🗺️</h2>
+      </header>
+      <ol class="timeline">
+        <li class="step"><span class="time">00–12</span>
+          <div><b>🛟 Exceptions</b><small>try / except / else / finally, raise, custom errors, EAFP</small></div>
+        </li>
+        <li class="step"><span class="time">12–20</span>
+          <div><b>📂 Files &amp; context managers</b><small><code>with open()</code>, writing your own
+              <code>with</code></small></div>
+        </li>
+        <li class="step"><span class="time">20–32</span>
+          <div><b>⚙️ Iterators &amp; generators</b><small><code>iter</code>, <code>next</code>, <code>yield</code>,
+              reading a huge log file</small></div>
+        </li>
+        <li class="step"><span class="time">32–45</span>
+          <div><b>🎁 Decorators</b><small>Built step by step: timer, login_required, retry</small></div>
+        </li>
+        <li class="step"><span class="time">45–55</span>
+          <div><b>🧠 Modules, GIL, concurrency, memory</b><small>The "internals" questions seniors get asked</small>
+          </div>
+        </li>
+        <li class="step"><span class="time">55–90</span>
+          <div><b>🎯 Interview prep</b><small>9 coding problems, rapid-fire, predict the output, quiz, roadmap</small>
+          </div>
+        </li>
+      </ol>
+      <aside class="notes">Reveal each row with →. Tell them Part B is a mock interview: you will call on people by
+        name, so stay alert.</aside>
+    </section>
+
+    <!-- 3 -->
+    <section class="slide section-slide" data-title="Part A: Exceptions">
+      <span class="big-emoji">🛟</span>
+      <span class="kicker" style="justify-content:center">Part A · Advanced Python · 00–12 min</span>
+      <h1>When things go <span class="grad">wrong</span></h1>
+      <p class="lead">UPI says "payment failed", IRCTC says "server busy". Good programs don't crash: they
+        <b>handle</b> errors.</p>
+      <aside class="notes">Ask: "What happens if an app crashes every time the network drops?" Nobody would use it.
+        Exception handling is what makes software feel reliable.</aside>
+    </section>
+
+    <!-- 4 -->
+    <section class="slide" data-title="Demo: try/except flow" id="excDemo">
+      <header>
+        <span class="kicker">Interactive · watch the flow</span>
+        <h2><code>try → except → else → finally</code> 🔦</h2>
+        <p class="lead">A Swiggy bill-splitter. Pick a call and watch which blocks run, in order.</p>
+      </header>
+      <div class="trace">
+        <div>
+          <div class="tcode" id="xCode"></div>
+          <div class="chips" style="justify-content:flex-start">
+            <button data-x="ok">✅ split_bill("600", 3)</button>
+            <button data-x="value">🔤 split_bill("six hundred", 3)</button>
+            <button data-x="zero">0️⃣ split_bill("600", 0)</button>
+            <button data-x="crash">💥 split_bill("600", None)</button>
+          </div>
+        </div>
+        <div class="demo">
+          <span class="demo-label">What Python does</span>
+          <p class="call" id="xCall">Pick a call on the left ←</p>
+          <div class="callout info demo-msg" id="xMsg">
+            <p>Yellow = running now, red = exception raised, struck-out = skipped.</p>
+          </div>
+          <div class="term" id="xOut" style="margin-top:12px"><div class="muted-line">output appears here</div></div>
+          <div class="grid cols-2 tiny" style="margin-top:12px;gap:8px">
+            <div class="card" style="padding:8px 12px"><b>else</b>: runs only if <b>no</b> exception</div>
+            <div class="card" style="padding:8px 12px"><b>finally</b>: runs <b>always</b> (cleanup)</div>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Before each click, ask the class: "Which lines will run?" Then click and compare.</li>
+          <li>Key points: the first matching <code>except</code> wins; <code>else</code> only when no error;
+            <code>finally</code> runs even when the error is NOT caught (last button).</li>
+          <li>Why <code>else</code>? It keeps the try block small, so you only catch errors from the risky lines.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 5 -->
+    <section class="slide" data-title="raise & custom exceptions">
+      <header>
+        <span class="kicker">Live code · UPI wallet</span>
+        <h2><code>raise</code> and your own exception classes 💳</h2>
+      </header>
+      <div class="playground" data-mode="py" data-height="370" data-file="upi.py">
+        <script type="text/x-playground">
+        class InsufficientBalanceError(Exception):
+            """Raised when a payment is more than the balance."""
+            def __init__(self, balance, amount):
+                self.shortfall = amount - balance
+                super().__init__(f"Need ₹{self.shortfall} more")
+
+        def upi_pay(balance, amount):
+            if amount <= 0:
+                raise ValueError("Amount must be positive")
+            if amount > balance:
+                raise InsufficientBalanceError(balance, amount)
+            return balance - amount
+
+        for amt in [300, 900, -5]:
+            try:
+                left = upi_pay(500, amt)
+            except InsufficientBalanceError as e:     # most specific first
+                print(f"❌ ₹{amt}: {e} (shortfall {e.shortfall})")
+            except ValueError as e:
+                print(f"⚠️ ₹{amt}: {e}")
+            else:
+                print(f"✅ Paid ₹{amt}, balance ₹{left}")
+      </script>
+      </div>
+      <div class="grid cols-2">
+        <div class="card step"><b>🙋 EAFP</b> <span class="muted">"Easier to Ask Forgiveness than Permission"</span><br>
+          <code>try: x = d["key"]</code> <code>except KeyError: ...</code><br><span class="muted tiny">Just try it,
+            handle the failure. The <b>Pythonic</b> style.</span></div>
+        <div class="card step"><b>👀 LBYL</b> <span class="muted">"Look Before You Leap"</span><br>
+          <code>if "key" in d: x = d["key"]</code><br><span class="muted tiny">Check first. Fine, but racy for files
+            and networks (things change between check and use).</span></div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Custom exceptions should inherit from <code>Exception</code> (not <code>BaseException</code>). Give them
+            useful attributes like <code>shortfall</code>.</li>
+          <li>Never write a bare <code>except:</code>: it also swallows Ctrl+C and typos. Catch specific exceptions.
+          </li>
+          <li>Live: change 900 to 450 and watch the output change.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 6 -->
+    <section class="slide" data-title="Files & with">
+      <header>
+        <span class="kicker">Files · 12–20 min</span>
+        <h2>Reading &amp; writing files with <code>with</code> 📂</h2>
+        <p class="lead">The browser's Python has a pretend disk, so this really creates a file.</p>
+      </header>
+      <div class="playground" data-mode="py" data-height="360" data-file="orders.py">
+        <script type="text/x-playground">
+        with open("orders.log", "w") as f:        # w = write (overwrite)
+            f.write("1001,Biryani,250\n")
+            f.write("1002,Masala Dosa,90\n")
+
+        with open("orders.log", "a") as f:        # a = append
+            f.write("1003,Paneer Roll,140\n")
+
+        print("File closed?", f.closed)   # auto-closed!
+
+        total = 0
+        with open("orders.log") as f:              # r = read (default)
+            for line in f:                         # line by line
+                order_id, item, price = line.strip().split(",")
+                total += int(price)
+                print(f"#{order_id}  {item:<13} ₹{price}")
+        print("Total: ₹", total)
+      </script>
+      </div>
+      <div class="grid cols-3">
+        <div class="card step"><b><code>"r"</code> <code>"w"</code> <code>"a"</code></b><br><span class="muted">read
+            · write (overwrite) · append. Add <code>"b"</code> for binary (images, PDFs).</span></div>
+        <div class="card step"><b>Why <code>with</code>?</b><br><span class="muted">It closes the file
+            <b>automatically</b>, even if an error happens inside.</span></div>
+        <div class="analogy step" data-label="🏨 Real-life example">
+          <p>A hotel key card: pull it out and the AC and lights switch off by themselves. You can't forget.</p>
+        </div>
+      </div>
+      <aside class="notes">Without <code>with</code> you need <code>f = open(...)</code> … <code>f.close()</code>
+        inside a <code>try/finally</code>. Interview question: "Why use <code>with</code>?" → automatic cleanup, even on
+        exceptions.</aside>
+    </section>
+
+    <!-- 7 -->
+    <section class="slide" data-title="Custom context managers">
+      <header>
+        <span class="kicker">Live code · write your own <code>with</code></span>
+        <h2>Custom context managers 🔌</h2>
+        <p class="lead">Two ways: a class with <code>__enter__/__exit__</code>, or a generator with
+          <code>@contextmanager</code>.</p>
+      </header>
+      <div class="playground" data-mode="py" data-height="420" data-file="ctx.py">
+        <script type="text/x-playground">
+        from contextlib import contextmanager
+        import time
+
+        class Timer:
+            def __enter__(self):                  # start of with
+                self.start = time.perf_counter()
+                return self
+            def __exit__(self, exc_type, exc, tb):  # end, always
+                ms = (time.perf_counter() - self.start) * 1000
+                print(f"⏱️ block took {ms:.1f} ms")
+                return False      # don't hide errors
+
+        with Timer():
+            total = sum(range(200_000))
+        print("sum =", total)
+
+        @contextmanager
+        def db_connection(name):
+            print(f"🔌 connect {name}")
+            try:
+                yield f"<conn {name}>"            # value for 'as'
+            finally:
+                print(f"🔒 close {name}")         # cleanup, even on error
+
+        try:
+            with db_connection("irctc_db") as conn:
+                print("using", conn)
+                1 / 0                             # something breaks!
+        except ZeroDivisionError:
+            print("error handled, and the connection was still closed ↑")
+      </script>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Code before <code>yield</code> = <code>__enter__</code>; code after (in <code>finally</code>) =
+            <code>__exit__</code>.</li>
+          <li>Real uses: DB connections, locks (<code>with lock:</code>), temporary directories, timing blocks.</li>
+          <li>If <code>__exit__</code> returns <code>True</code>, the exception is swallowed. Rarely what you want.
+          </li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 8 -->
+    <section class="slide" data-title="Iterators">
+      <header>
+        <span class="kicker">Iterators · 20–32 min</span>
+        <h2>Iterable vs iterator 🔁</h2>
+      </header>
+      <div class="playground" data-mode="py" data-height="380" data-file="iterators.py">
+          <script type="text/x-playground">
+          tickets = ["PNR-101", "PNR-102", "PNR-103"]  # iterable
+          it = iter(tickets)                           # iterator
+          print(next(it))
+          print(next(it))
+          print(next(it))
+          try:
+              next(it)
+          except StopIteration:
+              print("StopIteration: no more tickets!")
+
+          class Countdown:                  # our own iterator
+              def __init__(self, start):
+                  self.n = start
+              def __iter__(self):
+                  return self
+              def __next__(self):
+                  if self.n == 0:
+                      raise StopIteration
+                  self.n -= 1
+                  return self.n + 1
+
+          print(list(Countdown(5)), "🚀")
+        </script>
+        </div>
+        <div class="grid cols-4">
+          <div class="card step"><b>📚 Iterable</b><br><span class="muted">Anything you can loop over: list, str,
+              dict, file. Has <code>__iter__</code>.</span></div>
+          <div class="card step"><b>🔖 Iterator</b><br><span class="muted">Remembers <b>where you are</b>. Has
+              <code>__next__</code>; raises <code>StopIteration</code> at the end. Used up after one pass.</span>
+          </div>
+          <div class="analogy step" data-label="📖 Real-life example">
+            <p>A book is <b>iterable</b>. A <b>bookmark</b> is the iterator: it knows your page, and moves forward
+              one page at a time.</p>
+          </div>
+          <div class="callout tip step">
+            <p>A <code>for</code> loop secretly calls <code>iter()</code> once, then <code>next()</code> until
+              <code>StopIteration</code>.</p>
+          </div>
+        </div>
+      <aside class="notes">Writing <code>__iter__</code> + <code>__next__</code> by hand is tedious. Next slide:
+        generators do all of it with one keyword, <code>yield</code>.</aside>
+    </section>
+
+    <!-- 9 -->
+    <section class="slide" data-title="Demo: generator vending machine" id="genDemo">
+      <header>
+        <span class="kicker">Interactive · <code>yield</code> pauses a function</span>
+        <h2>The Tatkal token machine 🎫</h2>
+        <p class="lead">A generator gives <b>one value per <code>next()</code></b>, then pauses and remembers where it
+          was.</p>
+      </header>
+      <div class="vend">
+        <div>
+          <div class="tcode" id="gCode"></div>
+          <div class="row" style="margin-top:12px">
+            <button class="btn" id="gMake">gen = tatkal_tokens()</button>
+            <button class="btn primary" id="gNext">next(gen) ▶</button>
+            <button class="btn ghost" id="gReset">↺ Reset</button>
+          </div>
+        </div>
+        <div class="demo">
+          <span class="demo-label">Tokens handed out</span>
+          <div class="tray" id="gTray"></div>
+          <div class="term" id="gOut" style="min-height:70px"><div class="muted-line">printed output</div></div>
+          <div class="callout info demo-msg" id="gMsg" style="margin-top:10px">
+            <p>Press <b>gen = tatkal_tokens()</b> first.</p>
+          </div>
+          <div class="mem-row">
+            <code>[n for n in range(1_000_000)]</code><b id="mList">list</b>
+            <div class="meter"><i id="mListBar" style="background:linear-gradient(90deg,#f87171,#fb923c)"></i></div>
+            <code>(n for n in range(1_000_000))</code><b id="mGen">generator</b>
+            <div class="meter"><i id="mGenBar" style="background:#34d399"></i></div>
+          </div>
+          <p class="muted tiny" style="margin:6px 0 0">sys.getsizeof on 64-bit CPython 3.12</p>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Click <b>gen = …</b>: point out <b>nothing is printed</b>. Creating a generator runs no code.</li>
+          <li>Click <b>next</b> four times. The 4th gives <code>StopIteration</code>; a 5th shows the generator is
+            exhausted (one pass only).</li>
+          <li>Memory bars: the list stores a million numbers; the generator stores only its paused state.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 10 -->
+    <section class="slide" data-title="Generators in real life">
+      <header>
+        <span class="kicker">Live code · memory + a huge log file</span>
+        <h2>Generators: compute <span class="grad">only when asked</span> 🪶</h2>
+      </header>
+      <div class="playground" data-mode="py" data-height="420" data-file="logs.py">
+        <script type="text/x-playground">
+        import sys
+
+        squares_list = [n * n for n in range(1_000_000)]  # builds ALL now
+        squares_gen = (n * n for n in range(1_000_000))   # builds on demand
+        print("list :", sys.getsizeof(squares_list), "bytes")
+        print("gen  :", sys.getsizeof(squares_gen), "bytes")
+
+        # Real life: a 100,000-line server log, read lazily
+        with open("server.log", "w") as f:
+            for i in range(1, 100_001):
+                level = "ERROR" if i % 25_000 == 0 else "INFO"
+                f.write(f"{level} payment request {i}\n")
+
+        def errors(path):
+            with open(path) as f:
+                for line in f:                 # one line in memory at a time
+                    if line.startswith("ERROR"):
+                        yield line.strip()
+
+        for e in errors("server.log"):
+            print(e)
+      </script>
+      </div>
+      <div class="grid cols-2">
+        <div class="callout tip step">
+          <p><b>Generator expression</b> = list comprehension with <code>( )</code>. Perfect inside
+            <code>sum()</code>, <code>max()</code>, <code>any()</code>: <code>sum(x*x for x in nums)</code>.</p>
+        </div>
+        <div class="callout info step">
+          <p>The browser runs 32-bit Python, so sizes are about half of your laptop's (~8 MB list vs ~200 bytes).</p>
+        </div>
+      </div>
+      <aside class="notes">Real use: processing a 10 GB log, CSV or database export without loading it all into
+        RAM. Interview line: "Generators are lazy: they trade one-time-use for O(1) memory."</aside>
+    </section>
+
+    <!-- 11 -->
+    <section class="slide" data-title="Decorators: the building blocks">
+      <header>
+        <span class="kicker">Decorators · 32–45 min · step by step</span>
+        <h2>Three ideas you need first 🧱</h2>
+      </header>
+      <div class="playground" data-mode="py" data-height="350" data-file="steps.py">
+          <script type="text/x-playground">
+          # Step 1: functions are objects
+          def greet(name):
+              return f"Vanakkam, {name}!"
+          say = greet                   # no () -> the function itself
+          print(say("Priya"))
+
+          # Step 2: a function inside a function
+          def outer():
+              def inner():
+                  return "I live inside outer"
+              return inner()
+          print(outer())
+
+          # Step 3: return a function (don't call it)
+          def make_discount(pct):
+              def apply(price):
+                  return price - price * pct / 100
+              return apply              # hand back the function
+          big_billion_sale = make_discount(40)
+          print(big_billion_sale(1000))
+        </script>
+        </div>
+        <div class="grid cols-4">
+          <div class="card step"><b>1️⃣ Functions are objects</b><br><span class="muted">Store them in variables, put
+              them in lists, pass them as arguments.</span></div>
+          <div class="card step"><b>2️⃣ Functions inside functions</b><br><span class="muted">A helper that only the
+              outer function can see.</span></div>
+          <div class="card step"><b>3️⃣ Functions can return functions</b><br><span class="muted">
+              <code>make_discount(40)</code> builds a new function that <b>remembers</b> <code>pct</code> (a
+              closure, Class 3).</span></div>
+          <div class="callout tip step">
+            <p><b>4️⃣ A decorator</b> = a function that <b>takes</b> a function and <b>returns</b> a new one that adds
+              extra behaviour. Next slide! 🎁</p>
+          </div>
+        </div>
+      <aside class="notes">Go slowly: if these three ideas land, decorators become obvious. Ask what
+        <code>print(say)</code> (without parentheses) would show: <code>&lt;function greet at 0x…&gt;</code>.</aside>
+    </section>
+
+    <!-- 12 -->
+    <section class="slide" data-title="Demo: decorator gift wrap" id="wrapDemo">
+      <header>
+        <span class="kicker">Interactive · <code>@decorator</code> syntax</span>
+        <h2>Decorators are <span class="grad">gift wrapping</span> 🎁</h2>
+      </header>
+      <div class="split">
+        <script type="text/x-code" data-lang="python" data-file="shop.py" data-hl="9-11,14-15">
+        def login_required(func):
+            @functools.wraps(func)
+            def wrapper(*args, **kwargs):
+                if not user.logged_in:
+                    return "Please log in first"
+                return func(*args, **kwargs)
+            return wrapper
+
+        @timer             # outer (applied 2nd)
+        @login_required    # inner (applied 1st)
+        def place_order(item):
+            return f"Order placed: {item}"
+
+        # same as:
+        # place_order = timer(login_required(place_order))
+      </script>
+        <div class="demo">
+          <span class="demo-label">Follow the call through the wrappers</span>
+          <div class="gw-caller" id="wCaller">📱 place_order("Biryani")</div>
+          <div class="gw-layer timer" id="wTimer">
+            <div class="gw-name">@timer <small>starts &amp; stops a clock</small></div>
+            <div class="gw-layer login" id="wLogin">
+              <div class="gw-name">@login_required <small>checks the user</small></div>
+              <div class="gw-layer core" id="wCore">
+                <div class="gw-name" style="justify-content:center">🍔 place_order()</div>
+              </div>
+            </div>
+          </div>
+          <div class="row" style="margin-top:12px">
+            <button class="btn" id="wCall">Call it ▶</button>
+            <label class="switch"><input type="checkbox" id="wLogged" checked> User logged in</label>
+          </div>
+          <div class="term" id="wLog" style="margin-top:10px;min-height:120px"><div class="muted-line">call log</div>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Run once logged in: the call goes <b>in</b> through timer → login → function, and the result comes
+            back <b>out</b> the same way.</li>
+          <li>Untick "logged in" and run again: <code>place_order</code> never runs, but the timer still does.</li>
+          <li>Order rule: decorators apply bottom-up (closest to <code>def</code> first) but run top-down when
+            called.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 13 -->
+    <section class="slide" data-title="Decorators in real life">
+      <header>
+        <span class="kicker">Live code · decorator with arguments</span>
+        <h2>A <code>@retry(times=3)</code> for IRCTC Tatkal 🚆</h2>
+      </header>
+      <div class="playground" data-mode="py" data-height="400" data-file="retry.py">
+        <script type="text/x-playground">
+        import functools
+
+        def retry(times):                       # 1. takes the ARGUMENT
+            def decorator(func):                # 2. takes the FUNCTION
+                @functools.wraps(func)          # keep name & docstring
+                def wrapper(*args, **kwargs):   # 3. runs on every CALL
+                    for attempt in range(1, times + 1):
+                        try:
+                            return func(*args, **kwargs)
+                        except ConnectionError as e:
+                            print(f"[retry] attempt {attempt} failed: {e}")
+                    raise ConnectionError(f"gave up after {times} tries")
+                return wrapper
+            return decorator
+
+        calls = 0
+
+        @retry(times=3)
+        def book_tatkal(train):
+            """Books a Tatkal ticket."""
+            global calls
+            calls += 1
+            if calls < 3:                       # server busy twice
+                raise ConnectionError("IRCTC server busy")
+            return f"🎫 Booked {train}"
+
+        print(book_tatkal("Chennai Express"))
+        print(book_tatkal.__name__, "|", book_tatkal.__doc__)
+      </script>
+      </div>
+      <div class="grid cols-3">
+        <div class="card step"><b>3 levels</b><br><span class="muted tiny">A decorator <i>with arguments</i> is a
+            function that <b>returns a decorator</b>.</span></div>
+        <div class="card step"><b><code>@functools.wraps</code></b><br><span class="muted tiny">Without it,
+            <code>__name__</code> would be <code>"wrapper"</code>. Always use it.</span></div>
+        <div class="card step"><b>Built-in decorators</b><br><span class="muted tiny"><code>@property</code>,
+            <code>@staticmethod</code>, <code>@classmethod</code>, <code>@functools.lru_cache</code>.</span></div>
+      </div>
+      <aside class="notes">Change <code>calls &lt; 3</code> to <code>calls &lt; 5</code> to show "gave up after 3
+        tries". Remove the <code>@functools.wraps</code> line to show <code>__name__</code> becoming
+        <code>wrapper</code> and the docstring becoming <code>None</code>.</aside>
+    </section>
+
+    <!-- 14 -->
+    <section class="slide" data-title="Modules, packages, pip">
+      <header>
+        <span class="kicker">Organising code · 45–48 min</span>
+        <h2>Modules, packages &amp; <code>__main__</code> 📦</h2>
+      </header>
+      <div class="split">
+        <div class="stack">
+          <script type="text/x-code" data-lang="text" data-file="project layout">
+          swiggy_app/
+          ├── main.py
+          ├── requirements.txt
+          └── payments/          ← package (a folder)
+              ├── __init__.py
+              ├── upi.py         ← module (a .py file)
+              └── wallet.py
+        </script>
+          <script type="text/x-code" data-lang="python" data-file="main.py">
+          import math                      # standard library
+          from payments.upi import pay     # your own package
+          import pandas as pd              # 3rd-party (pip)
+        </script>
+        </div>
+        <div class="stack">
+          <script type="text/x-code" data-lang="python" data-file="payments/upi.py" data-hl="4-5">
+          def pay(amount):
+              return f"Paid ₹{amount}"
+
+          if __name__ == "__main__":   # only when run directly
+              print(pay(100))          # quick self-test
+        </script>
+          <script type="text/x-code" data-lang="bash">
+          $ python -m venv venv
+          $ venv\Scripts\activate
+          $ pip install requests pandas
+          $ pip freeze > requirements.txt
+        </script>
+          <div class="callout tip step">
+            <p><code>__name__</code> is <code>"__main__"</code> when you run the file, and <code>"payments.upi"</code>
+              when it is imported. A <b>venv</b> gives each project its own private set of packages.</p>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">Mac/Linux activate: <code>source venv/bin/activate</code>. Interview: "What is
+        <code>__init__.py</code>?" It marks a folder as a regular package and runs on import (optional since Python
+        3.3, namespace packages).</aside>
+    </section>
+
+    <!-- 15 -->
+    <section class="slide" data-title="GIL & concurrency">
+      <header>
+        <span class="kicker">Concurrency · 48–52 min · interview favourite</span>
+        <h2>The GIL and the Swiggy kitchen 🍳</h2>
+        <p class="lead"><b>GIL</b> (Global Interpreter Lock): in CPython, only <b>one thread runs Python code at a
+            time</b>, like a kitchen with <b>one gas stove</b>.</p>
+      </header>
+      <div class="grid cols-3">
+        <div class="card step"><span class="icon">🧵</span>
+          <h3>threading</h3>
+          <p class="muted">Many cooks, <b>one stove</b>. While one waits for the delivery partner, another cooks.</p>
+          <span class="pill blue">I/O-bound</span>
+        </div>
+        <div class="card step"><span class="icon">🏭</span>
+          <h3>multiprocessing</h3>
+          <p class="muted">Open <b>4 separate kitchens</b>, each with its own stove (own GIL). True parallel, but
+            costs more.</p>
+          <span class="pill pink">CPU-bound</span>
+        </div>
+        <div class="card step"><span class="icon">⚡</span>
+          <h3>asyncio</h3>
+          <p class="muted"><b>One</b> super-waiter: takes table 1's order, and while it cooks, serves table 2. Never
+            stands idle.</p>
+          <span class="pill blue">Lots of I/O</span>
+        </div>
+      </div>
+      <div class="grid cols-2">
+        <div class="callout info step">
+          <p><b>I/O-bound</b> = mostly <b>waiting</b>: API calls, downloads, DB queries, reading files.</p>
+        </div>
+        <div class="callout warn step">
+          <p><b>CPU-bound</b> = mostly <b>calculating</b>: image resizing, encryption, big maths loops.</p>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Why does the GIL exist? It makes reference counting (memory management) simple and safe.</li>
+          <li>Threads release the GIL while waiting on I/O, so threading still speeds up downloads.</li>
+          <li>Bonus: Python 3.13 added an experimental "free-threaded" build without the GIL (PEP 703).</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 16 -->
+    <section class="slide" data-title="Threads vs processes vs asyncio">
+      <header>
+        <span class="kicker">Code you'd write on your laptop (not in the browser)</span>
+        <h2>Which tool for which job? 🧰</h2>
+      </header>
+      <div class="split">
+        <div class="tabs">
+          <div class="tab" data-label="🧵 threading">
+            <script type="text/x-code" data-lang="python" data-file="download.py">
+            import threading, requests          # I/O-bound
+
+            def fetch(url):
+                data = requests.get(url).text   # waits → GIL free
+                print(url, len(data))
+
+            urls = ["https://a.in/menu", "https://b.in/menu"]
+            threads = [threading.Thread(target=fetch, args=(u,))
+                       for u in urls]
+            for t in threads: t.start()
+            for t in threads: t.join()          # wait for all
+          </script>
+          </div>
+          <div class="tab" data-label="🏭 multiprocessing">
+            <script type="text/x-code" data-lang="python" data-file="report.py">
+            from multiprocessing import Pool    # CPU-bound
+
+            def heavy_report(n):
+                return sum(i * i for i in range(n))   # pure maths
+
+            if __name__ == "__main__":          # required on Windows!
+                with Pool(4) as pool:           # 4 processes, 4 GILs
+                    print(pool.map(heavy_report, [10**7] * 4))
+          </script>
+          </div>
+          <div class="tab" data-label="⚡ asyncio">
+            <script type="text/x-code" data-lang="python" data-file="track.py">
+            import asyncio
+
+            async def track(order, secs):
+                print(f"#{order} out for delivery")
+                await asyncio.sleep(secs)       # wait, serve others
+                print(f"#{order} delivered ✅")
+
+            async def main():
+                await asyncio.gather(track(1, 2), track(2, 1), track(3, 3))
+
+            asyncio.run(main())   # ≈ 3 s total, not 6 s
+            # prints: out 1, out 2, out 3, then delivered 2, 1, 3
+          </script>
+          </div>
+        </div>
+        <table class="table">
+          <tr>
+            <th></th>
+            <th>Parallel CPU?</th>
+            <th>Best for</th>
+          </tr>
+          <tr>
+            <td><b>threading</b></td>
+            <td>❌ (GIL)</td>
+            <td>Few I/O tasks, simple code</td>
+          </tr>
+          <tr>
+            <td><b>multiprocessing</b></td>
+            <td>✅ yes</td>
+            <td>CPU-heavy work on all cores</td>
+          </tr>
+          <tr>
+            <td><b>asyncio</b></td>
+            <td>❌ one thread</td>
+            <td>Thousands of network calls (FastAPI, bots)</td>
+          </tr>
+          <tr>
+            <td colspan="3" class="muted tiny">Easy mode: <code>concurrent.futures</code>
+              (<code>ThreadPoolExecutor</code> / <code>ProcessPoolExecutor</code>).</td>
+          </tr>
+        </table>
+      </div>
+      <aside class="notes">These are static: the browser's Python can't start real threads or processes. Interview
+        one-liner: "Threads for I/O, processes for CPU, asyncio for massive I/O with one thread."</aside>
+    </section>
+
+    <!-- 17 -->
+    <section class="slide" data-title="Memory management">
+      <header>
+        <span class="kicker">Internals · 52–55 min</span>
+        <h2>How Python frees memory 🧹</h2>
+      </header>
+      <div class="playground" data-mode="py" data-height="330" data-file="memory.py">
+          <script type="text/x-playground">
+          import sys, gc
+
+          cart = []                       # 1 name points to the list
+          backup = cart                   # 2 names now
+          print(sys.getrefcount(cart))    # +1 for the argument itself
+          del backup
+          print(sys.getrefcount(cart))
+
+          class Node: pass
+          x, y = Node(), Node()
+          x.friend, y.friend = y, x       # a cycle: x <-> y
+          del x, y                        # unreachable, count not 0
+          print("cycle objects freed:", gc.collect() > 0)
+
+          a, b = int("256"), int("256")
+          print(a is b)                   # small int cache
+          a, b = int("257"), int("257")
+          print(a is b)
+        </script>
+        </div>
+        <div class="grid cols-4">
+          <div class="card step"><b>1️⃣ Reference counting</b><br><span class="muted">Every object counts the names
+              pointing at it. Count hits 0 → freed <b>immediately</b>.</span></div>
+          <div class="card step"><b>2️⃣ Garbage collector</b><br><span class="muted">Finds <b>cycles</b> (A → B → A)
+              that refcounting can't free. Module <code>gc</code>.</span></div>
+          <div class="card step"><b>3️⃣ Interning</b><br><span class="muted">Small ints <b>-5 to 256</b> and many
+              short strings are cached and shared. Never rely on <code>is</code> for numbers!</span></div>
+          <div class="analogy step" data-label="🏏 Real-life example">
+            <p>Refcount is a stadium seat: the cleaner removes it when the last fan leaves. Two friends holding each
+              other's seat forever? The GC usher clears them.</p>
+          </div>
+        </div>
+      <aside class="notes">Exact <code>getrefcount</code> numbers vary between Python versions; the point is it goes
+        down by one after <code>del</code>. All of this lives on Python's private heap, managed by the interpreter.
+      </aside>
+    </section>
+
+    <!-- 18 -->
+    <section class="slide section-slide" data-title="Part B: Interview prep">
+      <span class="big-emoji">🎯</span>
+      <span class="kicker" style="justify-content:center">Part B · 55–90 min</span>
+      <h1>The <span class="grad">mock interview</span></h1>
+      <p class="lead">9 coding problems, 16 rapid-fire questions, 8 trick outputs. Let's get you hired.</p>
+      <aside class="notes">Energy up! Tell them you'll pick people at random. Wrong answers are welcome: better here
+        than in the real interview.</aside>
+    </section>
+
+    <!-- 19 -->
+    <section class="slide" data-title="How to answer">
+      <header>
+        <span class="kicker">Interview technique</span>
+        <h2>How to answer like a pro 🗣️</h2>
+      </header>
+      <div class="flow">
+        <div class="node step"><span class="icon">📖</span><b>Definition</b><small>One clear sentence</small></div>
+        <div class="arrow step">→</div>
+        <div class="node step"><span class="icon">💡</span><b>Example</b><small>Code or a real-life case</small></div>
+        <div class="arrow step">→</div>
+        <div class="node step"><span class="icon">⚖️</span><b>Trade-off</b><small>When (not) to use it</small></div>
+      </div>
+      <div class="split">
+        <div class="analogy step" data-label="🎤 Sample answer: What is a generator?">
+          <p><b>Definition:</b> "A function that uses <code>yield</code> to produce values one at a time, pausing
+            between them."<br><b>Example:</b> "I'd use one to read a huge log file line by line."<br><b>Trade-off:</b>
+            "Uses almost no memory, but you can only loop over it once and can't index it."</p>
+        </div>
+        <div class="card step">
+          <h3>💻 In the coding round</h3>
+          <ol class="tiny" style="margin:0;padding-left:20px">
+            <li><b>Clarify</b> the input: empty? duplicates? negatives?</li>
+            <li>Say the <b>brute force</b> out loud first.</li>
+            <li><b>Optimise</b> (usually a dict or set).</li>
+            <li>Write clean code with good names.</li>
+            <li><b>Test</b> an edge case and state the <b>Big-O</b>.</li>
+          </ol>
+        </div>
+      </div>
+      <aside class="notes">Interviewers grade communication as much as correctness. Silence for 5 minutes is worse
+        than a slow, talked-through brute force.</aside>
+    </section>
+
+    <!-- 20 -->
+    <section class="slide" data-title="Problems 1–2: FizzBuzz, palindrome">
+      <header>
+        <span class="kicker">Coding round · problems 1 &amp; 2</span>
+        <h2>FizzBuzz &amp; palindrome check 🔢</h2>
+      </header>
+      <div class="playground" data-mode="py" data-height="400" data-file="p1.py">
+        <script type="text/x-playground">
+        # 1. FizzBuzz: 3 -> Fizz, 5 -> Buzz, both -> FizzBuzz
+        for n in range(1, 16):
+            out = ""
+            if n % 3 == 0:
+                out += "Fizz"
+            if n % 5 == 0:
+                out += "Buzz"
+            print(out or n, end=" ")
+        print()
+
+        # 2. Palindrome (ignore case, spaces, punctuation)
+        def is_palindrome(text):
+            clean = [c.lower() for c in text if c.isalnum()]
+            return clean == clean[::-1]
+
+        for t in ["Malayalam", "Was it a car or a cat I saw?", "Python"]:
+            print(f"{t!r:32} -> {is_palindrome(t)}")
+      </script>
+      </div>
+      <div class="grid cols-2">
+        <div class="card step"><b>FizzBuzz</b> <span class="pill green">O(n)</span><br><span class="muted tiny">The
+            string-building trick avoids a separate <code>% 15</code> check. <code>out or n</code> uses
+            short-circuiting.</span></div>
+        <div class="card step"><b>Palindrome</b> <span class="pill green">O(n) time</span> <span
+            class="pill yellow">O(n) space</span><br><span class="muted tiny">Follow-up: "Do it in O(1) space?" → two
+            pointers from both ends.</span></div>
+      </div>
+      <aside class="notes">Ask a student to solve FizzBuzz verbally before revealing. Then ask: "How would you test
+        this?" (1, 3, 5, 15).</aside>
+    </section>
+
+    <!-- 21 -->
+    <section class="slide" data-title="Problems 3–4: anagram, frequency">
+      <header>
+        <span class="kicker">Coding round · problems 3 &amp; 4</span>
+        <h2>Anagram check &amp; character frequency 🔤</h2>
+      </header>
+      <div class="playground" data-mode="py" data-height="400" data-file="p2.py">
+        <script type="text/x-playground">
+        from collections import Counter
+
+        # 3. Anagram: same letters, same counts
+        def is_anagram(a, b):
+            a = a.replace(" ", "").lower()
+            b = b.replace(" ", "").lower()
+            return Counter(a) == Counter(b)     # O(n)
+            # return sorted(a) == sorted(b)     # O(n log n)
+
+        print(is_anagram("Listen", "Silent"))
+        print(is_anagram("Dormitory", "Dirty room"))
+        print(is_anagram("Swiggy", "Zomato"))
+
+        # 4. Character frequency, by hand (they may ban Counter)
+        freq = {}
+        for ch in "biryani":
+            freq[ch] = freq.get(ch, 0) + 1
+        print(freq)
+        print(Counter("mississippi").most_common(2))
+      </script>
+      </div>
+      <div class="grid cols-2">
+        <div class="card step"><b>Anagram</b> <span class="pill green">Counter: O(n)</span> <span
+            class="pill yellow">sorted: O(n log n)</span><br><span class="muted tiny">Both are fine; mention the
+            difference.</span></div>
+        <div class="card step"><b>Frequency</b> <span class="pill green">O(n)</span><br><span class="muted tiny">Know
+            the manual <code>dict.get(ch, 0) + 1</code> pattern. It's the base of many problems.</span></div>
+      </div>
+      <aside class="notes">Common follow-up: "Find the first non-repeating character." Answer: build the frequency
+        dict, then loop over the string again and return the first char with count 1.</aside>
+    </section>
+
+    <!-- 22 -->
+    <section class="slide" data-title="Problem 5: two-sum (brute vs optimal)">
+      <header>
+        <span class="kicker">Coding round · problem 5 · brute force vs optimal</span>
+        <h2>Two-sum: spend a ₹1000 Flipkart gift card exactly 🛒</h2>
+      </header>
+      <div class="playground" data-mode="py" data-height="400" data-file="two_sum.py">
+        <script type="text/x-playground">
+        prices = [499, 120, 799, 650, 330, 201, 870, 150]
+        target = 1000
+
+        def two_sum_brute(nums, target):        # check every pair
+            steps = 0
+            for i in range(len(nums)):
+                for j in range(i + 1, len(nums)):
+                    steps += 1
+                    if nums[i] + nums[j] == target:
+                        return (i, j), steps
+            return None, steps
+
+        def two_sum_fast(nums, target):         # remember what we've seen
+            seen = {}                            # price -> index
+            for i, p in enumerate(nums):
+                if target - p in seen:
+                    return (seen[target - p], i), i + 1
+                seen[p] = i
+            return None, len(nums)
+
+        print("brute (pair, steps):", two_sum_brute(prices, target))
+        print("fast  (pair, steps):", two_sum_fast(prices, target))
+        n = 10_000
+        print(f"worst case for {n:,} items: {n*(n-1)//2:,} vs {n:,} steps")
+      </script>
+      </div>
+      <div class="grid cols-2">
+        <div class="card bad step"><b>🐢 Brute force</b> <span class="pill pink">O(n²) time</span> <span
+            class="pill green">O(1) space</span><br><span class="muted tiny">Two nested loops.</span></div>
+        <div class="card good step"><b>🚀 Optimal</b> <span class="pill green">O(n) time</span> <span
+            class="pill yellow">O(n) space</span><br><span class="muted tiny">Dict lookup is O(1): trade memory for
+            speed.</span></div>
+      </div>
+      <aside class="notes">This is the #1 most asked coding question. Walk through the dict version by hand:
+        at 201, we look for 799, and it's already in <code>seen</code>. Stress the phrase "trade space for time".
+      </aside>
+    </section>
+
+    <!-- 23 -->
+    <section class="slide" data-title="Problems 6–7: duplicates, second largest">
+      <header>
+        <span class="kicker">Coding round · problems 6 &amp; 7</span>
+        <h2>Duplicate UPI IDs &amp; the second largest number 🔁</h2>
+      </header>
+      <div class="playground" data-mode="py" data-height="420" data-file="p3.py">
+        <script type="text/x-playground">
+        from collections import Counter
+
+        # 6. Find duplicates (a UPI txn ID seen twice = double charge!)
+        txns = ["T1", "T7", "T3", "T7", "T9", "T1", "T7"]
+        seen, dups = set(), set()
+        for t in txns:
+            if t in seen:
+                dups.add(t)
+            seen.add(t)
+        print(sorted(dups))
+        print([t for t, c in Counter(txns).items() if c > 1])
+
+        # 7. Second largest, one pass, no sorting
+        def second_largest(nums):
+            first = second = None
+            for n in nums:
+                if first is None or n > first:
+                    first, second = n, first
+                elif n != first and (second is None or n > second):
+                    second = n
+            return second
+
+        print(second_largest([12, 45, 2, 41, 45]))   # not 45!
+        print(sorted(set([12, 45, 2, 41, 45]))[-2])  # short way
+        print(second_largest([7, 7]))
+      </script>
+      </div>
+      <div class="grid cols-2">
+        <div class="card step"><b>Duplicates</b> <span class="pill green">O(n)</span><br><span class="muted tiny">A
+            set gives O(1) "have I seen this?". Avoid <code>list.count()</code> in a loop: O(n²).</span></div>
+        <div class="card step"><b>Second largest</b> <span class="pill green">one pass O(n)</span> <span
+            class="pill yellow">sort: O(n log n)</span><br><span class="muted tiny">Edge cases: duplicates of the max,
+            all equal, fewer than 2 items.</span></div>
+      </div>
+      <aside class="notes">Interviewers love the <code>[12, 45, 2, 41, 45]</code> case: <code>sorted(nums)[-2]</code>
+        wrongly gives 45. Ask the class to spot why before showing the <code>set</code> fix.</aside>
+    </section>
+
+    <!-- 24 -->
+    <section class="slide" data-title="Problems 8–9: flatten, reverse words">
+      <header>
+        <span class="kicker">Coding round · problems 8 &amp; 9</span>
+        <h2>Flatten a nested list &amp; reverse words 🪆</h2>
+      </header>
+      <div class="playground" data-mode="py" data-height="400" data-file="p4.py">
+        <script type="text/x-playground">
+        # 8. Flatten a nested list of any depth
+        def flatten(items):
+            for x in items:
+                if isinstance(x, list):
+                    yield from flatten(x)     # recursion + generator
+                else:
+                    yield x
+
+        cart = [1, [2, 3], [4, [5, [6]]], 7]
+        print(list(flatten(cart)))
+
+        # only one level deep? a comprehension is enough
+        print([x for sub in [[1, 2], [3], [4, 5]] for x in sub])
+
+        # 9. Reverse the words in a sentence
+        s = "  Python   is   fun  "
+        print(" ".join(s.split()[::-1]))
+        print(" ".join(w[::-1] for w in s.split()))   # each word
+      </script>
+      </div>
+      <div class="grid cols-2">
+        <div class="card step"><b>Flatten</b> <span class="pill green">O(total items)</span><br><span
+            class="muted tiny"><code>yield from</code> hands over every value from the inner generator.</span></div>
+        <div class="card step"><b>Reverse words</b> <span class="pill green">O(n)</span><br><span
+            class="muted tiny"><code>split()</code> with no argument also removes extra spaces.</span></div>
+      </div>
+      <aside class="notes">Ask: "What does <code>s.split(" ")</code> give instead?" (lots of empty strings). That's
+        why the no-argument <code>split()</code> is the right tool here.</aside>
+    </section>
+
+    <!-- 25 -->
+    <section class="slide" data-title="Rapid-fire round 1">
+      <header>
+        <span class="kicker">🎯 Rapid-fire · round 1 · 30 seconds each</span>
+        <h2>Answer out loud, then reveal ⚡</h2>
+      </header>
+      <div class="iq-grid tight">
+        <div class="iq">
+          <p class="q">List vs tuple?</p>
+          <p class="spoiler">List is mutable <code>[ ]</code>; tuple is immutable <code>( )</code>, slightly smaller
+            and faster, and hashable (if its items are), so it can be a dict key. Tuples for fixed records.</p>
+        </div>
+        <div class="iq">
+          <p class="q">Shallow vs deep copy?</p>
+          <p class="spoiler"><code>copy.copy</code> makes a new outer object but <b>shares</b> the inner objects.
+            <code>copy.deepcopy</code> copies everything recursively. Matters for nested lists/dicts.</p>
+        </div>
+        <div class="iq">
+          <p class="q">What are <code>*args</code> and <code>**kwargs</code>?</p>
+          <p class="spoiler">They collect extra positional arguments into a <b>tuple</b> and extra keyword arguments
+            into a <b>dict</b>. Used in wrappers/decorators to pass everything through.</p>
+        </div>
+        <div class="iq">
+          <p class="q">What is a decorator?</p>
+          <p class="spoiler">A function that takes a function and returns a new one with extra behaviour, without
+            changing its code. <code>@d</code> above <code>def f</code> means <code>f = d(f)</code>. Uses: logging,
+            timing, auth, caching.</p>
+        </div>
+        <div class="iq">
+          <p class="q">Generator vs iterator?</p>
+          <p class="spoiler">An iterator is any object with <code>__iter__</code> and <code>__next__</code>. A
+            generator is an easy way to <b>make</b> one, using <code>yield</code>. Every generator is an iterator, not
+            vice versa.</p>
+        </div>
+        <div class="iq">
+          <p class="q">What is the GIL?</p>
+          <p class="spoiler">A lock in CPython that lets only one thread run Python bytecode at a time. Threads still
+            help for I/O; use multiprocessing for CPU-bound work.</p>
+        </div>
+        <div class="iq">
+          <p class="q"><code>__init__</code> vs <code>__new__</code>?</p>
+          <p class="spoiler"><code>__new__</code> <b>creates</b> and returns the object (gets <code>cls</code>, runs
+            first). <code>__init__</code> <b>initialises</b> it (gets <code>self</code>, returns None). Override
+            <code>__new__</code> for singletons.</p>
+        </div>
+        <div class="iq">
+          <p class="q"><code>@staticmethod</code> vs <code>@classmethod</code>?</p>
+          <p class="spoiler"><code>classmethod</code> receives the class (<code>cls</code>): great for alternative
+            constructors like <code>from_string()</code>. <code>staticmethod</code> receives nothing: a plain function
+            kept inside the class.</p>
+        </div>
+      </div>
+      <aside class="notes">Point at a student, read the question, count to 30. Reveal only after they try. Push for
+        the definition → example → trade-off structure.</aside>
+    </section>
+
+    <!-- 26 -->
+    <section class="slide" data-title="Rapid-fire round 2">
+      <header>
+        <span class="kicker">🎯 Rapid-fire · round 2</span>
+        <h2>Keep going! ⚡⚡</h2>
+      </header>
+      <div class="iq-grid tight">
+        <div class="iq">
+          <p class="q"><code>is</code> vs <code>==</code>?</p>
+          <p class="spoiler"><code>==</code> compares values; <code>is</code> compares identity (same object). Use
+            <code>is</code> only for <code>None</code>/<code>True</code>/<code>False</code>.</p>
+        </div>
+        <div class="iq">
+          <p class="q">Why is a mutable default argument dangerous?</p>
+          <p class="spoiler">Defaults are created <b>once</b>, when <code>def</code> runs, so <code>def f(x,
+              items=[])</code> shares one list across calls. Use <code>items=None</code> and create the list inside.</p>
+        </div>
+        <div class="iq">
+          <p class="q">What is pickling?</p>
+          <p class="spoiler">Turning a Python object into bytes (<code>pickle.dumps</code>/<code>dump</code>) and back
+            (<code>loads</code>/<code>load</code>). Used to save models and caches. Never unpickle untrusted data: it
+            can run code.</p>
+        </div>
+        <div class="iq">
+          <p class="q">Limitations of <code>lambda</code>?</p>
+          <p class="spoiler">Only <b>one expression</b>: no statements (loops, try, normal assignment), no docstring,
+            and it shows up as <code>&lt;lambda&gt;</code> in tracebacks. Use <code>def</code> for anything bigger.</p>
+        </div>
+        <div class="iq">
+          <p class="q">What is a context manager?</p>
+          <p class="spoiler">An object with <code>__enter__</code>/<code>__exit__</code> used with <code>with</code>.
+            It guarantees cleanup (close file, release lock, close DB) even if an exception happens.</p>
+        </div>
+        <div class="iq">
+          <p class="q">How does Python manage memory?</p>
+          <p class="spoiler">A private heap managed by the interpreter. <b>Reference counting</b> frees objects at
+            count 0; a <b>cyclic garbage collector</b> cleans reference cycles. Small ints/strings are interned.</p>
+        </div>
+        <div class="iq">
+          <p class="q">What does <code>if __name__ == "__main__":</code> do?</p>
+          <p class="spoiler">Its block runs only when the file is executed directly, not when it is imported. Keeps
+            test/demo code from running on import.</p>
+        </div>
+        <div class="iq">
+          <p class="q"><code>__str__</code> vs <code>__repr__</code>?</p>
+          <p class="spoiler"><code>__str__</code>: readable, for users (<code>print</code>). <code>__repr__</code>:
+            unambiguous, for developers (REPL, debugging). If <code>__str__</code> is missing, <code>__repr__</code>
+            is used.</p>
+        </div>
+      </div>
+      <aside class="notes">Team game option: two teams, a point per correct answer across both rounds. Keep the score on
+        the board.</aside>
+    </section>
+
+    <!-- 27 -->
+    <section class="slide" data-title="Predict the output (1)">
+      <header>
+        <span class="kicker">🎯 Trick questions · all from real interviews</span>
+        <h2>Predict the output 🧠</h2>
+      </header>
+      <div class="predict">
+        <div class="card"><code>def f():
+    try:
+        return 1
+    finally:
+        return 2
+print(f())</code><span class="spoiler"><b>2</b>: <code>finally</code> runs last, and its
+            <code>return</code> overrides the first one.</span></div>
+        <div class="card"><code>g = (x*x for x in range(3))
+print(sum(g), sum(g))</code><span class="spoiler"><b>5 0</b>: a generator is used up after one pass.</span>
+        </div>
+        <div class="card"><code>def a(f):
+    return lambda: f"a({f()})"
+def b(f):
+    return lambda: f"b({f()})"
+@a
+@b
+def hi(): return "hi"
+print(hi())</code><span class="spoiler"><b>a(b(hi))</b>: <code>hi = a(b(hi))</code>; the bottom decorator
+            wraps first.</span></div>
+        <div class="card"><code>try:
+    1 / 0
+except Exception:
+    print("E")
+except ZeroDivisionError:
+    print("Z")</code><span class="spoiler"><b>E</b>: the first matching <code>except</code> wins. Put specific
+            ones first!</span></div>
+      </div>
+      <aside class="notes">Team game: one point per correct guess. If anyone disputes an answer, paste the snippet into
+        any playground (e.g. slide 20) and run it.</aside>
+    </section>
+
+    <!-- 28 -->
+    <section class="slide" data-title="Predict the output (2)">
+      <header>
+        <span class="kicker">🎯 Trick questions · round 2</span>
+        <h2>Predict the output, part 2 🧠</h2>
+      </header>
+      <div class="predict">
+        <div class="card"><code>def add(x, items=[]):
+    items.append(x)
+    return items
+add(1)
+print(add(2))</code><span class="spoiler"><b>[1, 2]</b>: the default list is shared between calls.</span></div>
+        <div class="card"><code>fs = [lambda: i
+      for i in range(3)]
+print([f() for f in fs])</code><span class="spoiler"><b>[2, 2, 2]</b>: late binding; each lambda reads
+            <code>i</code> when called. Fix: <code>lambda i=i: i</code>.</span></div>
+        <div class="card"><code>it = iter([1, 2, 3])
+next(it)
+print(list(it), list(it))</code><span class="spoiler"><b>[2, 3] []</b>: the iterator remembers its position
+            and is then empty.</span></div>
+        <div class="card"><code>try:
+    print("try")
+except:
+    print("except")
+else:
+    print("else")
+finally:
+    print("finally")</code><span class="spoiler"><b>try</b>, <b>else</b>, <b>finally</b> (on 3 lines): no error,
+            so <code>else</code> runs.</span></div>
+      </div>
+      <aside class="notes">Last one is the classic "what does else do in try?" Many people think else belongs only to
+        if/for. Keep the team score going.</aside>
+    </section>
+
+    <!-- 29 -->
+    <section class="slide" data-title="Quick quiz">
+      <header>
+        <span class="kicker">Final quiz</span>
+        <h2>⚡ Final quiz</h2>
+      </header>
+      <div class="grid cols-2">
+        <div class="quiz" data-answer="b">
+          <p class="q">1. Which block runs <b>only</b> when the <code>try</code> block raised no exception?</p>
+          <div class="opts">
+            <button data-opt="a">finally</button>
+            <button data-opt="b">else</button>
+            <button data-opt="c">except</button>
+          </div>
+          <p class="explain">✅ <b>else</b>. <code>finally</code> runs every time.</p>
+        </div>
+        <div class="quiz" data-answer="c">
+          <p class="q">2. Resizing 10,000 photos (CPU-heavy). Best choice?</p>
+          <div class="opts">
+            <button data-opt="a">threading</button>
+            <button data-opt="b">asyncio</button>
+            <button data-opt="c">multiprocessing</button>
+          </div>
+          <p class="explain">✅ <b>multiprocessing</b>: each process has its own GIL, so all CPU cores work.</p>
+        </div>
+        <div class="quiz" data-answer="a">
+          <p class="q">3. What does <code>next()</code> raise when a generator has no more values?</p>
+          <div class="opts">
+            <button data-opt="a">StopIteration</button>
+            <button data-opt="b">IndexError</button>
+            <button data-opt="c">It returns None</button>
+          </div>
+          <p class="explain">✅ <b>StopIteration</b>. A <code>for</code> loop catches it for you.</p>
+        </div>
+        <div class="quiz" data-answer="b">
+          <p class="q">4. Time complexity of two-sum using a dict?</p>
+          <div class="opts">
+            <button data-opt="a">O(n²)</button>
+            <button data-opt="b">O(n)</button>
+            <button data-opt="c">O(log n)</button>
+          </div>
+          <p class="explain">✅ <b>O(n)</b>: one pass, each dict lookup is O(1) on average.</p>
+        </div>
+      </div>
+      <aside class="notes">Show of hands for each option first, then click.</aside>
+    </section>
+
+    <!-- 30 -->
+    <section class="slide" data-title="Recap">
+      <header>
+        <span class="kicker">Recap</span>
+        <h2>Today you learned… ✅</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="flip">
+          <div class="front"><span class="icon">🛟</span>
+            <h3>Exceptions</h3>
+          </div>
+          <div class="back">
+            <p>try → except (first match) → else (no error) → finally (always). Custom errors inherit
+              <code>Exception</code>.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">📂</span>
+            <h3>Context managers</h3>
+          </div>
+          <div class="back">
+            <p><code>with</code> = guaranteed cleanup. Write one with <code>__enter__/__exit__</code> or
+              <code>@contextmanager</code>.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">⚙️</span>
+            <h3>Generators</h3>
+          </div>
+          <div class="back">
+            <p><code>yield</code> pauses and resumes. Lazy, tiny memory, one pass only.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🎁</span>
+            <h3>Decorators</h3>
+          </div>
+          <div class="back">
+            <p>Wrap a function to add behaviour. <code>@d</code> = <code>f = d(f)</code>. Always use
+              <code>functools.wraps</code>.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🍳</span>
+            <h3>GIL &amp; concurrency</h3>
+          </div>
+          <div class="back">
+            <p>Threads for I/O, processes for CPU, asyncio for lots of I/O on one thread.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">💻</span>
+            <h3>Coding rounds</h3>
+          </div>
+          <div class="back">
+            <p>Clarify → brute force → optimise with dict/set → test → say the Big-O.</p>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">Ask a different student to explain each card before you flip it.</aside>
+    </section>
+
+    <!-- 31 -->
+    <section class="slide" data-title="What next">
+      <header>
+        <span class="kicker">Your roadmap</span>
+        <h2>Where to go from here 🧭</h2>
+        <p class="lead">Pick <b>one</b> track, build something real, and practise DSA every day.</p>
+      </header>
+      <div class="grid cols-4">
+        <div class="card hover step"><span class="icon">🌐</span>
+          <h3>Web backend</h3>
+          <p class="muted">Django (full-featured), Flask (simple), FastAPI (modern, async APIs).</p>
+        </div>
+        <div class="card hover step"><span class="icon">📊</span>
+          <h3>Data analysis</h3>
+          <p class="muted">NumPy, Pandas, Matplotlib, SQL. Analyse real sales or cricket data.</p>
+        </div>
+        <div class="card hover step"><span class="icon">🤖</span>
+          <h3>ML &amp; AI</h3>
+          <p class="muted">scikit-learn, then PyTorch. Statistics basics first.</p>
+        </div>
+        <div class="card hover step"><span class="icon">⚙️</span>
+          <h3>Automation &amp; QA</h3>
+          <p class="muted">requests, openpyxl, Selenium/Playwright, pytest.</p>
+        </div>
+      </div>
+      <div class="grid cols-2">
+        <div class="callout tip step">
+          <p><b>DSA habit:</b> 2 problems a day on <b>LeetCode</b> or <b>HackerRank</b>. Start with arrays, strings,
+            hashing (dict/set), then two pointers and recursion.</p>
+        </div>
+        <div class="callout info step">
+          <p><b>Portfolio:</b> push every project to <b>GitHub</b> with a README. Interviewers open those links!</p>
+        </div>
+      </div>
+      <aside class="notes">Ask each student which track they'll pick and write it down. Commitment out loud increases
+        follow-through.</aside>
+    </section>
+
+    <!-- 32 -->
+    <section class="slide" data-title="Final practice & projects">
+      <header>
+        <span class="kicker">To Practice</span>
+        <h2>📚 Final practice &amp; project ideas</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="card accent">
+          <span class="icon">📜</span>
+          <h3>1. Log analyser</h3>
+          <p class="tiny">Read a big log file with a <b>generator</b>, count ERROR/WARN per hour with a dict, write a
+            summary file using <code>with</code>.</p>
+        </div>
+        <div class="card">
+          <span class="icon">💳</span>
+          <h3>2. Mini UPI wallet</h3>
+          <p class="tiny">A <code>Wallet</code> class with <code>InsufficientBalanceError</code>, a
+            <code>@log_transaction</code> decorator, and history saved to a file.</p>
+        </div>
+        <div class="card">
+          <span class="icon">🌦️</span>
+          <h3>3. API dashboard</h3>
+          <p class="tiny">Fetch weather for 5 cities with <code>requests</code>, then do it again with threads or
+            asyncio and compare the time.</p>
+        </div>
+      </div>
+      <ul class="checklist">
+        <li class="step">Redo all 9 coding problems from memory, without looking. Say the Big-O out loud.</li>
+        <li class="step">Write 2–3 line answers to all 16 rapid-fire questions and practise them with a friend.</li>
+        <li class="step">Solve 30 easy LeetCode problems in the next 30 days.</li>
+      </ul>
+      <aside class="notes">Project 2 combines classes (Class 3), exceptions, decorators and files: a great talking
+        point in interviews ("tell me about a project").</aside>
+    </section>
+
+    <!-- 33 -->
+    <section class="slide title" data-title="Course complete!" id="finale">
+      <div class="big-done">🎓</div>
+      <h1>Course <span class="grad">complete!</span></h1>
+      <p class="lead">From <code>print("Hello, World!")</code> to decorators, generators and the GIL in 4 classes. You
+        are ready for the interview room. Go get that offer letter! 🚀</p>
+      <div class="row">
+        <span class="pill green">✅ Foundations</span>
+        <span class="pill blue">✅ Logic &amp; data structures</span>
+        <span class="pill violet">✅ Functions &amp; OOP</span>
+        <span class="pill yellow">✅ Advanced &amp; interview</span>
+      </div>
+      <div class="row">
+        <button class="btn primary" id="celebrate" type="button">🎉 Celebrate</button>
+        <a class="btn" href="index.html">📋 Course hub</a>
+        <a class="btn ghost" href="py-class-01.html">↺ Back to Class 1</a>
+      </div>
+      <aside class="notes">Celebrate! Confetti fires on entering the slide (and on the button). Take a class photo,
+        collect feedback, share the practice list.</aside>
+    </section>
+
+  </main>
+
+  <script src="assets/deck.js"></script>
+  <script>
+    const escH = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+    /* Demo 1: try / except / else / finally tracer */
+    (() => {
+      const root = document.getElementById('excDemo');
+      if (!root) return;
+      const LINES = [
+        'def split_bill(amount, people):',
+        '    try:',
+        '        total = int(amount)',
+        '        share = total / people',
+        '    except ValueError:',
+        '        print("❌ Amount must be a number")',
+        '    except ZeroDivisionError:',
+        '        print("❌ At least 1 person needed")',
+        '    else:',
+        '        print(f"✅ Each pays ₹{share:.0f}")',
+        '    finally:',
+        '        print("🧾 Bill closed")'
+      ];
+      // [line, kind, message, printed output]
+      const S = {
+        ok: ['split_bill("600", 3)', [
+          [1, 'run', 'Enter the <b>try</b> block.'],
+          [2, 'run', '<code>int("600")</code> → 600 ✔'],
+          [3, 'run', '<code>600 / 3</code> → 200.0 ✔ No error!'],
+          [8, 'run', 'No exception happened, so <b>else</b> runs.'],
+          [9, 'run', 'Print the share.', '✅ Each pays ₹200'],
+          [10, 'run', '<b>finally</b> always runs.'],
+          [11, 'run', 'Cleanup message.', '🧾 Bill closed']
+        ], '✅ Order: <b>try → else → finally</b>. Both except blocks were skipped.'],
+        value: ['split_bill("six hundred", 3)', [
+          [1, 'run', 'Enter the <b>try</b> block.'],
+          [2, 'boom', '💥 <code>int("six hundred")</code> raises <b>ValueError</b>. Python leaves try at once: line 3 never runs.', null, 'ValueError'],
+          [4, 'run', 'Does <code>except ValueError</code> match? <b>Yes!</b>'],
+          [5, 'run', 'Handle it.', '❌ Amount must be a number'],
+          [10, 'run', '<b>finally</b> always runs.'],
+          [11, 'run', 'Cleanup message.', '🧾 Bill closed']
+        ], '✅ Order: <b>try → except ValueError → finally</b>. else was skipped.'],
+        zero: ['split_bill("600", 0)', [
+          [1, 'run', 'Enter the <b>try</b> block.'],
+          [2, 'run', '<code>int("600")</code> → 600 ✔'],
+          [3, 'boom', '💥 <code>600 / 0</code> raises <b>ZeroDivisionError</b>.', null, 'ZeroDivisionError'],
+          [4, 'skip', 'Is it a ValueError? <b>No</b>, skip this block.', null, 'no match'],
+          [6, 'run', 'Is it a ZeroDivisionError? <b>Yes!</b>'],
+          [7, 'run', 'Handle it.', '❌ At least 1 person needed'],
+          [10, 'run', '<b>finally</b> always runs.'],
+          [11, 'run', 'Cleanup message.', '🧾 Bill closed']
+        ], '✅ Order: <b>try → except ZeroDivisionError → finally</b>.'],
+        crash: ['split_bill("600", None)', [
+          [1, 'run', 'Enter the <b>try</b> block.'],
+          [2, 'run', '<code>int("600")</code> → 600 ✔'],
+          [3, 'boom', '💥 <code>600 / None</code> raises <b>TypeError</b>.', null, 'TypeError'],
+          [4, 'skip', 'ValueError? No.', null, 'no match'],
+          [6, 'skip', 'ZeroDivisionError? No. Nobody catches TypeError!', null, 'no match'],
+          [10, 'run', '<b>finally still runs</b>, before the error escapes.'],
+          [11, 'run', 'Cleanup message.', '🧾 Bill closed']
+        ], '💥 Uncaught: finally ran, then the program <b>crashed</b>.',
+          "TypeError: unsupported operand type(s) for /: 'int' and 'NoneType'"]
+      };
+      const code = root.querySelector('#xCode'), out = root.querySelector('#xOut'),
+        msg = root.querySelector('#xMsg'), call = root.querySelector('#xCall');
+      code.innerHTML = LINES.map(l => `<div>${escH(l)}</div>`).join('');
+      const rows = [...code.children];
+      let timer = null;
+      function play(key) {
+        clearInterval(timer);
+        const [c, steps, end, crash] = S[key];
+        rows.forEach(r => { r.className = ''; r.removeAttribute('data-tag'); });
+        call.textContent = '▶ ' + c;
+        out.innerHTML = '';
+        root.querySelectorAll('[data-x]').forEach(b => b.classList.toggle('on', b.dataset.x === key));
+        let k = 0;
+        const tick = () => {
+          rows.forEach(r => { if (r.classList.contains('cur')) { r.classList.remove('cur'); r.classList.add('done'); } });
+          if (k >= steps.length) {
+            clearInterval(timer);
+            if (crash) out.insertAdjacentHTML('beforeend', `<div class="err">Traceback (most recent call last): …<br>${escH(crash)}</div>`);
+            msg.innerHTML = `<p>${end}</p>`;
+            return;
+          }
+          const [ln, kind, m, printed, tag] = steps[k++];
+          const r = rows[ln];
+          r.classList.remove('done');
+          r.classList.add(kind === 'run' ? 'cur' : kind);
+          if (tag) r.dataset.tag = tag;
+          msg.innerHTML = `<p>${m}</p>`;
+          if (printed) out.insertAdjacentHTML('beforeend', `<div>${escH(printed)}</div>`);
+        };
+        tick();
+        timer = setInterval(tick, 1300);
+      }
+      root.querySelectorAll('[data-x]').forEach(b => b.addEventListener('click', () => play(b.dataset.x)));
+      window.__playExc = play;
+    })();
+
+    /* Demo 2: generator token machine */
+    (() => {
+      const root = document.getElementById('genDemo');
+      if (!root) return;
+      const LINES = [
+        'def tatkal_tokens():',
+        '    print("🟢 counter opens")',
+        '    for n in range(1, 4):',
+        '        yield f"TKT-{n}"',
+        '    print("🔴 sold out")',
+        '',
+        'gen = tatkal_tokens()   # runs nothing yet!',
+        'next(gen)'
+      ];
+      const code = root.querySelector('#gCode'), tray = root.querySelector('#gTray'),
+        out = root.querySelector('#gOut'), msg = root.querySelector('#gMsg');
+      code.innerHTML = LINES.map(l => `<div>${escH(l)}</div>`).join('');
+      const rows = [...code.children];
+      let made = false, calls = 0, busy = null;
+      const say = h => { msg.innerHTML = `<p>${h}</p>`; };
+      const clear = () => rows.forEach(r => { r.className = ''; r.removeAttribute('data-tag'); });
+      function walk(lines, done) {
+        clearInterval(busy);
+        let i = 0;
+        clear();
+        rows[7].classList.add('cur');
+        busy = setInterval(() => {
+          rows.forEach(r => { if (r.classList.contains('cur')) { r.classList.replace('cur', 'done'); } });
+          if (i >= lines.length) { clearInterval(busy); done(); return; }
+          const [ln, printed] = lines[i++];
+          rows[ln].classList.add('cur');
+          if (printed) out.insertAdjacentHTML('beforeend', `<div>${escH(printed)}</div>`);
+        }, 380);
+      }
+      function finish(ln, tag) {
+        rows.forEach(r => r.classList.remove('cur'));
+        rows[ln].classList.add(tag === 'StopIteration' ? 'boom' : 'cur');
+        rows[ln].dataset.tag = tag;
+      }
+      function reset() {
+        clearInterval(busy);
+        made = false; calls = 0; clear();
+        tray.innerHTML = '';
+        out.innerHTML = '<div class="muted-line">printed output</div>';
+        say('Press <b>gen = tatkal_tokens()</b> first.');
+      }
+      root.querySelector('#gMake').addEventListener('click', () => {
+        reset(); made = true;
+        out.innerHTML = '';
+        rows[6].classList.add('cur'); rows[6].dataset.tag = 'paused at start';
+        say('Created a generator object. <b>Nothing was printed</b>: the body hasn\'t started yet.');
+      });
+      root.querySelector('#gNext').addEventListener('click', () => {
+        if (!made) { say('⚠️ Create the generator first: press <b>gen = tatkal_tokens()</b>.'); return; }
+        calls++;
+        if (calls === 1) {
+          walk([[1, '🟢 counter opens'], [2], [3]], () => {
+            finish(3, 'paused: TKT-1');
+            tray.insertAdjacentHTML('beforeend', '<span class="tok">TKT-1</span>');
+            say('Ran until <b>yield</b>, handed out <b>TKT-1</b> and <b>paused</b>. It remembers <code>n = 1</code>.');
+          });
+        } else if (calls <= 3) {
+          const n = calls;
+          walk([[2], [3]], () => {
+            finish(3, 'paused: TKT-' + n);
+            tray.insertAdjacentHTML('beforeend', `<span class="tok">TKT-${n}</span>`);
+            say(`Resumed <b>right after</b> the yield, looped once more: <b>TKT-${n}</b>. Paused again.`);
+          });
+        } else if (calls === 4) {
+          walk([[2], [4, '🔴 sold out']], () => {
+            finish(4, 'StopIteration');
+            tray.insertAdjacentHTML('beforeend', '<span class="tok stop">StopIteration</span>');
+            say('The function ended, so <code>next()</code> raises <b>StopIteration</b>. A <code>for</code> loop catches it silently.');
+          });
+        } else {
+          clear(); rows[7].classList.add('boom'); rows[7].dataset.tag = 'StopIteration';
+          say('Still <b>StopIteration</b>, and nothing printed: a generator is <b>exhausted</b> after one pass. Make a new one to start again.');
+        }
+      });
+      root.querySelector('#gReset').addEventListener('click', reset);
+      reset();
+      // memory meters: 64-bit CPython 3.12 sys.getsizeof values
+      const LIST = 8448728, GEN = 192;
+      root.addEventListener('enter', () => {
+        const lb = root.querySelector('#mListBar'), gb = root.querySelector('#mGenBar');
+        lb.style.width = '0'; gb.style.width = '0';
+        setTimeout(() => { lb.style.width = '100%'; gb.style.width = Math.max(GEN / LIST * 100, 0.8) + '%'; }, 300);
+      });
+      root.querySelector('#mList').textContent = LIST.toLocaleString('en-IN') + ' bytes';
+      root.querySelector('#mGen').textContent = GEN + ' bytes';
+      window.__genDemo = { make: () => root.querySelector('#gMake').click(), next: () => root.querySelector('#gNext').click() };
+      if (root.classList.contains('active')) root.dispatchEvent(new CustomEvent('enter'));
+    })();
+
+    /* Demo 3: decorator gift wrap */
+    (() => {
+      const root = document.getElementById('wrapDemo');
+      if (!root) return;
+      const el = id => root.querySelector('#' + id);
+      const parts = { caller: el('wCaller'), timer: el('wTimer'), login: el('wLogin'), core: el('wCore') };
+      const log = el('wLog');
+      let busy = null;
+      const IN = [
+        ['caller', '📱 call place_order("Biryani")'],
+        ['timer', '⏱️ timer wrapper: start the clock'],
+        ['login', '🔐 login_required wrapper: logged in? ✅ yes → call func'],
+        ['core', '🍔 place_order runs → "Order placed: Biryani"'],
+        ['login', '🔐 login_required: pass the result back up ↑'],
+        ['timer', '⏱️ timer: stop clock → "place_order took 0.4 ms"'],
+        ['caller', '📱 you get: "Order placed: Biryani"']
+      ];
+      const OUT = [
+        ['caller', '📱 call place_order("Biryani")'],
+        ['timer', '⏱️ timer wrapper: start the clock'],
+        ['login', '🔐 login_required: logged in? ❌ no → return "Please log in first"'],
+        ['timer', '⏱️ timer: stop clock → "place_order took 0.0 ms"'],
+        ['caller', '📱 you get: "Please log in first" (place_order never ran)']
+      ];
+      function run() {
+        clearInterval(busy);
+        const logged = el('wLogged').checked;
+        const seq = logged ? IN : OUT;
+        Object.values(parts).forEach(p => p.classList.remove('on', 'blocked'));
+        log.innerHTML = '';
+        let i = 0;
+        const tick = () => {
+          Object.values(parts).forEach(p => p.classList.remove('on'));
+          if (i >= seq.length) { clearInterval(busy); return; }
+          const [who, text] = seq[i++];
+          parts[who].classList.add('on');
+          if (!logged && who === 'login') parts.core.classList.add('blocked');
+          log.insertAdjacentHTML('beforeend', `<div>${escH(text)}</div>`);
+        };
+        tick();
+        busy = setInterval(tick, 1200);
+      }
+      el('wCall').addEventListener('click', run);
+      el('wLogged').addEventListener('change', () => parts.core.classList.remove('blocked'));
+    })();
+
+    /* Finale: confetti */
+    (() => {
+      const fin = document.getElementById('finale');
+      if (!fin) return;
+      const party = () => { Deck.confetti(60); setTimeout(() => Deck.confetti(40), 900); };
+      fin.addEventListener('enter', party);
+      document.getElementById('celebrate').addEventListener('click', party);
+      if (fin.classList.contains('active')) party();
+    })();
+  </script>
+</body>
+
+</html>

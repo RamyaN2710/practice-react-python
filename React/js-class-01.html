@@ -1,0 +1,1500 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JS Class 1 · Introduction to JavaScript</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <style>
+    .js-logo {
+      width: clamp(100px, 13vw, 150px);
+      aspect-ratio: 1;
+      margin: 0 auto 12px;
+      background: #f7df1e;
+      color: #111;
+      border-radius: 22px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-end;
+      padding: 12px 16px;
+      font: 800 clamp(2.4rem, 5vw, 3.6rem)/1 var(--font);
+      box-shadow: 0 0 50px rgba(247, 223, 30, .35);
+      animation: bob 4s ease-in-out infinite;
+    }
+
+    @keyframes bob {
+      50% {
+        transform: translateY(-8px) rotate(-3deg);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .js-logo {
+        animation: none;
+      }
+    }
+
+    .slide>.js-logo {
+      width: clamp(100px, 13vw, 150px);
+    }
+
+    .yl {
+      color: #eab308;
+    }
+
+    /* Demo: HTML + CSS + JS layers */
+    .layers {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 22px;
+      align-items: center;
+    }
+
+    @media (max-width: 860px) {
+      .layers {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .layer-toggle {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 2px solid var(--border);
+      background: var(--surface);
+      margin-bottom: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: .2s;
+    }
+
+    .layer-toggle input {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--accent);
+    }
+
+    .layer-toggle small {
+      display: block;
+      font-weight: 400;
+      color: var(--muted);
+    }
+
+    .layer-toggle.on {
+      border-color: var(--accent);
+    }
+
+    .lstage {
+      background: #fff;
+      border-radius: 16px;
+      padding: 22px;
+      min-height: 280px;
+      color: #111;
+      transition: background .4s;
+      position: relative;
+    }
+
+    .lstage.dark {
+      background: #0f172a;
+    }
+
+    /* "no CSS" look */
+    .pcard {
+      font-family: 'Times New Roman', serif;
+    }
+
+    .pcard h3 {
+      margin: 0 0 4px;
+    }
+
+    .pcard p {
+      margin: 0 0 8px;
+    }
+
+    .pcard button {
+      font: inherit;
+    }
+
+    /* "with CSS" look */
+    .styled .pcard {
+      font-family: var(--font);
+      max-width: 360px;
+      margin: 0 auto;
+      background: linear-gradient(135deg, #fde68a, #fbcfe8);
+      border-radius: 18px;
+      padding: 22px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, .12);
+      text-align: center;
+    }
+
+    .styled .pcard .av {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 2rem;
+      margin: 0 auto 10px;
+    }
+
+    .styled .pcard button {
+      background: #111827;
+      color: #fff;
+      border: 0;
+      border-radius: 99px;
+      padding: 8px 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 4px;
+    }
+
+    .lstage:not(.styled) .pcard .av {
+      font-size: 1rem;
+    }
+
+    .toast {
+      position: absolute;
+      left: 50%;
+      bottom: 14px;
+      transform: translateX(-50%);
+      background: #ef4444;
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 99px;
+      font: 600 .85rem var(--font);
+      opacity: 0;
+      transition: opacity .3s;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .toast.show {
+      opacity: 1;
+    }
+
+    /* Demo: variable boxes */
+    .vbuilder {
+      display: grid;
+      grid-template-columns: minmax(260px, 340px) 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 860px) {
+      .vbuilder {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .vform {
+      display: grid;
+      gap: 10px;
+    }
+
+    .vform label {
+      font-size: .85rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .vform select,
+    .vform input {
+      width: 100%;
+      font: 500 1rem var(--mono);
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+    }
+
+    .shelf {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-content: flex-start;
+      min-height: 200px;
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: 16px;
+      padding: 18px;
+    }
+
+    .vbox {
+      width: 150px;
+      text-align: center;
+      cursor: pointer;
+      animation: drop .5s cubic-bezier(.3, 1.6, .6, 1);
+    }
+
+    @keyframes drop {
+      from {
+        transform: translateY(-30px);
+        opacity: 0;
+      }
+    }
+
+    .vbox .lid {
+      font: 600 .78rem var(--mono);
+      background: var(--violet);
+      color: #fff;
+      border-radius: 10px 10px 0 0;
+      padding: 4px 6px;
+    }
+
+    .vbox.const .lid {
+      background: var(--pink);
+    }
+
+    .vbox .val {
+      background: var(--surface2);
+      border: 2px solid var(--violet);
+      border-top: 0;
+      border-radius: 0 0 12px 12px;
+      padding: 16px 8px;
+      font: 600 .95rem var(--mono);
+      word-break: break-word;
+    }
+
+    .vbox.const .val {
+      border-color: var(--pink);
+    }
+
+    .vbox .tag {
+      font-size: .7rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .vbox.shake {
+      animation: shake .4s;
+    }
+
+    .vbox.bump .val {
+      animation: bumpv .6s;
+    }
+
+    @keyframes bumpv {
+      40% {
+        background: rgba(52, 211, 153, .35);
+      }
+    }
+
+    .vlog {
+      font: .85rem/1.6 var(--mono);
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 12px;
+      padding: 10px 14px;
+      min-height: 70px;
+      margin-top: 12px;
+    }
+
+    .vlog .err {
+      color: #f87171;
+    }
+
+    .vlog .ok {
+      color: #a5e3a1;
+    }
+
+    /* Demo: name checker */
+    .names {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .names button {
+      font: 600 1rem var(--mono);
+      padding: 10px 16px;
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .names button.good {
+      border-color: var(--green);
+      background: rgba(52, 211, 153, .15);
+    }
+
+    .names button.bad {
+      border-color: var(--red);
+      background: rgba(248, 113, 113, .12);
+      text-decoration: line-through;
+    }
+
+    .name-why {
+      min-height: 54px;
+    }
+
+    /* Demo: typeof machine */
+    .machine {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 16px;
+      align-items: center;
+    }
+
+    @media (max-width: 800px) {
+      .machine {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .machine input {
+      width: 100%;
+      font: 600 1.2rem var(--mono);
+      padding: 14px;
+      border-radius: 14px;
+      border: 2px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+    }
+
+    .gear {
+      font-size: 3rem;
+      text-align: center;
+      transition: transform .6s;
+    }
+
+    .gear.spin {
+      transform: rotate(360deg);
+    }
+
+    .type-out {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      min-height: 120px;
+    }
+
+    .type-out .t {
+      font: 800 1.6rem var(--mono);
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chips button {
+      font: 500 .9rem var(--mono);
+      padding: 6px 12px;
+      border-radius: 99px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .chips button:hover {
+      border-color: var(--accent);
+    }
+
+    /* Demo: chai shop bill */
+    .bill {
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 860px) {
+      .bill {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .menu-item {
+      display: grid;
+      grid-template-columns: 40px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      margin-bottom: 8px;
+    }
+
+    .menu-item .em {
+      font-size: 1.8rem;
+    }
+
+    .qty {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .qty button {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .qty b {
+      min-width: 20px;
+      text-align: center;
+      font-family: var(--mono);
+    }
+
+    .total-box {
+      font: 800 1.5rem var(--font);
+      text-align: right;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+
+<body class="deck" data-class="1" data-course="JavaScript Course" data-icon="JS" data-title="Introduction to JavaScript"
+  data-duration="60">
+  <main class="slides">
+
+    <!-- 1 -->
+    <section class="slide title" data-title="Welcome">
+      <div class="js-logo">JS</div>
+      <div>
+        <span class="kicker">JavaScript Basics · Class 1</span>
+        <h1>Introduction to <span class="grad">JavaScript</span></h1>
+        <p class="lead">The language that brings web pages to life: buttons that work, forms that check, and pages that
+          change while you watch.</p>
+      </div>
+      <div class="row">
+        <span class="pill yellow">⏱ 60 minutes</span>
+        <span class="pill blue">🖥️ Browser console</span>
+        <span class="pill violet">📦 Variables</span>
+        <span class="pill pink">🔤 Data types</span>
+        <span class="pill green">➕ Operators</span>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Welcome the class and press <b>T</b> to start the timer.</li>
+          <li>Promise: "Today you will write your first JavaScript program, and by the end you'll make a button change a
+            web page."</li>
+          <li>No installation needed today. Everything runs in the browser.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 2 -->
+    <section class="slide" data-title="Today's plan">
+      <header>
+        <span class="kicker">Agenda</span>
+        <h2>Today's plan</h2>
+      </header>
+      <ol class="timeline">
+        <li class="step"><span class="time">00–10</span>
+          <div><b>👋 What is JavaScript?</b><small>HTML vs CSS vs JS, and what JS can do</small></div>
+        </li>
+        <li class="step"><span class="time">10–20</span>
+          <div><b>🖥️ Where does JS run?</b><small>The browser console and your first program</small></div>
+        </li>
+        <li class="step"><span class="time">20–35</span>
+          <div><b>📦 Variables and data types</b><small>let, const, strings, numbers, booleans</small></div>
+        </li>
+        <li class="step"><span class="time">35–45</span>
+          <div><b>➕ Operators</b><small>Build a chai shop bill calculator</small></div>
+        </li>
+        <li class="step"><span class="time">45–55</span>
+          <div><b>🧪 Practice</b><small>Write an "About me" program</small></div>
+        </li>
+        <li class="step"><span class="time">55–60</span>
+          <div><b>✅ Quiz, recap and To Practice</b></div>
+        </li>
+      </ol>
+      <aside class="notes">Reveal each row with →. Keep an eye on the timer in the top bar.</aside>
+    </section>
+
+    <!-- 3 -->
+    <section class="slide" data-title="Warm-up">
+      <header class="center">
+        <span class="kicker">Warm-up · 00–10 min</span>
+        <h2>What happens when you click on a website?</h2>
+        <p class="lead">Every one of these needs JavaScript…</p>
+      </header>
+      <div class="grid cols-4">
+        <div class="card hover step"><span class="icon">🛒</span>
+          <h3>Add to cart</h3>
+          <p class="muted">The cart count goes from 2 to 3 instantly.</p>
+        </div>
+        <div class="card hover step"><span class="icon">📝</span>
+          <h3>Form check</h3>
+          <p class="muted">"Please enter a valid 10-digit mobile number."</p>
+        </div>
+        <div class="card hover step"><span class="icon">🌙</span>
+          <h3>Dark mode</h3>
+          <p class="muted">One click and the whole site changes colour.</p>
+        </div>
+        <div class="card hover step"><span class="icon">🏏</span>
+          <h3>Live score</h3>
+          <p class="muted">The score updates every ball, with no refresh.</p>
+        </div>
+      </div>
+      <div class="callout info step">
+        <p><b>Ask the class:</b> "Which websites or apps did you use today? What did you click?" Every click that
+          <b>does something</b> is powered by JavaScript.
+        </p>
+      </div>
+      <aside class="notes">Take 3–4 answers. Keep it light. The goal is to connect JavaScript to things they already use
+        every day.</aside>
+    </section>
+
+    <!-- 4 -->
+    <section class="slide" data-title="HTML, CSS and JS" id="layers">
+      <header>
+        <span class="kicker">Interactive · switch the layers</span>
+        <h2>HTML + CSS + <span class="yl">JavaScript</span></h2>
+        <p class="lead">Turn each layer on and off. Then try clicking the buttons in the card.</p>
+      </header>
+      <div class="layers">
+        <div>
+          <label class="layer-toggle on"><input type="checkbox" checked disabled> <span>🧱 HTML<small>Structure: the
+                bricks and walls</small></span></label>
+          <label class="layer-toggle"><input type="checkbox" data-layer="css"> <span>🎨 CSS<small>Style: paint and
+                decoration</small></span></label>
+          <label class="layer-toggle"><input type="checkbox" data-layer="js"> <span>⚡ JavaScript<small>Behaviour:
+                electricity and switches</small></span></label>
+        </div>
+        <div class="lstage" id="lstage">
+          <div class="pcard">
+            <div class="av">🧑‍🎓</div>
+            <h3>Arun Kumar</h3>
+            <p>Web development student</p>
+            <p>❤️ <span id="lLikes">12</span> likes</p>
+            <button id="lLike">Like</button>
+            <button id="lDark">Dark mode</button>
+          </div>
+          <div class="toast" id="lToast">Nothing happens… there is no JavaScript! 😴</div>
+        </div>
+      </div>
+      <div class="analogy step" data-label="🏠 Real-life example">
+        <p><b>Building a house:</b> HTML is the <b>walls</b>, CSS is the <b>paint</b>, and JavaScript is the
+          <b>electricity</b>. A house without electricity looks fine, but the fan and lights won't work when you press
+          the switch.
+        </p>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Start with only HTML: it's plain and ugly. Click "Like" and nothing happens.</li>
+          <li>Turn on CSS: it looks nice, but the buttons still do nothing.</li>
+          <li>Turn on JavaScript: now Like counts up and Dark mode works. Ask: "Which layer made the buttons work?"</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 5 -->
+    <section class="slide" data-title="What is JavaScript?">
+      <div class="split">
+        <div>
+          <span class="kicker">Definition</span>
+          <h2>What is JavaScript?</h2>
+          <p class="lead"><b style="color:var(--text)">JavaScript is a programming language</b> that makes web pages
+            interactive. It is the only programming language that runs in <b style="color:var(--text)">every</b> web
+            browser.</p>
+          <ul class="checklist">
+            <li class="step">Created in <b>1995</b> by <b>Brendan Eich</b>, in about 10 days</li>
+            <li class="step">Runs in Chrome, Edge, Firefox and Safari, on phones and laptops</li>
+            <li class="step">With <b>Node.js</b>, it also runs on servers</li>
+            <li class="step">It is the base for React, Angular, Vue and many more</li>
+          </ul>
+        </div>
+        <div class="stack">
+          <div class="card step">
+            <span class="icon">☕ ≠ 📜</span>
+            <h3>JavaScript is <u>not</u> Java!</h3>
+            <p class="muted">They are completely different languages. As the joke goes, "Java is to JavaScript what
+              <b>car</b> is to <b>carpet</b>." 😄
+            </p>
+          </div>
+          <div class="analogy step" data-label="🧠 Real-life example">
+            <p>If a web page is a <b>body</b>, HTML is the <b>skeleton</b>, CSS is the <b>skin and clothes</b>, and
+              JavaScript is the <b>brain and muscles</b> that let it think and move.</p>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">The car/carpet joke usually gets a laugh and helps students remember that Java and JavaScript
+        are unrelated.</aside>
+    </section>
+
+    <!-- 6 -->
+    <section class="slide" data-title="What can JS do?">
+      <header>
+        <span class="kicker">Superpowers</span>
+        <h2>What can JavaScript do? 🦸</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="card hover step"><span class="icon">🖱️</span>
+          <h3>React to users</h3>
+          <p class="muted">Clicks, typing, scrolling and swiping.</p>
+        </div>
+        <div class="card hover step"><span class="icon">✏️</span>
+          <h3>Change the page</h3>
+          <p class="muted">Update text, show or hide items, change colours.</p>
+        </div>
+        <div class="card hover step"><span class="icon">✅</span>
+          <h3>Check forms</h3>
+          <p class="muted">"Password must be 8 characters" before you submit.</p>
+        </div>
+        <div class="card hover step"><span class="icon">🧮</span>
+          <h3>Calculate</h3>
+          <p class="muted">Cart totals, EMI calculators, exam percentages.</p>
+        </div>
+        <div class="card hover step"><span class="icon">🌐</span>
+          <h3>Get live data</h3>
+          <p class="muted">Weather, cricket scores, train status from servers.</p>
+        </div>
+        <div class="card hover step"><span class="icon">🎮</span>
+          <h3>Games and animation</h3>
+          <p class="muted">Browser games, sliders, fun effects.</p>
+        </div>
+      </div>
+      <aside class="notes">Ask students to match each card with an app they use. Example: "Calculate" matches the EMI
+        calculator on a bank website; "Get live data" matches a cricket score app.</aside>
+    </section>
+
+    <!-- 7 -->
+    <section class="slide" data-title="The browser console">
+      <header>
+        <span class="kicker">Where does JS run? · 10–20 min</span>
+        <h2>Every browser has a JavaScript playground built in 🖥️</h2>
+      </header>
+      <div class="split">
+        <div class="stack">
+          <div class="card step"><span class="icon">1️⃣</span>Open Chrome or Edge on any page</div>
+          <div class="card step"><span class="icon">2️⃣</span>Press <kbd>F12</kbd>, or
+            <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>J</kbd> (Mac: <kbd>Cmd</kbd>+<kbd>Option</kbd>+<kbd>J</kbd>)
+          </div>
+          <div class="card step"><span class="icon">3️⃣</span>Click the <b>Console</b> tab, type the commands on the
+            right and press <kbd>Enter</kbd></div>
+        </div>
+        <script type="text/x-code" data-lang="text" data-file="Console">
+        > 2 + 2
+        4
+        > "Hello " + "Priya"
+        'Hello Priya'
+        > alert("I am learning JavaScript!")
+        > console.log("My first output")
+        My first output
+      </script>
+      </div>
+      <div class="analogy step" data-label="🧮 Real-life example">
+        <p>The console is like a <b>calculator that understands English-like commands</b>. Type something, press Enter,
+          and get an answer straight away.</p>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li><b>Do this live.</b> Open the console in a new tab and type each line. Let students do it on their own
+            laptops at the same time.</li>
+          <li>The <code>alert</code> line is the crowd favourite. Everyone loves seeing their own popup.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 8 -->
+    <section class="slide" data-title="Your first program">
+      <header>
+        <span class="kicker">Live code · try it!</span>
+        <h2>Your first JavaScript program 🎉</h2>
+        <p class="lead"><code>console.log()</code> prints a message to the console. Change the text and watch the output
+          on the right.</p>
+      </header>
+      <div class="playground" data-mode="js" data-height="330">
+        <script type="text/x-playground">
+        // My first JavaScript program
+        console.log("Hello, World!");
+        console.log("My name is Priya");
+        console.log(10 + 20);
+
+        // Try: print your name and your favourite food
+      </script>
+      </div>
+      <div class="grid cols-3">
+        <div class="card step"><b>📢 console.log(...)</b><br><span class="muted">"Print this for me"</span></div>
+        <div class="card step"><b>"Text in quotes"</b><br><span class="muted">is printed exactly as written</span></div>
+        <div class="card step"><b>// comment</b><br><span class="muted">a note for humans. JS ignores it.</span></div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Change "Priya" to a student's name. The output updates automatically.</li>
+          <li>Ask: "What will <code>console.log("10 + 20")</code> print, with quotes?" (Answer: the text
+            <code>10 + 20</code>, not 30.) Try it.
+          </li>
+          <li>Remove a closing quote on purpose so they see a red error. Errors are normal!</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 9 -->
+    <section class="slide section-slide" data-title="Variables">
+      <span class="big-emoji">📦</span>
+      <span class="kicker" style="justify-content:center">20–35 min</span>
+      <h1>Variables: <span class="grad">boxes with labels</span></h1>
+      <p class="lead">Programs need to <b>remember</b> things: your name, your score, the items in your cart.</p>
+      <aside class="notes">Pause here and ask: "How does Swiggy remember what's in your cart while you keep browsing?"
+        Answer: variables.</aside>
+    </section>
+
+    <!-- 10 -->
+    <section class="slide" data-title="What is a variable?">
+      <div class="split">
+        <div>
+          <span class="kicker">Variables</span>
+          <h2>A variable is a <span class="grad">labelled box</span></h2>
+          <p class="lead">It has a <b style="color:var(--text)">name</b> (the label) and a <b
+              style="color:var(--text)">value</b> (what's inside).</p>
+          <script type="text/x-code" data-file="script.js" data-hl="1,2">
+          let studentName = "Arun";
+          const birthYear = 2004;
+
+          console.log(studentName); // Arun
+          studentName = "Arun Kumar"; // ✅ let can change
+        </script>
+        </div>
+        <div class="stack">
+          <div class="analogy step" data-label="🍱 Real-life example">
+            <p>Your <b>tiffin box</b> with your name written on it. The <b>name</b> stays the same, but what's
+              <b>inside</b> can change every day: idli on Monday, biryani on Friday!
+            </p>
+          </div>
+          <table class="table step">
+            <tr>
+              <th>Keyword</th>
+              <th>Can change?</th>
+              <th>Real-life example</th>
+            </tr>
+            <tr>
+              <td><code>let</code></td>
+              <td>✅ Yes</td>
+              <td>Your phone balance 📱</td>
+            </tr>
+            <tr>
+              <td><code>const</code></td>
+              <td>❌ No</td>
+              <td>Your date of birth 🎂</td>
+            </tr>
+            <tr>
+              <td><code>var</code></td>
+              <td>⚠️ Old way</td>
+              <td>Don't use it in new code</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <aside class="notes">Rule of thumb for beginners: <b>use const by default, and let when the value needs to
+          change.</b> Mention var only so they recognise it in old tutorials.</aside>
+    </section>
+
+    <!-- 11 -->
+    <section class="slide" data-title="Demo: variable boxes" id="boxDemo">
+      <header>
+        <span class="kicker">Interactive · build your own boxes</span>
+        <h2>Create variables and watch the boxes 📦</h2>
+        <p class="lead">Create a box, then <b style="color:var(--text)">click a box</b> to change its value. What
+          happens with <code>const</code>?</p>
+      </header>
+      <div class="vbuilder">
+        <div class="vform">
+          <div><label>Keyword</label><select id="vKw">
+              <option>let</option>
+              <option>const</option>
+            </select></div>
+          <div><label>Name (label)</label><input id="vName" value="score"></div>
+          <div><label>Value (contents)</label><input id="vVal" value="10"></div>
+          <button class="btn primary" id="vCreate">📦 Create box</button>
+          <div class="row">
+            <button class="btn small" data-preset="const|city|&quot;Chennai&quot;">const city</button>
+            <button class="btn small" data-preset="let|likes|0">let likes</button>
+            <button class="btn small" data-preset="let|isOnline|true">let isOnline</button>
+          </div>
+        </div>
+        <div>
+          <div class="shelf" id="vShelf"></div>
+          <div class="vlog" id="vLog">
+            <div>// your code will appear here</div>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Create <code>let score = 10</code>, click it, and change it to 20: the box updates (green flash).</li>
+          <li>Create <code>const city = "Chennai"</code> and try to change it: the box shakes and shows the real JS
+            error "Assignment to constant variable."</li>
+          <li>Try creating <code>score</code> twice to see the "already declared" error.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 12 -->
+    <section class="slide" data-title="Naming rules" id="nameDemo">
+      <header>
+        <span class="kicker">Naming rules · game</span>
+        <h2>Good name or bad name? 🤔</h2>
+        <p class="lead">Ask the class to vote, then <b style="color:var(--text)">click each name</b> to check.</p>
+      </header>
+      <div class="names">
+        <button data-ok="1"
+          data-why="camelCase: first word small, next words start with a capital. Perfect! ✅">firstName</button>
+        <button data-ok="0"
+          data-why="Names cannot start with a number. Try place2 or secondPlace instead.">2ndPlace</button>
+        <button data-ok="0" data-why="Names cannot contain spaces. Use myName (camelCase).">my name</button>
+        <button data-ok="1" data-why="Allowed: names can start with _ (underscore). ✅">_score</button>
+        <button data-ok="0"
+          data-why="The dash means minus to JavaScript, as in user minus age. Use userAge.">user-age</button>
+        <button data-ok="1" data-why="Clear and camelCase. Anyone reading it knows what it holds. ✅">totalMarks</button>
+        <button data-ok="0" data-why="let is a reserved keyword in JavaScript. You can't use it as a name.">let</button>
+        <button data-ok="1" data-why="Allowed: names can start with $. ✅">$price</button>
+        <button data-ok="0"
+          data-why="Technically allowed, but x tells you nothing. Use a meaningful name like price or age.">x</button>
+      </div>
+      <div class="card name-why" id="nameWhy"><span class="muted">Click a name to see the answer…</span></div>
+      <div class="callout tip step">
+        <p><b>Remember:</b> letters, numbers, <code>_</code> and <code>$</code> only · don't start with a number · no
+          spaces · names are <b>case-sensitive</b> (<code>age</code> and <code>Age</code> are different boxes).</p>
+      </div>
+      <aside class="notes">Make it a game: students give a thumbs up or thumbs down for each name before you click it.
+        <code>x</code> is a trick question. It is valid, but a bad habit.
+      </aside>
+    </section>
+
+    <!-- 13 -->
+    <section class="slide" data-title="Data types">
+      <header>
+        <span class="kicker">Data types</span>
+        <h2>Different kinds of values 🔤 🔢 💡</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="card step"><span class="icon">🔤</span>
+          <h3>String</h3>
+          <p>Text, always in quotes</p><code>"Priya"</code> <code>'Chennai'</code>
+          <p class="muted" style="margin-top:8px">Like a name tag 🏷️</p>
+        </div>
+        <div class="card step"><span class="icon">🔢</span>
+          <h3>Number</h3>
+          <p>Any number, with or without decimals</p><code>21</code> <code>99.5</code> <code>-3</code>
+          <p class="muted" style="margin-top:8px">Like a price tag 💰</p>
+        </div>
+        <div class="card step"><span class="icon">💡</span>
+          <h3>Boolean</h3>
+          <p>Only <code>true</code> or <code>false</code></p><code>true</code> <code>false</code>
+          <p class="muted" style="margin-top:8px">Like a light switch: on or off</p>
+        </div>
+        <div class="card step"><span class="icon">📭</span>
+          <h3>undefined</h3>
+          <p>A box that exists but has <b>nothing put in it yet</b></p><code>let marks;</code>
+          <p class="muted" style="margin-top:8px">Like an empty new tiffin box</p>
+        </div>
+        <div class="card step"><span class="icon">🚫</span>
+          <h3>null</h3>
+          <p><b>Empty on purpose</b></p><code>let winner = null;</code>
+          <p class="muted" style="margin-top:8px">"No winner yet", empty by choice</p>
+        </div>
+        <div class="card step"><span class="icon">📚</span>
+          <h3>Arrays and objects</h3>
+          <p>Collections of values. <b>Coming soon!</b></p><code>["chai", "coffee"]</code>
+        </div>
+      </div>
+      <aside class="notes">Focus on the first three. undefined vs null: "undefined = nobody filled the box yet; null =
+        someone deliberately left it empty."</aside>
+    </section>
+
+    <!-- 14 -->
+    <section class="slide" data-title="Demo: typeof machine" id="typeDemo">
+      <header>
+        <span class="kicker">Interactive · the typeof machine</span>
+        <h2>What type is it? Ask <code>typeof</code> 🔍</h2>
+        <p class="lead">Type any value (or tap a chip). Ask the class to guess <b style="color:var(--text)">before</b>
+          you press Check.</p>
+      </header>
+      <div class="machine">
+        <input id="tIn" value='"Priya"' aria-label="Value">
+        <div class="gear" id="tGear">⚙️</div>
+        <div class="type-out" id="tOut"><span class="muted">The answer appears here</span></div>
+      </div>
+      <div class="row">
+        <button class="btn primary" id="tGo">🔍 Check type</button>
+        <div class="chips">
+          <button>"Priya"</button><button>21</button><button>"21"</button><button>true</button><button>"true"</button><button>3.14</button><button>undefined</button><button>null</button><button>["chai",
+            "coffee"]</button>
+        </div>
+      </div>
+      <div class="callout warn step">
+        <p><b>Tricky ones:</b> <code>"21"</code> in quotes is a <b>string</b>, not a number! And
+          <code>typeof null</code> says "object". That is a famous old bug in JavaScript that can never be fixed. 😅
+        </p>
+      </div>
+      <aside class="notes">Best guessing pairs: <code>21</code> vs <code>"21"</code>, and <code>true</code> vs
+        <code>"true"</code>. Quotes turn anything into a string.
+      </aside>
+    </section>
+
+    <!-- 15 -->
+    <section class="slide" data-title="Live: variables and types">
+      <header>
+        <span class="kicker">Live code</span>
+        <h2>Variables and types in real code</h2>
+      </header>
+      <div class="playground" data-mode="js" data-height="400">
+        <script type="text/x-playground">
+        const name = "Sneha";
+        let age = 20;
+        const isStudent = true;
+        let marks; // nothing inside yet
+
+        console.log(name, age, isStudent, marks);
+
+        console.log(typeof name);      // string
+        console.log(typeof age);       // number
+        console.log(typeof isStudent); // boolean
+        console.log(typeof marks);     // undefined
+
+        age = age + 1; // birthday! 🎂
+        console.log("After birthday:", age);
+      </script>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Change <code>age</code> to <code>"20"</code> (with quotes) and see typeof become string.</li>
+          <li>Try <code>name = "Riya";</code> on a new line to get the const error.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 16 -->
+    <section class="slide" data-title="Operators">
+      <header>
+        <span class="kicker">Operators · 35–45 min</span>
+        <h2>Operators: JavaScript can do maths ➕➖✖️➗</h2>
+      </header>
+      <div class="split">
+        <table class="table">
+          <tr>
+            <th>Operator</th>
+            <th>Meaning</th>
+            <th>Example</th>
+            <th>Result</th>
+          </tr>
+          <tr class="step">
+            <td><code>+</code></td>
+            <td>Add</td>
+            <td><code>15 + 20</code></td>
+            <td>35</td>
+          </tr>
+          <tr class="step">
+            <td><code>-</code></td>
+            <td>Subtract</td>
+            <td><code>100 - 30</code></td>
+            <td>70</td>
+          </tr>
+          <tr class="step">
+            <td><code>*</code></td>
+            <td>Multiply</td>
+            <td><code>15 * 3</code></td>
+            <td>45</td>
+          </tr>
+          <tr class="step">
+            <td><code>/</code></td>
+            <td>Divide</td>
+            <td><code>100 / 4</code></td>
+            <td>25</td>
+          </tr>
+          <tr class="step">
+            <td><code>%</code></td>
+            <td>Remainder</td>
+            <td><code>10 % 3</code></td>
+            <td>1</td>
+          </tr>
+        </table>
+        <div class="stack">
+          <div class="analogy step" data-label="🍬 Real-life example">
+            <p><b>% (remainder):</b> share 10 sweets among 3 friends. Each friend gets 3, and <b>1 sweet is left
+                over</b>. So <code>10 % 3</code> is <b>1</b>.</p>
+          </div>
+          <div class="card step">
+            <h3>🤯 Guess the output</h3>
+            <p><code>"5" + 2</code> → <span class="spoiler"><b>"52"</b>. With a string, + <b>joins</b> instead of
+                adding!</span></p>
+            <p><code>5 + 2</code> → <span class="spoiler"><b>7</b>. Two numbers are added normally.</span></p>
+            <p style="margin:0"><code>"Hi " + "Arun"</code> → <span class="spoiler"><b>"Hi Arun"</b>. Joining strings is
+                called concatenation.</span></p>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">Students guess each blurred answer before you click it. <code>"5" + 2</code> surprises almost
+        everyone. It is a great "aha" moment about data types.</aside>
+    </section>
+
+    <!-- 17 -->
+    <section class="slide" data-title="Demo: chai shop bill" id="billDemo">
+      <header>
+        <span class="kicker">Interactive · real life</span>
+        <h2>☕ Chai shop bill calculator</h2>
+        <p class="lead">Order some snacks. The code on the right shows the <b style="color:var(--text)">variables and
+            operators</b> doing the work.</p>
+      </header>
+      <div class="bill">
+        <div>
+          <div class="menu-item"><span class="em">☕</span>
+            <div><b>Masala Chai</b><br><span class="muted">₹15</span></div>
+            <div class="qty" data-item="chai" data-price="15"><button>−</button><b>2</b><button>+</button></div>
+          </div>
+          <div class="menu-item"><span class="em">🥟</span>
+            <div><b>Samosa</b><br><span class="muted">₹20</span></div>
+            <div class="qty" data-item="samosa" data-price="20"><button>−</button><b>1</b><button>+</button></div>
+          </div>
+          <div class="menu-item"><span class="em">🍔</span>
+            <div><b>Vada Pav</b><br><span class="muted">₹25</span></div>
+            <div class="qty" data-item="vadaPav" data-price="25"><button>−</button><b>0</b><button>+</button></div>
+          </div>
+          <label class="menu-item" style="grid-template-columns:40px 1fr auto"><span
+              class="em">🎟️</span><span><b>Student discount</b><br><span class="muted">10% off</span></span><input
+              type="checkbox" id="bDisc" style="width:20px;height:20px;accent-color:var(--accent)"></label>
+        </div>
+        <div>
+          <div class="code">
+            <div class="code-head"><span class="dots"><i></i><i></i><i></i></span><span class="file">bill.js</span>
+            </div>
+            <pre><code id="bCode"></code></pre>
+          </div>
+          <div class="total-box" id="bTotal"></div>
+        </div>
+      </div>
+      <aside class="notes">Ask a student to "order" and change the quantities. Point at the code: every number on the
+        right is a <b>variable</b>, and the total uses <b>* and +</b>. Turn on the discount to show <code>*</code> and
+        <code>/</code> working together.
+      </aside>
+    </section>
+
+    <!-- 18 -->
+    <section class="slide" data-title="Template literals">
+      <header>
+        <span class="kicker">Joining text the easy way</span>
+        <h2>Template literals: fill-in-the-blanks ✍️</h2>
+        <p class="lead">Use <b style="color:var(--text)">backticks</b> <code>` `</code> and <code>${ }</code> to put
+          variables inside text.</p>
+      </header>
+      <div class="playground" data-mode="js" data-height="330">
+        <script type="text/x-playground">
+        const name = "Rahul";
+        const city = "Madurai";
+        const chai = 3;
+
+        // Old way: joining with +
+        console.log("Hi, I am " + name + " from " + city + ".");
+
+        // New way: template literal (backticks!)
+        console.log(`Hi, I am ${name} from ${city}.`);
+        console.log(`I drink ${chai} cups of chai. That's ₹${chai * 15}!`);
+      </script>
+      </div>
+      <div class="analogy step" data-label="💌 Real-life example">
+        <p>A <b>wedding invitation template</b>: "Dear <b>${guestName}</b>, you are invited…". The same card, filled
+          with a different name for every guest.</p>
+      </div>
+      <aside class="notes">The backtick key is usually under Esc, at the top-left of the keyboard. Show it physically,
+        because many students can't find it. You can even do maths inside <code>${ }</code>.</aside>
+    </section>
+
+    <!-- 19 -->
+    <section class="slide" data-title="Sneak peek: JS changes the page">
+      <header>
+        <span class="kicker">Sneak peek · the fun part</span>
+        <h2>JavaScript can change the web page 🪄</h2>
+        <p class="lead">Click the button in the preview. Then change the message in the code and click again.</p>
+      </header>
+      <div class="playground" data-mode="js" data-height="380">
+        <script type="text/x-playground-html">
+        <div class="card" style="text-align:center">
+          <h2 id="greeting">Hello, visitor 👋</h2>
+          <button id="btn">Click me</button>
+        </div>
+      </script>
+        <script type="text/x-playground">
+        const heading = document.getElementById("greeting");
+        const button = document.getElementById("btn");
+        let clicks = 0;
+
+        button.addEventListener("click", function () {
+          clicks = clicks + 1;
+          heading.textContent = `You clicked ${clicks} times! 🎉`;
+        });
+      </script>
+      </div>
+      <div class="callout info">
+        <p>Don't worry about every word yet. We will learn <b>functions</b>, <b>events</b> and the <b>DOM</b> step by
+          step in the next classes.</p>
+      </div>
+      <aside class="notes">This is a teaser to keep motivation high. Point out that they already recognise
+        <code>let</code>, <code>const</code>, <code>+</code> and the template literal. Only the DOM parts are new.
+      </aside>
+    </section>
+
+    <!-- 20 -->
+    <section class="slide" data-title="Student practice">
+      <header>
+        <span class="kicker">Student practice · 45–55 min</span>
+        <h2>🧪 Your turn: the "About me" program</h2>
+      </header>
+      <div class="grid cols-4">
+        <div class="card"><span class="icon">✏️</span><b>1.</b> Fill in your <b>name, age, city</b></div>
+        <div class="card"><span class="icon">💡</span><b>2.</b> Set <code>isStudent</code> to true or false</div>
+        <div class="card"><span class="icon">🧮</span><b>3.</b> Work out your age in <b>2030</b></div>
+        <div class="card"><span class="icon">⭐</span><b>Bonus:</b> print your weekly chai bill</div>
+      </div>
+      <div class="playground" data-mode="js" data-height="360">
+        <script type="text/x-playground">
+        // TODO 1: fill in your details
+        const name = "Your Name";
+        let age = 18;
+        const city = "Your City";
+
+        // TODO 2: true or false?
+        const isStudent = true;
+
+        console.log(`Hi! I am ${name} from ${city}.`);
+        console.log(`Am I a student? ${isStudent}`);
+
+        // TODO 3: calculate your age in 2030
+        // Hint: there are 2030 - 2026 years to go
+        const ageIn2030 = age; // fix this line
+        console.log(`In 2030 I will be ${ageIn2030} years old.`);
+
+        // BONUS: chai costs ₹15, you drink 2 a day.
+        // Print your bill for 7 days.
+      </script>
+      </div>
+      <aside class="notes">Walk around the room. Common mistakes: missing quotes around text, using normal quotes
+        instead of backticks for template literals, and writing <code>Console.log</code> with a capital C.</aside>
+    </section>
+
+    <!-- 21 -->
+    <section class="slide" data-title="Common mistakes">
+      <header>
+        <span class="kicker">Watch out</span>
+        <h2>Common beginner mistakes 🚧</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="card bad step">
+          <h3>Forgot the quotes</h3><code>let name = Priya;</code>
+          <p class="muted" style="margin-top:8px">Error: <i>Priya is not defined</i>. Text needs quotes:
+            <code>"Priya"</code>
+          </p>
+        </div>
+        <div class="card bad step">
+          <h3>Wrong capital letters</h3><code>Console.Log("hi")</code>
+          <p class="muted" style="margin-top:8px">JS is case-sensitive. It must be <code>console.log</code>.</p>
+        </div>
+        <div class="card bad step">
+          <h3>Changing a const</h3><code>const pi = 3.14; pi = 3;</code>
+          <p class="muted" style="margin-top:8px">Error: <i>Assignment to constant variable</i>. Use <code>let</code> if
+            it needs to change.</p>
+        </div>
+        <div class="card bad step">
+          <h3>Quotes instead of backticks</h3><code>"Hi ${name}"</code>
+          <p class="muted" style="margin-top:8px">Prints <code>${name}</code> literally. Template literals need
+            backticks: <code>`Hi ${name}`</code></p>
+        </div>
+        <div class="card bad step">
+          <h3>String + number surprise</h3><code>"10" + 5</code>
+          <p class="muted" style="margin-top:8px">Gives <code>"105"</code>, not 15. Check your data types!</p>
+        </div>
+        <div class="card bad step">
+          <h3>Using it before creating it</h3><code>console.log(score); let score = 5;</code>
+          <p class="muted" style="margin-top:8px">Create the box first, then use it.</p>
+        </div>
+      </div>
+      <aside class="notes">Paste one of these into the playground on slide 15 to show the real error message. Learning
+        to <b>read errors calmly</b> is a key skill.</aside>
+    </section>
+
+    <!-- 22 -->
+    <section class="slide" data-title="Quick quiz">
+      <header>
+        <span class="kicker">Recap · 55–60 min</span>
+        <h2>⚡ Quick quiz</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="quiz" data-answer="c">
+          <p class="q">1. Which keyword should you use for a value that never changes?</p>
+          <div class="opts">
+            <button data-opt="a">let</button>
+            <button data-opt="b">var</button>
+            <button data-opt="c">const</button>
+          </div>
+          <p class="explain">✅ <b>const</b> stands for constant, a value like your date of birth.</p>
+        </div>
+        <div class="quiz" data-answer="b">
+          <p class="q">2. What does <code>"5" + 2</code> give?</p>
+          <div class="opts">
+            <button data-opt="a">7</button>
+            <button data-opt="b">"52"</button>
+            <button data-opt="c">Error</button>
+          </div>
+          <p class="explain">✅ With a string, <b>+ joins</b> the values together: "5" and 2 become "52".</p>
+        </div>
+        <div class="quiz" data-answer="a">
+          <p class="q">3. What is the type of <code>true</code>?</p>
+          <div class="opts">
+            <button data-opt="a">boolean</button>
+            <button data-opt="b">string</button>
+            <button data-opt="c">number</button>
+          </div>
+          <p class="explain">✅ <b>boolean</b>: only true or false, like a light switch. (But <code>"true"</code> in
+            quotes is a string!)</p>
+        </div>
+      </div>
+      <aside class="notes">Take a show of hands for each option first, then click.</aside>
+    </section>
+
+    <!-- 23 -->
+    <section class="slide" data-title="Recap">
+      <header>
+        <span class="kicker">Recap</span>
+        <h2>Today you learned… ✅</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="flip">
+          <div class="front"><span class="icon">⚡</span>
+            <h3>What is JavaScript?</h3>
+          </div>
+          <div class="back">
+            <p>The programming language that makes web pages <b>interactive</b>. It's the electricity of the house.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🖥️</span>
+            <h3>The console</h3>
+          </div>
+          <div class="back">
+            <p><kbd>F12</kbd> → Console. Use <code>console.log()</code> to print anything.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">📦</span>
+            <h3>Variables</h3>
+          </div>
+          <div class="back">
+            <p>Labelled boxes. <code>const</code> = can't change, <code>let</code> = can change.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🔤</span>
+            <h3>Data types</h3>
+          </div>
+          <div class="back">
+            <p>string, number, boolean, undefined, null. Check with <code>typeof</code>.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">➕</span>
+            <h3>Operators</h3>
+          </div>
+          <div class="back">
+            <p><code>+ - * / %</code>. Careful: + joins strings!</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">✍️</span>
+            <h3>Template literals</h3>
+          </div>
+          <div class="back">
+            <p><code>`Hi ${name}`</code>: backticks plus <code>${ }</code> to fill in the blanks.</p>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">Ask a different student to explain each card before you flip it.</aside>
+    </section>
+
+    <!-- 24 -->
+    <section class="slide" data-title="To Practice">
+      <header>
+        <span class="kicker">To Practice</span>
+        <h2>📚 To Practice</h2>
+      </header>
+      <div class="grid cols-2">
+        <div class="card accent">
+          <span class="icon">🧑‍🎓</span>
+          <h3>1. My profile</h3>
+          <p>Create variables for your <b>name, age, city, favourite food and isStudent</b>. Print 3 sentences about
+            yourself with template literals.</p>
+        </div>
+        <div class="card">
+          <span class="icon">🛒</span>
+          <h3>2. Shopping bill</h3>
+          <p>Pick 3 items with prices and quantities. Calculate the <b>total</b>, then the total after a <b>10%
+              discount</b>. Print both.</p>
+        </div>
+      </div>
+      <div class="callout tip">
+        <p><b>Where to practise:</b> open the browser console (<kbd>F12</kbd>), or create an <code>index.html</code>
+          with a <code>&lt;script&gt;</code> tag in VS Code.</p>
+      </div>
+      <div class="callout info">
+        <p><b>Next class:</b> making decisions with <code>if / else</code> and comparison operators (<code>===</code>,
+          <code>&gt;</code>, <code>&lt;</code>), e.g. "if marks ≥ 35, you passed!" 🎯
+        </p>
+      </div>
+      <aside class="notes">Ask students to bring their To Practice output next class. Pick 2 to share their "My profile"
+        program at the start.</aside>
+    </section>
+
+    <!-- 25 -->
+    <section class="slide title" data-title="Thank you">
+      <div class="js-logo">JS</div>
+      <h1>Thank you! <span class="grad">Questions?</span></h1>
+      <p class="lead">"Every app you love started with a single <code>console.log</code>." 🚀</p>
+      <div class="row">
+        <a class="btn" href="index.html">📋 Course hub</a>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="assets/deck.js"></script>
+  <script>
+    /* Demo: HTML + CSS + JS layers */
+    (() => {
+      const stage = document.getElementById('lstage');
+      const toast = document.getElementById('lToast');
+      let js = false,likes = 12,t;
+      document.querySelectorAll('#layers [data-layer]').forEach(cb => cb.addEventListener('change',() => {
+        cb.closest('.layer-toggle').classList.toggle('on',cb.checked);
+        if (cb.dataset.layer === 'css') stage.classList.toggle('styled',cb.checked);
+        if (cb.dataset.layer === 'js') { js = cb.checked; if (!js) stage.classList.remove('dark'); }
+      }));
+      const nope = () => { toast.classList.add('show'); clearTimeout(t); t = setTimeout(() => toast.classList.remove('show'),1600); };
+      document.getElementById('lLike').addEventListener('click',() => {
+        if (!js) return nope();
+        document.getElementById('lLikes').textContent = ++likes;
+      });
+      document.getElementById('lDark').addEventListener('click',() => {
+        if (!js) return nope();
+        stage.classList.toggle('dark');
+      });
+    })();
+
+    /* Demo: variable boxes */
+    (() => {
+      const shelf = document.getElementById('vShelf'),log = document.getElementById('vLog');
+      const kw = document.getElementById('vKw'),nm = document.getElementById('vName'),vl = document.getElementById('vVal');
+      const vars = {};
+      const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+      const typeOf = v => { try { return v === 'null' ? 'null' : typeof Function('return (' + v + ')')(); } catch (e) { return 'string?'; } };
+      const say = (code,msg,cls) => {
+        log.innerHTML = `<div>${esc(code)}</div><div class="${cls}">${esc(msg)}</div>`;
+      };
+      function create(k,n,v) {
+        n = n.trim(); v = v.trim();
+        if (!/^[A-Za-z_$][\w$]*$/.test(n)) return say(`${k} ${n} = ${v};`,'❌ SyntaxError: that is not a valid variable name','err');
+        if (vars[n]) { vars[n].el.classList.remove('shake'); void vars[n].el.offsetWidth; vars[n].el.classList.add('shake'); return say(`${k} ${n} = ${v};`,`❌ SyntaxError: Identifier '${n}' has already been declared`,'err'); }
+        const el = document.createElement('div');
+        el.className = 'vbox ' + k;
+        el.innerHTML = `<div class="lid">${k} ${esc(n)}</div><div class="val">${esc(v)}</div><div class="tag">${typeOf(v)}</div>`;
+        el.title = 'Click to change the value';
+        el.addEventListener('click',() => change(n));
+        shelf.appendChild(el);
+        vars[n] = { k,v,el };
+        say(`${k} ${n} = ${v};`,`✅ Created a box called "${n}"`,'ok');
+      }
+      function change(n) {
+        const box = vars[n];
+        const nv = prompt(`New value for ${n}:`,box.v);
+        if (nv === null) return;
+        if (box.k === 'const') {
+          box.el.classList.remove('shake'); void box.el.offsetWidth; box.el.classList.add('shake');
+          return say(`${n} = ${nv};`,'❌ TypeError: Assignment to constant variable.','err');
+        }
+        box.v = nv;
+        box.el.querySelector('.val').textContent = nv;
+        box.el.querySelector('.tag').textContent = typeOf(nv);
+        box.el.classList.remove('bump'); void box.el.offsetWidth; box.el.classList.add('bump');
+        say(`${n} = ${nv};`,`✅ "${n}" now holds ${nv}`,'ok');
+      }
+      document.getElementById('vCreate').addEventListener('click',() => create(kw.value,nm.value,vl.value));
+      document.querySelectorAll('#boxDemo [data-preset]').forEach(b => b.addEventListener('click',() => {
+        const [k,n,v] = b.dataset.preset.split('|'); create(k,n,v);
+      }));
+    })();
+
+    /* Demo: naming game */
+    (() => {
+      const why = document.getElementById('nameWhy');
+      document.querySelectorAll('#nameDemo .names button').forEach(b => b.addEventListener('click',() => {
+        const ok = b.dataset.ok === '1';
+        b.classList.add(ok ? 'good' : 'bad');
+        why.innerHTML = `<b>${ok ? '✅ Good name' : '❌ Not good'}:</b> <code>${b.textContent}</code>. ${b.dataset.why}`;
+      }));
+    })();
+
+    /* Demo: typeof machine */
+    (() => {
+      const input = document.getElementById('tIn'),out = document.getElementById('tOut'),gear = document.getElementById('tGear');
+      const info = {
+        string: ['#16a34a','Text. Anything inside quotes is a string, even "21" or "true".'],
+        number: ['#2563eb','A number. You can do maths with it.'],
+        boolean: ['#9333ea','Only true or false, like a light switch.'],
+        undefined: ['#64748b','The box exists, but nothing has been put in it yet.'],
+        object: ['#ea580c','An object (arrays are objects too). Note: typeof null is also "object", a famous old JS bug!']
+      };
+      function check() {
+        let t;
+        try { t = typeof Function('return (' + input.value + ')')(); }
+        catch (e) { out.innerHTML = `<span style="color:var(--red)">❌ ${e.name}: is that missing quotes? Try "${input.value.replace(/"/g,'')}"</span>`; return; }
+        gear.classList.remove('spin'); void gear.offsetWidth; gear.classList.add('spin');
+        const [c,d] = info[t] || ['#64748b',''];
+        out.innerHTML = `<div class="muted" style="font-family:var(--mono)">typeof ${input.value.replace(/</g,'&lt;')}</div><div class="t" style="color:${c}">"${t}"</div><div class="muted">${d}</div>`;
+      }
+      document.getElementById('tGo').addEventListener('click',check);
+      input.addEventListener('keydown',e => { if (e.key === 'Enter') check(); });
+      document.querySelectorAll('#typeDemo .chips button').forEach(b => b.addEventListener('click',() => { input.value = b.textContent; check(); }));
+    })();
+
+    /* Demo: chai shop bill */
+    (() => {
+      const code = document.getElementById('bCode'),total = document.getElementById('bTotal'),disc = document.getElementById('bDisc');
+      const items = [...document.querySelectorAll('#billDemo .qty')];
+      const S = s => `<span class="t-str">${s}</span>`,K = s => `<span class="t-kw">${s}</span>`,N = s => `<span class="t-num">${s}</span>`,C = s => `<span class="t-com">${s}</span>`;
+      function render() {
+        let sum = 0,lines = [];
+        items.forEach(q => {
+          const n = +q.querySelector('b').textContent,p = +q.dataset.price;
+          sum += n * p;
+          lines.push(`${K('const')} ${q.dataset.item} = ${N(n)} * ${N(p)};   ${C('// ₹' + n * p)}`);
+        });
+        const names = items.map(q => q.dataset.item).join(' + ');
+        lines.push('',`${K('let')} total = ${names};   ${C('// ₹' + sum)}`);
+        let final = sum;
+        if (disc.checked) {
+          final = sum - sum * 10 / 100;
+          lines.push(`total = total - total * ${N(10)} / ${N(100)};   ${C('// ₹' + final)}`);
+        }
+        lines.push('',`console.log(${S('`Your bill: ₹${total}`')});`);
+        code.innerHTML = lines.map(l => `<span class="line">${l || ' '}</span>`).join('');
+        total.innerHTML = `Your bill: <span class="grad">₹${final}</span>`;
+        total.animate([{ transform: 'scale(1.06)' },{ transform: 'none' }],300);
+      }
+      items.forEach(q => {
+        const [minus,plus] = q.querySelectorAll('button'),b = q.querySelector('b');
+        minus.addEventListener('click',() => { b.textContent = Math.max(0,+b.textContent - 1); render(); });
+        plus.addEventListener('click',() => { b.textContent = Math.min(9,+b.textContent + 1); render(); });
+      });
+      disc.addEventListener('change',render);
+      render();
+    })();
+  </script>
+</body>
+
+</html>

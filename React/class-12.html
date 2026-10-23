@@ -1,0 +1,1137 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Class 12 · useEffect Fundamentals</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <style>
+    /* --- Hook: fake browser tabs --- */
+    .tabstrip {
+      display: flex;
+      gap: 6px;
+      background: #dfe3ea;
+      padding: 8px 8px 0;
+      border-radius: 14px 14px 0 0;
+      overflow: hidden;
+    }
+
+    .btab {
+      background: #c9ced8;
+      color: #1e293b;
+      padding: 8px 14px;
+      border-radius: 10px 10px 0 0;
+      font: 600 .85rem var(--font);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1 1 0;
+      min-width: 0;
+    }
+
+    .btab.on {
+      background: #fff;
+    }
+
+    .tabbody {
+      background: #fff;
+      color: #334155;
+      border-radius: 0 0 14px 14px;
+      padding: 16px;
+      font-size: .9rem;
+      box-shadow: var(--shadow);
+    }
+
+    /* --- Demo: when does my effect run? --- */
+    .sim {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    @media (max-width: 860px) {
+      .sim {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .sim-btns {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .fx {
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 14px;
+      margin-bottom: 10px;
+      background: var(--surface2);
+      transition: background .3s, border-color .3s, opacity .3s;
+    }
+
+    .fx code {
+      background: none;
+      border: 0;
+      padding: 0;
+      font-size: .82rem;
+    }
+
+    .fx .fx-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .fx .st {
+      font-size: .82rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .fx .n {
+      font-family: var(--mono);
+      font-size: .78rem;
+      color: var(--muted);
+    }
+
+    .fx.run {
+      border-color: var(--green);
+      background: rgba(52, 211, 153, .16);
+      animation: fxPulse .6s ease;
+    }
+
+    .fx.run .st {
+      color: var(--green);
+    }
+
+    .fx.clean {
+      border-color: var(--orange);
+      background: rgba(251, 146, 60, .16);
+      animation: fxPulse .6s ease;
+    }
+
+    .fx.clean .st {
+      color: var(--orange);
+    }
+
+    .fx.skip {
+      opacity: .45;
+    }
+
+    @keyframes fxPulse {
+      40% {
+        transform: scale(1.02);
+      }
+    }
+
+    .sim-preview {
+      background: #fff;
+      color: #111;
+      border-radius: 14px;
+      padding: 14px;
+      min-height: 92px;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      box-shadow: var(--shadow);
+      margin-bottom: 10px;
+      transition: opacity .3s;
+    }
+
+    .sim-preview.off {
+      background: repeating-linear-gradient(45deg, #f1f5f9, #f1f5f9 10px, #e2e8f0 10px, #e2e8f0 20px);
+      color: #64748b;
+    }
+
+    .sim-log {
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 12px;
+      padding: 8px 12px;
+      height: 190px;
+      overflow: auto;
+      font: .8rem/1.5 var(--mono);
+    }
+
+    .sim-log .l {
+      padding: 3px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, .06);
+    }
+
+    .sim-log .l.ok {
+      color: #86efac;
+    }
+
+    .sim-log .l.cl {
+      color: #fdba74;
+    }
+
+    .sim-log .l.info {
+      color: #93c5fd;
+    }
+
+    /* --- Lifecycle strip --- */
+    .life {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    @media (max-width: 760px) {
+      .life {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .life .card {
+      text-align: center;
+    }
+
+    .life .card .icon {
+      font-size: 2.6rem;
+    }
+  </style>
+</head>
+
+<body class="deck" data-class="12" data-title="useEffect Fundamentals" data-duration="60">
+  <main class="slides">
+
+    <!-- 1 -->
+    <section class="slide title" data-title="Welcome">
+      <div class="react-logo"></div>
+      <div>
+        <span class="kicker">Week 3 · Styling, effects and data · Class 12</span>
+        <h1><span class="grad">useEffect</span> fundamentals</h1>
+        <p class="lead">Teach your component to do things <b>outside</b> React: change the tab title, run a timer,
+          listen to the browser.</p>
+      </div>
+      <div class="row">
+        <span class="pill blue">⏱ 60 minutes</span>
+        <span class="pill violet">✨ Side effects</span>
+        <span class="pill pink">📋 Dependency arrays</span>
+        <span class="pill yellow">🧹 Cleanup</span>
+        <span class="pill green">🕒 Live clock</span>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Press <b>T</b> to start the timer.</li>
+          <li>Say: "Till now our components only <i>showed</i> things. Today they will <i>do</i> things after showing
+            up."</li>
+          <li>Keep it friendly: useEffect confuses many beginners. Promise them a visual simulator today.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 2 -->
+    <section class="slide" data-title="Today's plan">
+      <header>
+        <span class="kicker">Agenda</span>
+        <h2>Today's plan</h2>
+      </header>
+      <ol class="timeline">
+        <li class="step"><span class="time">00–05</span>
+          <div><b>🔁 Quick recap</b><small>Styling React components (Class 11)</small></div>
+        </li>
+        <li class="step"><span class="time">05–15</span>
+          <div><b>✨ What is a side effect?</b><small>Things a component does outside the screen</small></div>
+        </li>
+        <li class="step"><span class="time">15–25</span>
+          <div><b>⚛️ useEffect in action</b><small>The syntax, our first effect and the tab title</small></div>
+        </li>
+        <li class="step"><span class="time">25–35</span>
+          <div><b>📋 Dependency arrays</b><small>When does an effect run? Simulator time</small></div>
+        </li>
+        <li class="step"><span class="time">35–45</span>
+          <div><b>🧹 Lifecycle and cleanup</b><small>Mount, update, unmount. Effects vs event handlers</small></div>
+        </li>
+        <li class="step"><span class="time">45–60</span>
+          <div><b>🧪 Exercise, quiz and To Practice</b><small>Tab title counter and a live digital clock</small></div>
+        </li>
+      </ol>
+      <aside class="notes">Press → to reveal each block. The simulator around minute 30 is the most important part of
+        the class. Protect that time.</aside>
+    </section>
+
+    <!-- 3 -->
+    <section class="slide" data-title="Recap: styling">
+      <header>
+        <span class="kicker">Quick recap · Class 11</span>
+        <h2>Last class: styling React components 🎨</h2>
+        <p class="lead">Tap a card, but first let the class answer out loud.</p>
+      </header>
+      <div class="grid cols-4">
+        <div class="flip">
+          <div class="front"><span class="icon">🏷️</span>
+            <h3>class or className?</h3>
+          </div>
+          <div class="back">
+            <p>In JSX we write <code>className="card"</code>, because <code>class</code> is a reserved word in
+              JavaScript.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🖌️</span>
+            <h3>Inline style syntax?</h3>
+          </div>
+          <div class="back">
+            <p><code>style={{ color: "red", fontSize: 20 }}</code>: an object with <b>camelCase</b> keys.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🚦</span>
+            <h3>Conditional style?</h3>
+          </div>
+          <div class="back">
+            <p><code>className={isActive ? "on" : "off"}</code>: pick a class based on data.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">📱</span>
+            <h3>Responsive?</h3>
+          </div>
+          <div class="back">
+            <p>Use CSS media queries and flexible layouts (flex, grid) so it looks good on phones too.</p>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Ask a different student for each card before flipping.</li>
+          <li>Common confusion: why two curly braces in <code>style={{ }}</code>? Outer = "JavaScript here", inner = the
+            object.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 4 -->
+    <section class="slide" data-title="Hook: the tab title">
+      <div class="split">
+        <div>
+          <span class="kicker">Warm-up · 05–10 min</span>
+          <h2>How does the tab title know you have <span class="grad">3 new messages</span>?</h2>
+          <p class="lead">The tab title is <b style="color:var(--text)">not part of your page</b>. It lives in the
+            browser, outside React's &lt;div id="root"&gt;.</p>
+          <ul class="checklist">
+            <li class="step">💬 Chat app tab: <b>(3) ChatNow</b></li>
+            <li class="step">🏏 Live score tab: <b>IND 245/3 (42.1)</b></li>
+            <li class="step">⏲️ Pomodoro timer tab: <b>24:59 · Focus</b></li>
+          </ul>
+        </div>
+        <div class="stack">
+          <div>
+            <div class="tabstrip">
+              <span class="btab on">(3) ChatNow</span>
+              <span class="btab">IND 245/3 (42.1)</span>
+              <span class="btab">24:59 · Focus</span>
+            </div>
+            <div class="tabbody">
+              <b>Priya:</b> Class at 4 pm? ☕<br>
+              <b>Rahul:</b> Bring the notes!<br>
+              <b>Sneha:</b> Assignment link pls 🙏
+            </div>
+          </div>
+          <div class="callout info step">
+            <p><b>Ask the class:</b> "Our component returns JSX for the page. Who updates the <i>tab title</i>?" That
+              job is a <b>side effect</b>, and today's hook <code>useEffect</code> does it.</p>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Open WhatsApp Web or Gmail on the classroom PC if possible and show the number in the tab.</li>
+          <li>Key point: JSX controls what is inside the page. Anything outside (tab title, timers, the network, the
+            window) is "outside React".</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 5 -->
+    <section class="slide" data-title="What is a side effect?">
+      <header>
+        <span class="kicker">Concept · 10–15 min</span>
+        <h2>What is a <span class="grad">side effect</span>?</h2>
+        <p class="lead">Rendering = calculating JSX from props and state. A <b style="color:var(--text)">side effect</b>
+          is any extra work that touches something <b style="color:var(--text)">outside</b> that calculation.</p>
+      </header>
+      <div class="split">
+        <div class="grid cols-2">
+          <div class="card step"><span class="icon">🏷️</span><b>Change the tab title</b>
+            <p class="muted">document.title</p>
+          </div>
+          <div class="card step"><span class="icon">⏱️</span><b>Start a timer</b>
+            <p class="muted">setInterval, setTimeout</p>
+          </div>
+          <div class="card step"><span class="icon">🌐</span><b>Fetch data</b>
+            <p class="muted">ask a server (Class 13–14)</p>
+          </div>
+          <div class="card step"><span class="icon">👂</span><b>Listen to the browser</b>
+            <p class="muted">window resize, key press</p>
+          </div>
+        </div>
+        <div class="analogy step" data-label="💡 Real-life example">
+          <span class="big-emoji">🌃</span>
+          <h3>Automatic street lights</h3>
+          <p>The street (your component) is just there. But it is <b>synchronized</b> with something outside it: the
+            sun. When it gets dark, the lights switch on automatically.</p>
+          <p class="muted">An effect keeps your component in sync with something outside React, like a timer or a
+            browser event.</p>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Read the simple explanation from the syllabus: "An effect can synchronize a component with something
+            outside React, such as a timer or a browser event."</li>
+          <li>Second analogy if needed: cooking is the render. Switching off the gas after cooking is a side effect. It
+            is not the dish, but it must happen after cooking.</li>
+          <li>Ask: "Can you think of another app that changes something outside the page?" (music player tab,
+            notifications).</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 6 -->
+    <section class="slide" data-title="useEffect syntax">
+      <header>
+        <span class="kicker">Syllabus code · 15–20 min</span>
+        <h2>Our first <code>useEffect</code></h2>
+      </header>
+      <div class="split">
+        <script type="text/x-code" data-file="App.jsx" data-hl="1,6-8">
+        import { useEffect, useState } from "react";
+
+        function App() {
+          const [count, setCount] = useState(0);
+
+          useEffect(() => {
+            document.title = `Count: ${count}`;
+          }, [count]);
+
+          return (
+            <button onClick={() => setCount(count + 1)}>
+              Count: {count}
+            </button>
+          );
+        }
+      </script>
+        <div class="stack">
+          <div class="card step"><span class="icon">1️⃣</span><b>Import it</b> from "react", just like
+            <code>useState</code>.
+          </div>
+          <div class="card step"><span class="icon">2️⃣</span><b>First argument:</b> a function. "What should I do?"
+            Here: set the tab title.</div>
+          <div class="card step"><span class="icon">3️⃣</span><b>Second argument:</b> the dependency array
+            <code>[count]</code>. "When should I do it again?" Only when <code>count</code> changes.
+          </div>
+          <div class="card accent step"><span class="icon">⏰</span><b>Timing:</b> React first paints the screen,
+            <i>then</i> runs the effect. Effects run <b>after</b> render.
+          </div>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Read the code top to bottom. Pause on the backticks: this is a template string, so <code>${count}</code>
+            puts the number inside.</li>
+          <li>Say the sentence slowly: "After every render where count changed, set the title."</li>
+          <li>Common mistake: putting <code>document.title = ...</code> directly in the component body. It works, but it
+            runs on every render and breaks the "render should be pure" rule.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 7 -->
+    <section class="slide" data-title="Playground: tab title">
+      <header>
+        <span class="kicker">Live coding · Try it!</span>
+        <h2>Click the button and watch the title 🏷️</h2>
+        <p class="lead">The preview lives in a small frame, so we also <b style="color:var(--text)">log</b> the title in
+          the console and show it on screen.</p>
+      </header>
+      <div class="playground" data-height="420" data-url="http://localhost:5173/  ·  tab: Count: 0">
+        <script type="text/x-playground">
+        import { useEffect, useState } from "react";
+
+        function App() {
+          const [count, setCount] = useState(0);
+
+          useEffect(() => {
+            document.title = `Count: ${count}`;
+            console.log("Effect ran! Title is now:", document.title);
+          }, [count]);
+
+          return (
+            <div className="card">
+              <p>🏷️ Tab title: <b>Count: {count}</b></p>
+              <button onClick={() => setCount(count + 1)}>
+                Count: {count}
+              </button>
+            </div>
+          );
+        }
+
+        export default App;
+      </script>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Click the button 3 times. Point at the console: one log per click.</li>
+          <li>Tell students: in a real Vite app the <b>browser tab</b> itself changes. Here the preview is a small
+            frame, so the console proves the effect ran.</li>
+          <li>Try: change <code>[count]</code> to <code>[]</code>. Now the log appears only once. Ask "why?" and promise
+            the answer on the next slides.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 8 -->
+    <section class="slide" data-title="Dependency array: 3 cases">
+      <header>
+        <span class="kicker">Dependency arrays · 25–30 min</span>
+        <h2>The dependency array decides <span class="grad">when</span></h2>
+        <p class="lead">Guess first, then click the blurred answer.</p>
+      </header>
+      <table class="table">
+        <tr>
+          <th>You write</th>
+          <th>It runs…</th>
+          <th>Real-life version</th>
+        </tr>
+        <tr>
+          <td><code>useEffect(fn)</code><br><small class="muted">no array</small></td>
+          <td><span class="spoiler">After <b>every</b> render 🔁</span></td>
+          <td>A shop watchman who checks the lock <b>every time</b> anyone walks past.</td>
+        </tr>
+        <tr>
+          <td><code>useEffect(fn, [])</code><br><small class="muted">empty array</small></td>
+          <td><span class="spoiler">Only <b>once</b>, after the first render (mount) 1️⃣</span></td>
+          <td>Saying "Welcome!" <b>once</b> when a guest enters the house.</td>
+        </tr>
+        <tr>
+          <td><code>useEffect(fn, [count])</code><br><small class="muted">with values</small></td>
+          <td><span class="spoiler">After the first render, then <b>only when <code>count</code> changes</b> 🎯</span>
+          </td>
+          <td>A cricket scoreboard operator who updates the board <b>only when the score changes</b>.</td>
+        </tr>
+      </table>
+      <div class="callout tip step">
+        <p><b>Rule of thumb:</b> put every value from props or state that the effect <i>uses</i> inside the array. The
+          effect uses <code>count</code>? Then write <code>[count]</code>.</p>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>For each row, ask the class to vote before you click the spoiler.</li>
+          <li>Students often think "no array" and "empty array" mean the same thing. They are opposites: every time vs
+            only once.</li>
+          <li>Transition: "Let's see all three running side by side in a simulator."</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 9 -->
+    <section class="slide" data-title="Demo: when does my effect run?" id="fxSim">
+      <header>
+        <span class="kicker">Live demo · Simulator</span>
+        <h2>When does my effect run? 🔦</h2>
+      </header>
+      <div class="sim">
+        <div>
+          <div class="sim-btns">
+            <button class="btn primary small" data-act="mount">📦 Mount</button>
+            <button class="btn small" data-act="count">➕ Change count</button>
+            <button class="btn small" data-act="name">✏️ Change name</button>
+            <button class="btn small" data-act="unmount">🗑️ Unmount</button>
+            <button class="btn ghost small" data-act="reset">↺ Reset</button>
+          </div>
+          <div class="fx" data-fx="every">
+            <div class="fx-top"><code>useEffect(fn)</code><span class="st">waiting…</span></div>
+            <span class="n">A · no array · ran <b>0</b>×</span>
+          </div>
+          <div class="fx" data-fx="once">
+            <div class="fx-top"><code>useEffect(fn, [])</code><span class="st">waiting…</span></div>
+            <span class="n">B · empty array · ran <b>0</b>×</span>
+          </div>
+          <div class="fx" data-fx="count">
+            <div class="fx-top"><code>useEffect(fn, [count])</code><span class="st">waiting…</span></div>
+            <span class="n">C · depends on count · ran <b>0</b>×</span>
+          </div>
+        </div>
+        <div>
+          <div class="sim-preview off" id="simPreview">Component is not on screen yet.<br>Press 📦 Mount.</div>
+          <div class="sim-log" id="simLog">
+            <div class="l info">// Log: newest at the top</div>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Click <b>Mount</b>: all three light up green, because every effect runs after the first render.</li>
+          <li>Click <b>Change count</b> twice: A and C run, B stays grey. Ask "why did B not run?"</li>
+          <li>Click <b>Change name</b>: only A runs. C does not care about name.</li>
+          <li>Click <b>Unmount</b>: orange = cleanup. Every effect gets a chance to clean up when the component leaves.
+            Also note: before A and C re-run, their old cleanup runs first.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 10 -->
+    <section class="slide" data-title="Component lifecycle">
+      <header>
+        <span class="kicker">Lifecycle · 35–40 min</span>
+        <h2>A component's life: <span class="grad">born, changes, leaves</span></h2>
+      </header>
+      <div class="life">
+        <div class="card step" style="border-top:4px solid var(--green)"><span class="icon">🐣</span>
+          <h3>Mount</h3>
+          <p class="muted">The component appears on screen for the first time.</p>
+          <p><code>useEffect(fn, [])</code> runs here.</p>
+        </div>
+        <div class="card step" style="border-top:4px solid var(--accent)"><span class="icon">🔄</span>
+          <h3>Update</h3>
+          <p class="muted">State or props change, so it re-renders.</p>
+          <p><code>useEffect(fn, [count])</code> runs again if <code>count</code> changed.</p>
+        </div>
+        <div class="card step" style="border-top:4px solid var(--orange)"><span class="icon">👋</span>
+          <h3>Unmount</h3>
+          <p class="muted">The component is removed from the screen.</p>
+          <p>The <b>cleanup</b> function runs here.</p>
+        </div>
+      </div>
+      <div class="analogy step" data-label="🏨 Real-life example">
+        <p><b>A hotel stay:</b> check in (mount) and get your room key. During your stay you order chai many times
+          (updates). When you check out (unmount) you <b>return the key</b> (cleanup), so the next guest is not locked
+          out.</p>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Older React used class methods like <code>componentDidMount</code>. Mention it only if someone has seen it
+            on YouTube. With hooks we think in "sync with something", not in lifecycle methods, but the three stages
+            help beginners.</li>
+          <li>Ask: "When you switch from the Home tab to the Profile tab in an app, which components unmount?"</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 11 -->
+    <section class="slide" data-title="Cleanup basics">
+      <header>
+        <span class="kicker">Cleanup · 40–43 min</span>
+        <h2>Cleanup: switch off the tap before you leave 🚰</h2>
+      </header>
+      <div class="split">
+        <script type="text/x-code" data-file="Clock.jsx" data-hl="5,9-11">
+        function Clock() {
+          const [time, setTime] = useState(new Date());
+
+          useEffect(() => {
+            const id = setInterval(() => setTime(new Date()), 1000);
+
+            // cleanup: React calls this when Clock leaves the screen
+            // (and before the effect runs again)
+            return () => {
+              clearInterval(id);
+            };
+          }, []);
+
+          return <h1>{time.toLocaleTimeString()}</h1>;
+        }
+      </script>
+        <div class="stack">
+          <div class="analogy step" data-label="🚰 Real-life example">
+            <p>You open the tap to fill a bucket (start the timer). When you leave the bathroom, you <b>switch off the
+                tap</b> (clear the timer). If you forget, water keeps running and is wasted, even though nobody is
+              there.</p>
+          </div>
+          <div class="card step"><b>How:</b> <code>return</code> a function from your effect. That returned function is
+            the <b>cleanup</b>.</div>
+          <div class="card step"><b>What to clean:</b> <code>setInterval</code> → <code>clearInterval</code>,
+            <code>addEventListener</code> → <code>removeEventListener</code>.
+          </div>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Point at line 5 (start) and lines 9–11 (stop). Every "start" needs a matching "stop".</li>
+          <li>Not every effect needs cleanup. Setting <code>document.title</code> does not leave anything running, so no
+            cleanup is needed.</li>
+          <li>Next slide shows what happens if we forget.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 12 -->
+    <section class="slide" data-title="Playground: cleanup">
+      <header>
+        <span class="kicker">Try it! · 43–45 min</span>
+        <h2>See cleanup in action 🧹</h2>
+        <p class="lead">Hide the timer and watch the console. Then delete the <code>return</code> cleanup and try again.
+        </p>
+      </header>
+      <div class="playground" data-height="420">
+        <script type="text/x-playground">
+        import { useEffect, useState } from "react";
+
+        function ChaiTimer() {
+          const [seconds, setSeconds] = useState(0);
+
+          useEffect(() => {
+            const id = setInterval(() => {
+              console.log("tick ☕");
+              setSeconds((s) => s + 1);
+            }, 1000);
+
+            return () => {
+              clearInterval(id);
+              console.log("🧹 cleanup: timer stopped");
+            };
+          }, []);
+
+          return <h2>☕ Chai brewing: {seconds}s</h2>;
+        }
+
+        function App() {
+          const [show, setShow] = useState(true);
+
+          return (
+            <div className="card">
+              <button onClick={() => setShow(!show)}>
+                {show ? "Hide timer" : "Show timer"}
+              </button>
+              {show && <ChaiTimer />}
+            </div>
+          );
+        }
+      </script>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Click "Hide timer": the ticks stop and the cleanup message appears.</li>
+          <li>Now delete the whole <code>return () => {...}</code> block. Hide again: "tick" keeps printing forever even
+            though the timer is gone. That is a <b>memory leak</b>, the running tap.</li>
+          <li>Note <code>setSeconds((s) => s + 1)</code>: the updater form, because the effect only runs once and would
+            otherwise see an old value.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 13 -->
+    <section class="slide" data-title="Effects vs event handlers">
+      <header>
+        <span class="kicker">Big idea · 45–48 min</span>
+        <h2>Effect or event handler? 🤔</h2>
+      </header>
+      <div class="grid cols-2">
+        <div class="card" style="border-left:4px solid var(--violet)">
+          <span class="icon">🔔</span>
+          <h3>Event handler</h3>
+          <p>Runs because the <b>user did something</b>: click, type, submit.</p>
+          <p class="muted">Like a doorbell: it rings only when someone presses it.</p>
+          <p><code>onClick={() => setCount(count + 1)}</code></p>
+        </div>
+        <div class="card" style="border-left:4px solid var(--green)">
+          <span class="icon">🌃</span>
+          <h3>Effect</h3>
+          <p>Runs because the component <b>rendered</b> and something needs to stay in sync.</p>
+          <p class="muted">Like street lights: they switch on because it got dark, not because someone pressed a button.
+          </p>
+          <p><code>useEffect(() => {...}, [count])</code></p>
+        </div>
+      </div>
+      <table class="table step">
+        <tr>
+          <th>Situation</th>
+          <th>Use</th>
+        </tr>
+        <tr>
+          <td>"Place order" button sends the order</td>
+          <td><span class="spoiler">🔔 Event handler (user clicked)</span></td>
+        </tr>
+        <tr>
+          <td>Tab title shows the cart count</td>
+          <td><span class="spoiler">🌃 Effect (keep title in sync with state)</span></td>
+        </tr>
+        <tr>
+          <td>Clock on the screen ticks every second</td>
+          <td><span class="spoiler">🌃 Effect (timer starts when it appears)</span></td>
+        </tr>
+        <tr>
+          <td>Show "Copied!" after clicking Copy UPI ID</td>
+          <td><span class="spoiler">🔔 Event handler</span></td>
+        </tr>
+      </table>
+      <aside class="notes">
+        <ul>
+          <li>This is the To Practice question, so spend time here.</li>
+          <li>Easy test for students: "Is there a <b>specific user action</b> that causes it? Then it's an event
+            handler. Should it happen just because the component is on screen? Then it's an effect."</li>
+          <li>Common mistake: using an effect to react to a button click (setting a flag, then an effect watching the
+            flag). Just do the work inside the click handler.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 14 -->
+    <section class="slide" data-title="Exercise: tab title">
+      <header>
+        <span class="kicker">Class exercise · 48–53 min</span>
+        <h2>🧪 Update the tab title when the count changes</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="card"><span class="icon">1️⃣</span>Import <code>useEffect</code> and add an effect</div>
+        <div class="card"><span class="icon">2️⃣</span>Set <code>document.title</code> to <b>"🛒 Cart: 3 items"</b>
+          style text</div>
+        <div class="card"><span class="icon">3️⃣</span>Add the right <b>dependency array</b>. Bonus: log it!</div>
+      </div>
+      <div class="playground" data-height="360" data-url="http://localhost:5173/cart">
+        <script type="text/x-playground">
+        import { useState } from "react";
+        // TODO 1: also import useEffect
+
+        function App() {
+          const [items, setItems] = useState(0);
+
+          // TODO 2: write a useEffect that sets document.title
+          //         to `🛒 Cart: ${items} items`
+          // TODO 3: add the dependency array so it runs only when items changes
+          // BONUS: console.log the new title inside the effect
+
+          return (
+            <div className="card">
+              <h2>🛍️ ShopKart</h2>
+              <p>Items in cart: {items}</p>
+              <button onClick={() => setItems(items + 1)}>Add item</button>
+              <button onClick={() => setItems(0)}>Empty cart</button>
+            </div>
+          );
+        }
+      </script>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Give 5 minutes. In the playground, imports are optional, but keep the habit of importing.</li>
+          <li>Walk around and check: did they write <code>[items]</code>? Some will forget the array. Ask "how many
+            times does it run now?"</li>
+          <li>Common mistakes: using normal quotes instead of backticks, so they see the literal text
+            <code>${items}</code>.
+          </li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 15 -->
+    <section class="slide" data-title="Extra practice: digital clock">
+      <header>
+        <span class="kicker">Extra practice · fast finishers</span>
+        <h2>🕒 Build a live digital clock</h2>
+        <p class="lead">You need <code>setInterval</code> to tick every second, plus <b
+            style="color:var(--text)">cleanup</b> to stop it.</p>
+      </header>
+      <div class="playground" data-height="330">
+        <script type="text/x-playground">
+        import { useEffect, useState } from "react";
+
+        function App() {
+          const [time, setTime] = useState(new Date());
+
+          // TODO 1: inside useEffect, start setInterval that calls
+          //         setTime(new Date()) every 1000 ms
+          // TODO 2: return a cleanup function that calls clearInterval
+          // TODO 3: which dependency array? (run once when it appears)
+
+          return (
+            <div className="card" style={{ textAlign: "center" }}>
+              <p>🇮🇳 Indian Standard Time</p>
+              <h1 style={{ fontSize: 48 }}>{time.toLocaleTimeString("en-IN")}</h1>
+            </div>
+          );
+        }
+      </script>
+      </div>
+      <div class="card"><b>Stuck?</b> <span
+          class="spoiler"><code>useEffect(() => { const id = setInterval(() => setTime(new Date()), 1000); return () => clearInterval(id); }, []);</code></span>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>For students who finish the tab title exercise early.</li>
+          <li>Reveal the spoiler only after 3–4 minutes.</li>
+          <li>Bonus idea: show "Good morning / Good evening" based on <code>time.getHours()</code>.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 16 -->
+    <section class="slide" data-title="Common mistakes">
+      <header>
+        <span class="kicker">Watch out</span>
+        <h2>⚠️ Common useEffect mistakes</h2>
+      </header>
+      <div class="grid cols-2">
+        <div class="card bad step">
+          <h3>♾️ Infinite loop</h3>
+          <p>Setting state in an effect with <b>no array</b>: set state → re-render → effect → set state → …</p>
+          <p><code>useEffect(() => setCount(count + 1));</code> ❌</p>
+        </div>
+        <div class="card bad step">
+          <h3>🙈 Missing dependency</h3>
+          <p>The effect uses <code>count</code> but the array is <code>[]</code>, so the title gets stuck at "Count: 0".
+          </p>
+          <p>Fix: <code>[count]</code> ✅</p>
+        </div>
+        <div class="card bad step">
+          <h3>🚰 Forgetting cleanup</h3>
+          <p>Timers and listeners keep running after the component is gone. Return a cleanup function.</p>
+        </div>
+        <div class="card bad step">
+          <h3>🔔 Effect for a click</h3>
+          <p>If it happens because the user clicked, put it in the <b>event handler</b>, not in an effect.</p>
+        </div>
+      </div>
+      <div class="callout warn step">
+        <p>Never try the infinite loop in the playground during class: the preview can freeze. Just explain it on the
+          board.</p>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Draw the infinite loop as a circle on the board: render → effect → setState → render…</li>
+          <li>In a real project, the ESLint rule <code>react-hooks/exhaustive-deps</code> warns about missing
+            dependencies. Vite templates include it.</li>
+          <li>Also mention: in development, React StrictMode runs effects twice on mount to help you find missing
+            cleanups. Don't panic if you see two logs.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 17 -->
+    <section class="slide" data-title="Quick quiz">
+      <header>
+        <span class="kicker">Recap · 55–60 min</span>
+        <h2>⚡ Quick quiz</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="quiz" data-answer="b">
+          <p class="q">1. When does <code>useEffect(fn, [])</code> run?</p>
+          <div class="opts">
+            <button data-opt="a">After every render</button>
+            <button data-opt="b">Once, after the first render</button>
+            <button data-opt="c">Never</button>
+          </div>
+          <p class="explain">✅ An <b>empty array</b> means "no dependencies can change", so it runs only once after
+            mount.</p>
+        </div>
+        <div class="quiz" data-answer="c">
+          <p class="q">2. How do you stop a <code>setInterval</code> when the component leaves?</p>
+          <div class="opts">
+            <button data-opt="a">Refresh the page</button>
+            <button data-opt="b">Add it to the dependency array</button>
+            <button data-opt="c">Return a cleanup function that calls clearInterval</button>
+          </div>
+          <p class="explain">✅ The function you <b>return</b> from the effect is the cleanup. Switch off the tap!</p>
+        </div>
+        <div class="quiz" data-answer="a">
+          <p class="q">3. "Send the order when the user clicks Pay." Where does this code go?</p>
+          <div class="opts">
+            <button data-opt="a">In the onClick event handler</button>
+            <button data-opt="b">In a useEffect with no array</button>
+            <button data-opt="c">Directly in the component body</button>
+          </div>
+          <p class="explain">✅ It is caused by a <b>user action</b>, so it belongs in the event handler.</p>
+        </div>
+      </div>
+      <aside class="notes">Let the class vote with fingers (1, 2, 3) before clicking. If many students miss question 1,
+        go back to the simulator for 1 minute.</aside>
+    </section>
+
+    <!-- 18 -->
+    <section class="slide" data-title="Recap">
+      <header>
+        <span class="kicker">Recap</span>
+        <h2>Today you learned… ✅</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="flip">
+          <div class="front"><span class="icon">✨</span>
+            <h3>Side effect</h3>
+          </div>
+          <div class="back">
+            <p>Work that touches something <b>outside</b> React: tab title, timers, network, browser events.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">⚛️</span>
+            <h3>useEffect</h3>
+          </div>
+          <div class="back">
+            <p><code>useEffect(fn, deps)</code> runs <b>after</b> render to sync the component with the outside world.
+            </p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">📋</span>
+            <h3>Dependency array</h3>
+          </div>
+          <div class="back">
+            <p>None = every render. <code>[]</code> = once. <code>[count]</code> = when count changes.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🧹</span>
+            <h3>Cleanup</h3>
+          </div>
+          <div class="back">
+            <p>Return a function to stop timers and listeners. Switch off the tap!</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🐣</span>
+            <h3>Lifecycle</h3>
+          </div>
+          <div class="back">
+            <p>Mount → update → unmount. Effects run after mount and updates; cleanup runs at unmount.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🔔</span>
+            <h3>Effect vs event</h3>
+          </div>
+          <div class="back">
+            <p>Event handler = user did something. Effect = stay in sync because it rendered.</p>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">Ask a different student to explain each card in their own words before flipping it.</aside>
+    </section>
+
+    <!-- 19 -->
+    <section class="slide" data-title="To Practice">
+      <header>
+        <span class="kicker">To Practice</span>
+        <h2>📚 To Practice</h2>
+      </header>
+      <div class="grid cols-2">
+        <div class="card accent">
+          <span class="icon">✍️</span>
+          <h3>Main task</h3>
+          <p>Explain the difference between an <b>event handler</b> and an <b>effect</b> in 3–4 lines.</p>
+          <p>Give <b>one example of each</b> from an app you use (Swiggy, Instagram, a cricket app…).</p>
+          <p class="muted">Example: "Tapping Add to cart is an event handler. Updating the tab title with the cart count
+            is an effect."</p>
+        </div>
+        <div class="card">
+          <span class="icon">⭐</span>
+          <h3>Bonus</h3>
+          <ul class="checklist">
+            <li>Finish the live digital clock with cleanup</li>
+            <li>Add a Start / Stop button to the chai timer</li>
+            <li>Show the window width on screen using a <code>resize</code> listener (remember to remove it!)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout info">
+        <p><b>Next class:</b> API and JSON fundamentals. Where does the data in apps like Swiggy and IRCTC come from?
+          We'll talk to a real server with <code>fetch()</code>. 🌐</p>
+      </div>
+      <aside class="notes">Remind students that the first sentence of the To Practice should be in their own words, not
+        copied. Next class needs internet on the classroom PC.</aside>
+    </section>
+
+    <!-- 20 -->
+    <section class="slide title" data-title="Thank you">
+      <div class="react-logo"></div>
+      <h1>Thank you! <span class="grad">Questions?</span></h1>
+      <p class="lead">"Render shows the screen. Effects keep it in sync with the world." 🌃</p>
+      <div class="row">
+        <a class="btn" href="index.html">📋 Course plan</a>
+        <a class="btn primary" href="class-13.html">Next: Class 13 →</a>
+      </div>
+      <aside class="notes">Take questions. If time allows, open the simulator again and let a student predict each
+        click.</aside>
+    </section>
+
+  </main>
+
+  <script src="assets/deck.js"></script>
+  <script>
+    /* Demo: when does my effect run? */
+    (() => {
+      const root = document.getElementById('fxSim');
+      const preview = root.querySelector('#simPreview');
+      const logEl = root.querySelector('#simLog');
+      const cards = {};
+      root.querySelectorAll('[data-fx]').forEach(c => { cards[c.dataset.fx] = c; });
+      const names = ['Arun','Priya','Rahul','Sneha','Kavya','Vikram'];
+      let mounted,count,nameIdx,runs;
+
+      function log(html,cls) {
+        const d = document.createElement('div');
+        d.className = 'l ' + (cls || '');
+        d.innerHTML = html;
+        logEl.prepend(d);
+      }
+      function mark(key,cls,label) {
+        const c = cards[key];
+        c.classList.remove('run','clean','skip');
+        void c.offsetWidth;
+        c.classList.add(cls);
+        c.querySelector('.st').textContent = label;
+        if (cls === 'run') { runs[key]++; c.querySelector('.n b').textContent = runs[key]; }
+      }
+      function paint() {
+        if (mounted) {
+          preview.classList.remove('off');
+          preview.innerHTML = '<div><b>&lt;Profile /&gt;</b><br>👤 name: <b>' + names[nameIdx] + '</b> · 🔢 count: <b>' + count + '</b></div>';
+        } else {
+          preview.classList.add('off');
+          preview.innerHTML = 'Component is not on screen.<br>Press 📦 Mount.';
+        }
+      }
+      function reset() {
+        mounted = false; count = 0; nameIdx = 0; runs = { every: 0,once: 0,count: 0 };
+        Object.keys(cards).forEach(k => {
+          cards[k].classList.remove('run','clean','skip');
+          cards[k].querySelector('.st').textContent = 'waiting…';
+          cards[k].querySelector('.n b').textContent = '0';
+        });
+        logEl.innerHTML = '<div class="l info">// Log: newest at the top</div>';
+        paint();
+      }
+      const acts = {
+        mount() {
+          if (mounted) { log('Already on screen. Try Change count.','info'); return; }
+          mounted = true; paint();
+          ['every','once','count'].forEach(k => mark(k,'run','▶ ran'));
+          log('📦 Mount → first render → <b>A, B and C all run</b>','ok');
+        },
+        count() {
+          if (!mounted) { log('Mount the component first 🙂','info'); return; }
+          count++; paint();
+          mark('every','run','🧹 cleanup → ▶ ran');
+          mark('once','skip','⏸ skipped');
+          mark('count','run','🧹 cleanup → ▶ ran');
+          log('➕ count = ' + count + ' → re-render → <b>A and C run</b>, B skipped','ok');
+        },
+        name() {
+          if (!mounted) { log('Mount the component first 🙂','info'); return; }
+          nameIdx = (nameIdx + 1) % names.length; paint();
+          mark('every','run','🧹 cleanup → ▶ ran');
+          mark('once','skip','⏸ skipped');
+          mark('count','skip','⏸ skipped (count same)');
+          log('✏️ name = ' + names[nameIdx] + ' → re-render → <b>only A runs</b>','ok');
+        },
+        unmount() {
+          if (!mounted) { log('Nothing to unmount.','info'); return; }
+          mounted = false; paint();
+          ['every','once','count'].forEach(k => mark(k,'clean','🧹 cleanup'));
+          log('🗑️ Unmount → <b>every cleanup runs</b>, nothing runs again','cl');
+        },
+        reset
+      };
+      root.querySelectorAll('[data-act]').forEach(b => b.addEventListener('click',() => acts[b.dataset.act]()));
+      reset();
+    })();
+  </script>
+</body>
+
+</html>

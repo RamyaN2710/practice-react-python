@@ -1,0 +1,1175 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Class 2 · Project Setup &amp; Folder Structure</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <style>
+    /* --- Demo: fake terminal --- */
+    .term-wrap {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    @media (max-width: 860px) {
+      .term-wrap {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .term {
+      background: #0a0f22;
+      color: #dbe4ff;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, .08);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 330px;
+    }
+
+    .term-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      font-size: .78rem;
+      background: rgba(255, 255, 255, .04);
+      border-bottom: 1px solid rgba(255, 255, 255, .06);
+      color: #8d9bc4;
+    }
+
+    .term-body {
+      flex: 1;
+      padding: 14px 18px;
+      font: .9rem/1.6 var(--mono);
+      overflow: auto;
+      max-height: 360px;
+      white-space: pre-wrap;
+    }
+
+    .term-body .p {
+      color: #34d399;
+    }
+
+    .term-body .c {
+      color: #82d8ff;
+    }
+
+    .term-body .o {
+      color: #9ba7c9;
+    }
+
+    .term-body .ok {
+      color: #34d399;
+      font-weight: 600;
+    }
+
+    .term-body .hi {
+      color: #61dafb;
+      font-weight: 600;
+    }
+
+    .term-body .cursor {
+      display: inline-block;
+      width: 9px;
+      height: 1.1em;
+      background: #dbe4ff;
+      vertical-align: -3px;
+      animation: blink 1s steps(1) infinite;
+    }
+
+    @keyframes blink {
+      50% {
+        opacity: 0;
+      }
+    }
+
+    .term-side {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .term-steps {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 8px;
+    }
+
+    .term-steps li {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: .92rem;
+      transition: border-color .3s, background .3s;
+    }
+
+    .term-steps li b {
+      font-family: var(--mono);
+      font-size: .85rem;
+      display: block;
+      color: var(--muted);
+    }
+
+    .term-steps li.now {
+      border-color: var(--accent);
+      background: var(--surface2);
+    }
+
+    .term-steps li.now b {
+      color: var(--accent);
+    }
+
+    .term-steps li.done b::after {
+      content: '  ✓';
+      color: var(--green);
+    }
+
+    .mini-browser {
+      background: #fff;
+      color: #1e293b;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      opacity: .25;
+      transition: opacity .5s, transform .5s;
+      transform: scale(.97);
+    }
+
+    .mini-browser.live {
+      opacity: 1;
+      transform: none;
+    }
+
+    .mini-browser .bar {
+      background: #eef1f7;
+      padding: 6px 10px;
+      font: .72rem var(--mono);
+      color: #475569;
+      border-bottom: 1px solid #dde3ee;
+    }
+
+    .mini-browser .page {
+      padding: 14px;
+      text-align: center;
+      background: #242424;
+      color: #fff;
+    }
+
+    .mini-browser .page .lg {
+      font-size: 1.8rem;
+    }
+
+    .mini-browser .page b {
+      display: block;
+      font-size: 1.1rem;
+    }
+
+    /* --- Analogy tiles --- */
+    .kitchen .icon {
+      font-size: 2.4rem;
+    }
+
+    .static-code .t-tag {
+      color: #ff8fab;
+    }
+
+    .house-map {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+      font-size: .88rem;
+    }
+
+    .house-map span {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 6px 10px;
+    }
+  </style>
+</head>
+
+<body class="deck" data-class="2" data-title="Project Setup & Folder Structure" data-duration="60">
+  <main class="slides">
+
+    <!-- 1 -->
+    <section class="slide title" data-title="Welcome">
+      <div class="react-logo"></div>
+      <div>
+        <span class="kicker">Week 1 · React Foundations · Class 2</span>
+        <h1>Project setup &amp; <span class="grad">folder structure</span></h1>
+        <p class="lead">Set up your kitchen before you cook: install the tools, create a React project and learn what
+          every file does.</p>
+      </div>
+      <div class="row">
+        <span class="pill blue">⏱ 60 minutes</span>
+        <span class="pill green">🟩 Node.js &amp; npm</span>
+        <span class="pill violet">⚡ Vite</span>
+        <span class="pill pink">📁 src, App.jsx, main.jsx</span>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Press <b>T</b> to start the timer.</li>
+          <li>Ask: "How many of you managed to install Node.js and VS Code?" Count hands. Those who did not will install
+            during the first 15 minutes.</li>
+          <li>Promise: "Today, every one of you will run a real React app on your own laptop."</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 2 -->
+    <section class="slide" data-title="Today's plan">
+      <header>
+        <span class="kicker">Agenda</span>
+        <h2>Today's plan</h2>
+      </header>
+      <ol class="timeline">
+        <li class="step"><span class="time">00–05</span>
+          <div><b>🔁 Quick recap</b><small>What is React? What is a component?</small></div>
+        </li>
+        <li class="step"><span class="time">05–15</span>
+          <div><b>🛠️ The tools</b><small>Node.js, npm, VS Code and Vite (install if needed)</small></div>
+        </li>
+        <li class="step"><span class="time">15–25</span>
+          <div><b>🚀 Create the project</b><small>4 commands and the development server</small></div>
+        </li>
+        <li class="step"><span class="time">25–40</span>
+          <div><b>📁 Folder tour</b><small>src, App.jsx, main.jsx and how the app starts</small></div>
+        </li>
+        <li class="step"><span class="time">40–52</span>
+          <div><b>🧪 Practice</b><small>Change the default heading and customize the page</small></div>
+        </li>
+        <li class="step"><span class="time">52–60</span>
+          <div><b>✅ Troubleshooting, quiz and To Practice</b><small>Fix common errors and review</small></div>
+        </li>
+      </ol>
+      <aside class="notes">Reveal each block with →. If many students have not installed Node.js, start the installers
+        now (they take 3–5 minutes) and continue the recap while they run.</aside>
+    </section>
+
+    <!-- 3 -->
+    <section class="slide" data-title="Recap: Class 1">
+      <header>
+        <span class="kicker">Quick recap · 00–05 min</span>
+        <h2>Remember Class 1? 🤔</h2>
+        <p class="lead">Tap a card after the class answers out loud.</p>
+      </header>
+      <div class="grid cols-4">
+        <div class="flip">
+          <div class="front"><span class="icon">⚛️</span>
+            <h3>What is React?</h3>
+          </div>
+          <div class="back">
+            <p>A JavaScript <b>library</b> by Meta for building <b>user interfaces</b>.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🧱</span>
+            <h3>What is a component?</h3>
+          </div>
+          <div class="back">
+            <p>A <b>reusable piece of UI</b>, like a LEGO brick: Navbar, ProductCard, Footer.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">📱</span>
+            <h3>Declarative UI?</h3>
+          </div>
+          <div class="back">
+            <p>Say <b>what</b> you want (like booking a cab), not every step of <b>how</b>.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🧠</span>
+            <h3>Virtual DOM?</h3>
+          </div>
+          <div class="back">
+            <p>React compares old vs new in memory and updates <b>only what changed</b>.</p>
+          </div>
+        </div>
+      </div>
+      <div class="callout info step">
+        <p>Last class we ran 4 magic commands without explaining them. <b>Today we open the box</b> and see what each
+          one does.</p>
+      </div>
+      <aside class="notes">Pick a different student for each card. Accept answers in their own words. Keep this to 4–5
+        minutes.</aside>
+    </section>
+
+    <!-- 4 -->
+    <section class="slide" data-title="Hook: set up the kitchen">
+      <header class="center">
+        <span class="kicker">Think first</span>
+        <h2>What do you need before you cook <span class="grad">biryani</span>? 🍛</h2>
+        <p class="lead">You can't cook without a kitchen. You can't build a React app without a developer setup.</p>
+      </header>
+      <div class="grid cols-4 kitchen">
+        <div class="card hover step"><span class="icon">🔥</span>
+          <h3>A stove</h3>
+          <p class="muted"><b>Node.js</b> runs JavaScript on your computer.</p>
+        </div>
+        <div class="card hover step"><span class="icon">🛒</span>
+          <h3>Groceries</h3>
+          <p class="muted"><b>npm</b> brings ready-made code packages, like React.</p>
+        </div>
+        <div class="card hover step"><span class="icon">🔪</span>
+          <h3>Knife &amp; board</h3>
+          <p class="muted"><b>VS Code</b> is where you write and edit code.</p>
+        </div>
+        <div class="card hover step"><span class="icon">📖</span>
+          <h3>A recipe kit</h3>
+          <p class="muted"><b>Vite</b> creates the project and serves it fast.</p>
+        </div>
+      </div>
+      <div class="callout tip step">
+        <p>Good news: you set up the kitchen <b>once</b>. After today, every new React project takes about 1 minute to
+          create.</p>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Ask the class to shout out what they need to cook. Map each answer to a tool.</li>
+          <li>This mapping (stove, groceries, knife, recipe kit) is the backbone of today's class. Come back to it
+            often.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 5 -->
+    <section class="slide" data-title="Node.js">
+      <div class="split">
+        <div>
+          <span class="kicker">Tool 1 · 05–15 min</span>
+          <h2>Node.js 🟩</h2>
+          <p class="lead"><b style="color:var(--text)">Node.js lets JavaScript run outside the browser</b>, directly on
+            your computer.</p>
+          <ul class="checklist">
+            <li class="step">Before Node, JavaScript could only run <b>inside</b> a browser like Chrome</li>
+            <li class="step">With Node, JavaScript can run tools on your laptop: create projects, start servers, build
+              apps</li>
+            <li class="step">Vite and npm are <b>written in JavaScript</b>, so they need Node to run</li>
+            <li class="step">Always install the <b>LTS</b> version (Long Term Support = stable)</li>
+          </ul>
+        </div>
+        <div class="stack">
+          <div class="analogy step">
+            <span class="big-emoji">👩‍🍳</span>
+            <h3>A chef who leaves the restaurant</h3>
+            <p>JavaScript was a chef who could only cook in <b>one kitchen</b>: the browser.</p>
+            <p>Node.js gives the chef a <b>portable stove</b>, so now JavaScript can cook anywhere, even on your laptop.
+            </p>
+          </div>
+          <script type="text/x-code" data-lang="bash" class="step">
+          # Check that Node.js is installed
+          $ node -v
+          v22.11.0
+          # npm comes free with Node
+          $ npm -v
+          10.9.0
+        </script>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Open a terminal and run <code>node -v</code> live. Any version 20 or above is fine. Your numbers may
+            differ from the slide.</li>
+          <li>If students see "not recognized", they need to install Node or restart the terminal (see the
+            troubleshooting slide).</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 6 -->
+    <section class="slide" data-title="npm">
+      <header>
+        <span class="kicker">Tool 2</span>
+        <h2>npm: the grocery delivery app for code 🛵</h2>
+        <p class="lead"><b style="color:var(--text)">npm (Node Package Manager)</b> downloads code that other developers
+          wrote and shared, called <b style="color:var(--text)">packages</b>.</p>
+      </header>
+      <div class="split">
+        <div class="analogy" data-label="🛒 Real-life example">
+          <span class="big-emoji">🛵</span>
+          <h3>Like ordering on a grocery app</h3>
+          <p>You don't grow your own rice and onions. You order them and they arrive at your door.</p>
+          <p>You don't write React from scratch. You type <code>npm install</code> and React arrives in your project.
+          </p>
+        </div>
+        <div class="stack">
+          <div class="card step"><span class="icon">📝</span><b>package.json</b> = your <b>shopping list</b>. It lists
+            the packages your project needs.</div>
+          <div class="card step"><span class="icon">🥫</span><b>node_modules</b> = your <b>pantry</b>. The downloaded
+            packages are stored here.</div>
+          <div class="card step"><span class="icon">📦</span><b>npm install</b> = <b>place the order</b>. It reads the
+            list and fills the pantry.</div>
+          <div class="card step"><span class="icon">▶️</span><b>npm run dev</b> = <b>start cooking</b>. It runs a script
+            written in package.json.</div>
+        </div>
+      </div>
+      <aside class="notes">Mention that npm has more than 2 million packages. Ask: "If the pantry is lost, can we get it
+        back?" Yes, just run <code>npm install</code> again, because the shopping list (package.json) is still there.
+        That is why we never share node_modules.</aside>
+    </section>
+
+    <!-- 7 -->
+    <section class="slide" data-title="Install Node.js and VS Code">
+      <header>
+        <span class="kicker">Setup</span>
+        <h2>Install Node.js and VS Code 💻</h2>
+        <p class="lead">Do this once. If you already did it at home, help your neighbour!</p>
+      </header>
+      <div class="grid cols-2">
+        <div class="card accent">
+          <span class="icon">🟩</span>
+          <h3>Node.js</h3>
+          <ul class="checklist">
+            <li class="step">Go to <b>nodejs.org</b> and download the <b>LTS</b> version</li>
+            <li class="step">Run the installer and click <b>Next</b> with the default options</li>
+            <li class="step"><b>Close and reopen</b> the terminal (very important!)</li>
+            <li class="step">Check: <code>node -v</code> and <code>npm -v</code> show version numbers</li>
+          </ul>
+        </div>
+        <div class="card">
+          <span class="icon">📘</span>
+          <h3>VS Code</h3>
+          <ul class="checklist">
+            <li class="step">Go to <b>code.visualstudio.com</b> and install it</li>
+            <li class="step">Open the built-in terminal with <kbd>Ctrl</kbd> + <kbd>`</kbd></li>
+            <li class="step">Install extensions: <b>ES7+ React snippets</b> and <b>Prettier</b></li>
+            <li class="step">Turn on <b>Auto Save</b> (File menu → Auto Save)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout warn step">
+        <p>On Windows, if <code>npm</code> commands are blocked in PowerShell, use <b>Command Prompt</b> or <b>Git
+            Bash</b> as the terminal in VS Code instead.</p>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Walk around while students install. Pair a student who has it working with one who does not.</li>
+          <li>The PowerShell "running scripts is disabled" error is common on Windows. Switching the VS Code terminal to
+            Command Prompt is the quickest fix for class.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 8 -->
+    <section class="slide" data-title="Vite and the 4 commands">
+      <header>
+        <span class="kicker">Tool 3 · 15–25 min</span>
+        <h2>Vite ⚡ creates the project in 4 commands</h2>
+        <p class="lead"><b style="color:var(--text)">Vite</b> (French for "fast", say "veet") is a build tool. It
+          creates a ready-made React project and runs it instantly.</p>
+      </header>
+      <div class="split">
+        <script type="text/x-code" data-lang="bash" data-hl="2,4,6,8">
+        # 1. Create a new React project called my-app
+        $ npm create vite@latest my-app -- --template react
+        # 2. Go into the project folder
+        $ cd my-app
+        # 3. Download React and friends into node_modules
+        $ npm install
+        # 4. Start the development server
+        $ npm run dev
+      </script>
+        <table class="table">
+          <tr>
+            <th>Command</th>
+            <th>In simple words</th>
+          </tr>
+          <tr class="step">
+            <td><code>npm create vite@latest</code></td>
+            <td>"Vite, please give me a new React kitchen called <b>my-app</b>."</td>
+          </tr>
+          <tr class="step">
+            <td><code>cd my-app</code></td>
+            <td>"Walk into that kitchen." (cd = change directory)</td>
+          </tr>
+          <tr class="step">
+            <td><code>npm install</code></td>
+            <td>"Fill the pantry." Downloads everything in package.json.</td>
+          </tr>
+          <tr class="step">
+            <td><code>npm run dev</code></td>
+            <td>"Start cooking." Opens the app at <code>localhost:5173</code>.</td>
+          </tr>
+        </table>
+      </div>
+      <div class="callout tip step">
+        <p>If Vite asks extra questions (like "Select a variant"), choose <b>JavaScript</b> and accept the defaults. You
+          only run step 1 once per project. Next time, just <code>cd</code> into the folder and run
+          <code>npm run dev</code>.
+        </p>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Type these live in VS Code's terminal. The <code>--</code> in step 1 passes the
+            <code>--template react</code> option through to Vite.
+          </li>
+          <li>Common mistake: students run <code>npm install</code> before <code>cd my-app</code>. It fails because
+            there is no package.json in the outer folder.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 9 -->
+    <section class="slide" data-title="Demo: watch the terminal" id="termDemo">
+      <header>
+        <span class="kicker">Live demo</span>
+        <h2>Watch the terminal work 🖥️</h2>
+        <p class="lead">Click <b style="color:var(--text)">Run next command</b> and read what the terminal prints at
+          each step.</p>
+      </header>
+      <div class="term-wrap">
+        <div class="term">
+          <div class="term-head"><span class="dots"><i></i><i></i><i></i></span><span
+              style="font-family:var(--mono)">Terminal · C:\Users\Priya\projects</span></div>
+          <div class="term-body" aria-live="polite"></div>
+        </div>
+        <div class="term-side">
+          <ol class="term-steps">
+            <li><b>1 · npm create vite@latest ...</b>Creates the my-app folder with starter files</li>
+            <li><b>2 · cd my-app</b>Moves the terminal into the project</li>
+            <li><b>3 · npm install</b>Downloads packages into node_modules</li>
+            <li><b>4 · npm run dev</b>Starts the development server</li>
+          </ol>
+          <div class="row">
+            <button class="btn primary" data-t="next">▶ Run next command</button>
+            <button class="btn small" data-t="reset">↺ Reset</button>
+          </div>
+          <div class="mini-browser">
+            <div class="bar">🌐 http://localhost:5173/</div>
+            <div class="page">
+              <div class="lg">⚡ ⚛️</div><b>Vite + React</b><small>count is 0</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Click once per command and pause. Ask: "What do you think will happen?" before each click.</li>
+          <li>On step 3, point out "added 150+ packages". That is the pantry filling up.</li>
+          <li>On step 4, the browser preview lights up. Highlight the "Local" address: that is where students open their
+            app.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 10 -->
+    <section class="slide" data-title="Dev server and hot reload">
+      <header>
+        <span class="kicker">Development server</span>
+        <h2>The dev server: your <span class="grad">rehearsal stage</span> 🎭</h2>
+      </header>
+      <div class="split">
+        <div class="analogy" data-label="🎭 Real-life example">
+          <span class="big-emoji">🎭</span>
+          <h3>Rehearsal before the college fest</h3>
+          <p>Before the real show, you rehearse on stage. Only your team watches, and you can fix mistakes instantly.
+          </p>
+          <p><b>npm run dev</b> is the rehearsal stage. The app runs only on <b>your laptop</b>
+            (<code>localhost</code>), and every change shows up immediately.</p>
+        </div>
+        <div class="stack">
+          <div class="card step"><span class="icon">🏠</span><b>localhost:5173</b>: "localhost" means <i>this
+              computer</i>, and 5173 is the door number (port) Vite uses.</div>
+          <div class="card step"><span class="icon">🔥</span><b>Hot reload (HMR)</b>: save a file and the browser
+            updates in under a second, without a full refresh.</div>
+          <div class="card step"><span class="icon">⏹️</span><b>Stop the server</b> with <kbd>Ctrl</kbd> + <kbd>C</kbd>
+            in the terminal. Keep the terminal open while you work!</div>
+        </div>
+      </div>
+      <div class="callout info step">
+        <p>Later, <code>npm run build</code> makes the <b>final show</b> version (in a <code>dist</code> folder) that
+          you can put on the internet. We'll do that at the end of the course.</p>
+      </div>
+      <aside class="notes">Demonstrate hot reload live: put VS Code and the browser side by side, change the heading,
+        press <kbd>Ctrl</kbd>+<kbd>S</kbd>. The class should see the page update without a reload. Then stop the server
+        with Ctrl+C and refresh the browser to show it no longer works.</aside>
+    </section>
+
+    <!-- 11 -->
+    <section class="slide" data-title="Folder tour">
+      <header>
+        <span class="kicker">Folder tour · 25–40 min</span>
+        <h2>Inside <code>my-app</code>: a tour of the house 🏠</h2>
+        <p class="lead">Click any file or folder to see what it does.</p>
+      </header>
+      <div class="explorer">
+        <ul class="tree">
+          <li><span
+              data-info="The whole project. Think of it as <b>your house</b>. Everything for this app lives inside it.">📁
+              my-app/</span>
+            <ul>
+              <li><span
+                  data-info="<b>The storeroom.</b> All downloaded packages (React, Vite and hundreds more) live here. It is huge, so never edit it and never copy or share it. You can always recreate it with <code>npm install</code>.">📁
+                  node_modules/</span></li>
+              <li><span
+                  data-info="<b>The front verandah.</b> Files here are served exactly as they are, like images and icons (for example <code>vite.svg</code>). Use it for things that never change.">📁
+                  public/</span></li>
+              <li><span
+                  data-info="<b>The living room, where you spend 99% of your time.</b> src means <i>source</i>. All your components, CSS and logic go here.">📁
+                  src/</span>
+                <ul>
+                  <li><span data-info="Images and logos that your components import, like <code>react.svg</code>.">📁
+                      assets/</span></li>
+                  <li><span
+                      data-info="<b>The main room.</b> App is the top component, the parent of every other component. When you change the page, you usually start here.">⚛️
+                      App.jsx</span></li>
+                  <li><span data-info="Styles for the App component. Delete or replace what you don't need.">🎨
+                      App.css</span></li>
+                  <li><span
+                      data-info="<b>The main switch / entry point.</b> It finds the <code>#root</code> div in index.html and tells React to draw <code>&lt;App /&gt;</code> inside it. You rarely edit this file.">🔌
+                      main.jsx</span></li>
+                  <li><span data-info="Global styles that apply to the whole page, like fonts and background colour.">🎨
+                      index.css</span></li>
+                </ul>
+              </li>
+              <li><span
+                  data-info="<b>The front door.</b> The only real HTML page. It has an empty <code>&lt;div id=&quot;root&quot;&gt;</code> and loads <code>src/main.jsx</code>. React fills the empty div.">🌐
+                  index.html</span></li>
+              <li><span
+                  data-info="<b>The shopping list and ID card.</b> Project name, the packages it needs (react, react-dom) and scripts like <code>dev</code> and <code>build</code>.">📦
+                  package.json</span></li>
+              <li><span
+                  data-info="The exact versions that were installed, so everyone on the team gets the same packages. Never edit it by hand.">🔒
+                  package-lock.json</span></li>
+              <li><span
+                  data-info="<b>The settings box for Vite.</b> It tells Vite to use the React plugin. Beginners rarely need to touch it.">⚙️
+                  vite.config.js</span></li>
+              <li><span data-info="Rules for ESLint, a tool that warns you about mistakes in your code.">🧹
+                  eslint.config.js</span></li>
+              <li><span data-info="Tells Git which files NOT to upload, such as <code>node_modules</code>.">🙈
+                  .gitignore</span></li>
+              <li><span data-info="Notes about the project. A good place to describe your app.">📄 README.md</span></li>
+            </ul>
+          </li>
+        </ul>
+        <div class="stack">
+          <div class="card explorer-info">
+            <h3>👈 Click a file</h3>
+            <p class="muted">Start with <b>src</b>, <b>App.jsx</b> and <b>main.jsx</b>. Those are the three you must
+              know today.</p>
+          </div>
+          <div class="analogy" data-label="🏠 Real-life example">
+            <p><b>The project is a house.</b> Each folder is a room with one job.</p>
+            <div class="house-map">
+              <span>🚪 index.html = front door</span>
+              <span>🔌 main.jsx = main switch</span>
+              <span>🛋️ src = living room</span>
+              <span>⭐ App.jsx = main room</span>
+              <span>📦 node_modules = storeroom</span>
+              <span>📝 package.json = shopping list</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Open the same folder in VS Code at the same time, so students connect the slide to their screen.</li>
+          <li>Ask: "Which folder will we work in most?" (src). "Which folder must we never touch?" (node_modules).</li>
+          <li>Common mistake: students create new components outside <code>src</code>. Vite will not find them there.
+          </li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 12 -->
+    <section class="slide" data-title="How the app starts">
+      <header>
+        <span class="kicker">How it connects</span>
+        <h2>How does the app reach the screen? 🔗</h2>
+        <p class="lead">Four files pass the baton, like a relay race.</p>
+      </header>
+      <div class="flow">
+        <div class="node step"><span class="icon">🌐</span><b>index.html</b><small>has an empty
+            <code>&lt;div id="root"&gt;</code></small></div>
+        <div class="arrow step">→</div>
+        <div class="node step"><span class="icon">🔌</span><b>main.jsx</b><small>finds #root, renders &lt;App
+            /&gt;</small></div>
+        <div class="arrow step">→</div>
+        <div class="node step"><span class="icon">⚛️</span><b>App.jsx</b><small>returns the JSX for the page</small>
+        </div>
+        <div class="arrow step">→</div>
+        <div class="node step" style="border-color:var(--accent)"><span class="icon">🖥️</span><b>Screen</b><small>you
+            see the page</small></div>
+      </div>
+      <div class="tabs step">
+        <div class="tab" data-label="index.html">
+          <div class="code static-code">
+            <div class="code-head"><span class="dots"><i></i><i></i><i></i></span><span class="file">index.html</span>
+            </div>
+            <pre><code><span class="line"><span class="t-tag">&lt;!doctype html&gt;</span></span><span class="line"><span class="t-tag">&lt;html</span> <span class="t-attr">lang</span>=<span class="t-str">"en"</span><span class="t-tag">&gt;</span></span><span class="line">  <span class="t-tag">&lt;head&gt;</span></span><span class="line">    <span class="t-tag">&lt;title&gt;</span>Vite + React<span class="t-tag">&lt;/title&gt;</span></span><span class="line">  <span class="t-tag">&lt;/head&gt;</span></span><span class="line">  <span class="t-tag">&lt;body&gt;</span></span><span class="line hl">    <span class="t-tag">&lt;div</span> <span class="t-attr">id</span>=<span class="t-str">"root"</span><span class="t-tag">&gt;&lt;/div&gt;</span>   <span class="t-com">&lt;!-- empty box, React fills it --&gt;</span></span><span class="line hl">    <span class="t-tag">&lt;script</span> <span class="t-attr">type</span>=<span class="t-str">"module"</span> <span class="t-attr">src</span>=<span class="t-str">"/src/main.jsx"</span><span class="t-tag">&gt;&lt;/script&gt;</span></span><span class="line">  <span class="t-tag">&lt;/body&gt;</span></span><span class="line"><span class="t-tag">&lt;/html&gt;</span></span></code></pre>
+          </div>
+        </div>
+        <div class="tab" data-label="src/main.jsx">
+          <script type="text/x-code" data-file="src/main.jsx" data-hl="6-10">
+          import { StrictMode } from "react";
+          import { createRoot } from "react-dom/client";
+          import "./index.css";
+          import App from "./App.jsx";
+
+          createRoot(document.getElementById("root")).render(
+            <StrictMode>
+              <App />
+            </StrictMode>
+          );
+        </script>
+        </div>
+        <div class="tab" data-label="src/App.jsx">
+          <script type="text/x-code" data-file="src/App.jsx" data-hl="3">
+          function App() {
+            return (
+              <h1>Hello from App.jsx 👋</h1>
+            );
+          }
+
+          export default App;
+        </script>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Reveal the flow first, then click each tab in order: index.html → main.jsx → App.jsx.</li>
+          <li><b>createRoot</b>: "React, take control of this empty div." <b>render</b>: "Draw App inside it."</li>
+          <li><b>StrictMode</b> is a helper that warns about problems during development. It does not show anything on
+            screen.</li>
+          <li>Ask: "If I delete <code>&lt;div id="root"&gt;</code> from index.html, what happens?" (Blank page, because
+            React has nowhere to draw.)</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 13 -->
+    <section class="slide" data-title="App.jsx vs main.jsx">
+      <header>
+        <span class="kicker">Key files</span>
+        <h2><code>main.jsx</code> vs <code>App.jsx</code></h2>
+      </header>
+      <div class="grid cols-2">
+        <div class="card">
+          <span class="icon">🔌</span>
+          <h3>main.jsx: the main switch</h3>
+          <ul class="clean">
+            <li>The <b>entry point</b>: the first JavaScript file that runs</li>
+            <li>Connects React to the <code>#root</code> div in index.html</li>
+            <li>Renders <code>&lt;App /&gt;</code> once</li>
+            <li>You <b>rarely</b> change it</li>
+          </ul>
+        </div>
+        <div class="card accent">
+          <span class="icon">⚛️</span>
+          <h3>App.jsx: the main room</h3>
+          <ul class="clean">
+            <li>The <b>root component</b>: the parent of all others</li>
+            <li>Returns the JSX you see on the page</li>
+            <li>Ends with <code>export default App</code> so main.jsx can import it</li>
+            <li>You change it <b>all the time</b></li>
+          </ul>
+        </div>
+      </div>
+      <div class="analogy step" data-label="📺 Real-life example">
+        <p><b>A TV:</b> <code>main.jsx</code> is the <b>power button</b>. You press it once to turn the TV on.
+          <code>App.jsx</code> is the <b>channel</b> you watch. You change channels (the content) all day, but you don't
+          keep rewiring the power button.
+        </p>
+      </div>
+      <aside class="notes">This slide answers the To Practice question "Identify the purpose of App.jsx and main.jsx".
+        Ask 2 students to explain it back in their own words before moving on.</aside>
+    </section>
+
+    <!-- 14 -->
+    <section class="slide" data-title="Playground: the starter page">
+      <header>
+        <span class="kicker">Live coding · Try it!</span>
+        <h2>This is the default Vite page ✨</h2>
+        <p class="lead">This playground acts like <code>src/App.jsx</code>. Change the text and watch the preview
+          update, just like hot reload.</p>
+      </header>
+      <div class="playground" data-height="420">
+        <script type="text/x-playground">
+        import { useState } from "react";
+        import "./App.css";
+
+        function App() {
+          const [count, setCount] = useState(0);
+
+          return (
+            <div className="page">
+              <div className="logos">⚡ ⚛️</div>
+              <h1>Vite + React</h1>
+              <div className="box">
+                <button onClick={() => setCount(count + 1)}>
+                  count is {count}
+                </button>
+                <p>Edit <code>src/App.jsx</code> and save to test HMR</p>
+              </div>
+              <p className="docs">Click on the Vite and React logos to learn more</p>
+            </div>
+          );
+        }
+
+        export default App;
+      </script>
+        <script type="text/x-playground-css">
+        body { background: #242424; color: rgba(255,255,255,.87); }
+        .page { text-align: center; padding-top: 10px; }
+        .logos { font-size: 3.4rem; letter-spacing: 12px; }
+        h1 { font-size: 2.4rem; }
+        .box { padding: 12px; }
+        button { background: #1a1a1a; border: 1px solid #646cff; }
+        code { background: #333; padding: 2px 6px; border-radius: 6px; }
+        .docs { color: #888; }
+      </script>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Change "Vite + React" to "My First React App". The preview updates by itself.</li>
+          <li>Click the count button a few times. We'll learn how <code>useState</code> works in Class 7. Today, just
+            enjoy it.</li>
+          <li>Point out <code>export default App;</code> at the bottom. main.jsx imports it.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 15 -->
+    <section class="slide" data-title="Exercise: change the heading">
+      <header>
+        <span class="kicker">Class exercise · 40–52 min</span>
+        <h2>🧪 Run the app and change the default heading</h2>
+      </header>
+      <div class="grid cols-4">
+        <div class="card"><span class="icon">1️⃣</span>Run the <b>4 commands</b> and open <code>localhost:5173</code>
+        </div>
+        <div class="card"><span class="icon">2️⃣</span>Open <code>src/App.jsx</code> in VS Code</div>
+        <div class="card"><span class="icon">3️⃣</span>Change <b>"Vite + React"</b> to your own heading and <b>save</b>
+        </div>
+        <div class="card"><span class="icon">⭐</span><b>Extra:</b> customize the welcome page (no laptop? use the
+          playground)</div>
+      </div>
+      <div class="playground" data-height="340">
+        <script type="text/x-playground">
+        function App() {
+          return (
+            <div className="card">
+              {/* TODO 1: change this heading to your own, e.g. "Rahul's React Lab" */}
+              <h1>Vite + React</h1>
+
+              {/* TODO 2: write one line about yourself */}
+              <p>Edit src/App.jsx and save to test HMR</p>
+
+              {/* TODO 3: change the button text and the alert message */}
+              <button onClick={() => alert("Hello!")}>Click me</button>
+            </div>
+          );
+        }
+
+        export default App;
+      </script>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Students with a working laptop do it in VS Code. Others use the playground.</li>
+          <li>Common mistakes: forgetting to save (turn on Auto Save), deleting the closing <code>&lt;/h1&gt;</code>,
+            editing <code>index.html</code> instead of <code>App.jsx</code>, closing the terminal (the server stops).
+          </li>
+          <li>Check: everyone should see their own heading in the browser before moving on.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 16 -->
+    <section class="slide" data-title="Troubleshooting">
+      <header>
+        <span class="kicker">Common mistakes</span>
+        <h2>🩺 Troubleshooting: when it doesn't work</h2>
+      </header>
+      <table class="table">
+        <tr>
+          <th>You see…</th>
+          <th>Why it happens</th>
+          <th>Fix</th>
+        </tr>
+        <tr class="step">
+          <td><code>'npm' is not recognized</code></td>
+          <td>Node.js is not installed, or the terminal was open during installation</td>
+          <td>Install Node LTS, then <b>close and reopen</b> the terminal (or restart VS Code)</td>
+        </tr>
+        <tr class="step">
+          <td><code>Could not read package.json</code> / <code>ENOENT</code></td>
+          <td>You forgot <code>cd my-app</code>, so you are in the wrong folder</td>
+          <td>Run <code>cd my-app</code> first. Check the folder name in the terminal</td>
+        </tr>
+        <tr class="step">
+          <td><code>Port 5173 is in use, trying another one...</code></td>
+          <td>Another dev server is already running</td>
+          <td>Use the new address it prints (e.g. 5174), or stop the old one with <kbd>Ctrl</kbd>+<kbd>C</kbd></td>
+        </tr>
+        <tr class="step">
+          <td><code>vite is not recognized</code></td>
+          <td>You skipped <code>npm install</code></td>
+          <td>Run <code>npm install</code>, then <code>npm run dev</code></td>
+        </tr>
+        <tr class="step">
+          <td>Page does not change after editing</td>
+          <td>File not saved, or you edited the wrong file</td>
+          <td>Press <kbd>Ctrl</kbd>+<kbd>S</kbd>. Edit <code>src/App.jsx</code></td>
+        </tr>
+        <tr class="step">
+          <td>"This site can't be reached"</td>
+          <td>The terminal running the server was closed</td>
+          <td>Run <code>npm run dev</code> again and keep it open</td>
+        </tr>
+      </table>
+      <aside class="notes">Read each error aloud and ask the class to guess the fix before revealing it. Tell students:
+        "Errors are not failures. They are clues. Read the message slowly."</aside>
+    </section>
+
+    <!-- 17 -->
+    <section class="slide" data-title="Quick quiz">
+      <header>
+        <span class="kicker">Recap · 52–60 min</span>
+        <h2>⚡ Quick quiz</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="quiz" data-answer="c">
+          <p class="q">1. What does Node.js do?</p>
+          <div class="opts">
+            <button data-opt="a">Designs the UI</button>
+            <button data-opt="b">Stores data in the cloud</button>
+            <button data-opt="c">Runs JavaScript outside the browser</button>
+          </div>
+          <p class="explain">✅ Node is the <b>portable stove</b> that lets tools like npm and Vite run on your laptop.
+          </p>
+        </div>
+        <div class="quiz" data-answer="a">
+          <p class="q">2. Which file connects React to the <code>#root</code> div?</p>
+          <div class="opts">
+            <button data-opt="a">main.jsx</button>
+            <button data-opt="b">App.css</button>
+            <button data-opt="c">package.json</button>
+          </div>
+          <p class="explain">✅ <b>main.jsx</b> calls <code>createRoot(...).render(&lt;App /&gt;)</code>.</p>
+        </div>
+        <div class="quiz" data-answer="b">
+          <p class="q">3. Which command starts the development server?</p>
+          <div class="opts">
+            <button data-opt="a">npm install</button>
+            <button data-opt="b">npm run dev</button>
+            <button data-opt="c">cd my-app</button>
+          </div>
+          <p class="explain">✅ <b>npm run dev</b> starts the rehearsal stage at <code>localhost:5173</code>.</p>
+        </div>
+      </div>
+      <aside class="notes">Show of hands first, then click. If many get Q2 wrong, go back to the relay-race flow slide.
+      </aside>
+    </section>
+
+    <!-- 18 -->
+    <section class="slide" data-title="Recap">
+      <header>
+        <span class="kicker">Recap</span>
+        <h2>Today you learned… ✅</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="flip">
+          <div class="front"><span class="icon">🟩</span>
+            <h3>Node.js</h3>
+          </div>
+          <div class="back">
+            <p>Runs JavaScript on your computer. The <b>stove</b> of our kitchen.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">📦</span>
+            <h3>npm</h3>
+          </div>
+          <div class="back">
+            <p>Downloads packages listed in <b>package.json</b> into <b>node_modules</b>.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">⚡</span>
+            <h3>Vite</h3>
+          </div>
+          <div class="back">
+            <p>Creates the React project and runs a fast dev server with hot reload.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🛋️</span>
+            <h3>src</h3>
+          </div>
+          <div class="back">
+            <p>The folder where <b>all your code</b> lives.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🔌</span>
+            <h3>main.jsx</h3>
+          </div>
+          <div class="back">
+            <p>Entry point. Renders <code>&lt;App /&gt;</code> into <code>#root</code>.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">⚛️</span>
+            <h3>App.jsx</h3>
+          </div>
+          <div class="back">
+            <p>The root component. What it returns is what you see.</p>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">Ask students to explain each card before flipping it. Especially check main.jsx vs App.jsx,
+        because it is part of the To Practice.</aside>
+    </section>
+
+    <!-- 19 -->
+    <section class="slide" data-title="To Practice">
+      <header>
+        <span class="kicker">To Practice</span>
+        <h2>📚 To Practice</h2>
+      </header>
+      <div class="grid cols-2">
+        <div class="card accent">
+          <span class="icon">🏠</span>
+          <h3>Main task: customize the welcome page</h3>
+          <p>In your own Vite project, replace the default page in <code>App.jsx</code> with:</p>
+          <ul class="checklist">
+            <li>A <b>heading</b> with your name</li>
+            <li>A short <b>paragraph</b> about you</li>
+            <li>A <b>button</b> that shows an alert</li>
+          </ul>
+        </div>
+        <div class="card">
+          <span class="icon">✍️</span>
+          <h3>Explain in your own words</h3>
+          <p>Write 2–3 lines each in your notebook:</p>
+          <ul class="checklist">
+            <li>What is the purpose of <b>App.jsx</b>?</li>
+            <li>What is the purpose of <b>main.jsx</b>?</li>
+            <li>Bonus: why do we never share <b>node_modules</b>?</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout info">
+        <p><b>Next class:</b> JSX and JavaScript expressions. We'll put variables inside the page with
+          <code>{curly braces}</code> and learn the rules of JSX. ✍️
+        </p>
+      </div>
+      <aside class="notes">Remind students: to restart their project at home, open the folder in VS Code, open the
+        terminal and run only <code>npm run dev</code>. No need to create it again.</aside>
+    </section>
+
+    <!-- 20 -->
+    <section class="slide title" data-title="Thank you">
+      <div class="react-logo"></div>
+      <h1>Thank you! <span class="grad">Questions?</span></h1>
+      <p class="lead">"Set up the kitchen once, then cook something new every day." 🍳</p>
+      <div class="row">
+        <a class="btn" href="index.html">📋 Course plan</a>
+        <a class="btn primary" href="class-03.html">Next: Class 3 →</a>
+      </div>
+      <aside class="notes">Stay back 5 minutes for students whose setup is still not working.</aside>
+    </section>
+
+  </main>
+
+  <script src="assets/deck.js"></script>
+  <script>
+    /* Demo: fake terminal that types the 4 commands */
+    (() => {
+      const root = document.getElementById('termDemo');
+      const body = root.querySelector('.term-body');
+      const steps = root.querySelectorAll('.term-steps li');
+      const browser = root.querySelector('.mini-browser');
+      const nextBtn = root.querySelector('[data-t="next"]');
+      const SCRIPT = [
+        {
+          cmd: 'npm create vite@latest my-app -- --template react',out: [
+            ['o','Scaffolding project in C:\\Users\\Priya\\projects\\my-app...'],
+            ['ok','✔ Done. Now run:'],
+            ['o','  cd my-app\n  npm install\n  npm run dev']]
+        },
+        { cmd: 'cd my-app',out: [['o','(now inside the my-app folder)']] },
+        {
+          cmd: 'npm install',out: [
+            ['o','Downloading packages...'],
+            ['ok','added 156 packages in 12s']]
+        },
+        {
+          cmd: 'npm run dev',out: [
+            ['o','> my-app@0.0.0 dev\n> vite\n'],
+            ['hi','  VITE v6.0.5  ready in 312 ms\n'],
+            ['ok','  ➜  Local:   http://localhost:5173/'],
+            ['o','  ➜  Network: use --host to expose']]
+        }
+      ];
+      let i = 0,busy = false,timers = [];
+      const add = (cls,text) => { const s = document.createElement('span'); s.className = cls; s.textContent = text; body.appendChild(s); return s; };
+      const cursor = () => { const c = document.createElement('span'); c.className = 'cursor'; return c; };
+      function prompt() {
+        body.querySelectorAll('.cursor').forEach(c => c.remove());
+        const dir = i >= 2 ? 'my-app' : 'projects';
+        add('p',(body.textContent ? '\n' : '') + dir + ' $ ');
+        body.appendChild(cursor());
+        body.scrollTop = body.scrollHeight;
+      }
+      function reset() {
+        timers.forEach(clearTimeout); timers = [];
+        i = 0; busy = false; body.innerHTML = '';
+        steps.forEach(s => s.classList.remove('now','done'));
+        browser.classList.remove('live');
+        nextBtn.disabled = false; nextBtn.textContent = '▶ Run next command';
+        prompt();
+      }
+      function runNext() {
+        if (busy || i >= SCRIPT.length) return;
+        busy = true;
+        const step = SCRIPT[i];
+        steps.forEach((s,k) => s.classList.toggle('now',k === i));
+        const c = body.querySelector('.cursor');
+        const typed = add('c','');
+        body.insertBefore(typed,c);
+        let k = 0;
+        const type = () => {
+          typed.textContent = step.cmd.slice(0,++k);
+          if (k < step.cmd.length) { timers.push(setTimeout(type,28)); return; }
+          c.remove();
+          let d = 350;
+          step.out.forEach(([cls,text]) => {
+            timers.push(setTimeout(() => { add(cls,'\n' + text); body.scrollTop = body.scrollHeight; },d));
+            d += 450;
+          });
+          timers.push(setTimeout(() => {
+            steps[i].classList.remove('now'); steps[i].classList.add('done');
+            i++; busy = false;
+            if (i === SCRIPT.length) {
+              browser.classList.add('live');
+              nextBtn.disabled = true; nextBtn.textContent = '✅ App is running!';
+              body.appendChild(cursor());
+              if (window.Deck) Deck.confetti(20);
+            } else prompt();
+          },d));
+        };
+        type();
+      }
+      nextBtn.addEventListener('click',runNext);
+      root.querySelector('[data-t="reset"]').addEventListener('click',reset);
+      reset();
+    })();
+  </script>
+</body>
+
+</html>

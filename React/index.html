@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>React Course Plan</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <script>
+    try { document.documentElement.dataset.theme = localStorage.getItem('rc-theme') || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'); } catch (e) { }
+  </script>
+  <style>
+    .hero-art {
+      position: relative;
+      display: grid;
+      place-items: center;
+    }
+
+    .hero-art .react-logo {
+      width: min(320px, 70vw);
+    }
+
+    .orbit-tags {
+      position: absolute;
+      inset: 0;
+    }
+
+    .orbit-tags span {
+      position: absolute;
+      animation: float 5s ease-in-out infinite;
+    }
+
+    .orbit-tags span:nth-child(1) {
+      top: 8%;
+      left: 4%;
+    }
+
+    .orbit-tags span:nth-child(2) {
+      top: 14%;
+      right: 2%;
+      animation-delay: -1s;
+    }
+
+    .orbit-tags span:nth-child(3) {
+      bottom: 14%;
+      left: 0;
+      animation-delay: -2s;
+    }
+
+    .orbit-tags span:nth-child(4) {
+      bottom: 6%;
+      right: 6%;
+      animation-delay: -3s;
+    }
+
+    @keyframes float {
+      50% {
+        transform: translateY(-12px);
+      }
+    }
+
+    .week-goal {
+      color: var(--muted);
+      margin: 0 0 16px;
+    }
+
+    .checkpoint {
+      margin-top: 16px;
+      border-left: 4px solid var(--green);
+    }
+
+    .blueprint li {
+      grid-template-columns: 90px 1fr;
+    }
+
+    .how-grid .card b {
+      display: block;
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="hub-nav">
+    <a class="brand" href="#"><span class="atom">⚛</span> React Course</a>
+    <nav>
+      <a href="#roadmap" class="keep">Roadmap</a>
+      <a href="#blueprint">Class format</a>
+      <a href="#how">How to present</a>
+      <a href="#setup">Setup</a>
+    </nav>
+    <button class="tool" id="themeBtn" title="Light / dark">◐</button>
+  </header>
+
+  <main>
+    <section class="wrap hero">
+      <div>
+        <span class="kicker">4 weeks · 20 classes · beginner friendly</span>
+        <h1>Learn <span class="grad">React</span> from zero to project</h1>
+        <p class="lead">An interactive classroom course with live React playgrounds, real-life examples, quizzes and
+          teacher notes on every slide. It ends with a Student Management App and a final presentation.</p>
+        <div class="row mt">
+          <a class="btn primary" href="class-01.html">▶ Start Class 1</a>
+          <a class="btn" href="#roadmap">📋 View full roadmap</a>
+        </div>
+        <div class="stats">
+          <div class="stat"><b class="grad">20</b><small>classes</small></div>
+          <div class="stat"><b class="grad">4</b><small>weeks</small></div>
+          <div class="stat"><b class="grad">5</b><small>slide decks ready</small></div>
+          <div class="stat"><b class="grad">1</b><small>final project</small></div>
+        </div>
+      </div>
+      <div class="hero-art">
+        <div class="react-logo"><svg viewBox="-11.5 -10.23 23 20.46" xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true">
+            <circle r="2.05" fill="currentColor" />
+            <g stroke="currentColor" stroke-width="1" fill="none">
+              <ellipse rx="11" ry="4.2" />
+              <ellipse rx="11" ry="4.2" transform="rotate(60)" />
+              <ellipse rx="11" ry="4.2" transform="rotate(120)" />
+            </g>
+          </svg></div>
+        <div class="orbit-tags">
+          <span class="pill blue">&lt;Component /&gt;</span>
+          <span class="pill violet">useState()</span>
+          <span class="pill pink">props</span>
+          <span class="pill green">useEffect()</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="roadmap">
+      <div class="wrap">
+        <span class="kicker">Roadmap</span>
+        <h2>Class-by-class roadmap</h2>
+        <p class="lead">Click a class to open its slides. Tick <b>Taught</b> after each session to track your progress.
+          Ticks are saved in this browser.</p>
+        <div class="course-progress">
+          <div class="progress"><i id="courseBar"></i></div>
+          <span class="counter" id="courseCount">0 / 20</span>
+        </div>
+        <a class="card hover accent mt" href="react-dom.html"
+          style="display:flex;gap:16px;align-items:center;text-decoration:none;color:inherit;flex-wrap:wrap">
+          <span style="font-size:2.4rem">⭐</span>
+          <span style="flex:1;min-width:220px"><span class="cnum"
+              style="font-family:var(--mono);font-size:.8rem;color:var(--accent);font-weight:600">BONUS LESSON · BEST
+              AFTER CLASS 2</span><br>
+            <b style="font-size:1.15rem">React DOM and how React works</b><br>
+            <span class="muted">The DOM tree, react vs react-dom, createRoot and render, and Trigger → Render → Commit,
+              with slow-motion demos.</span></span>
+          <span class="btn small primary">Open slides →</span>
+        </a>
+        <a class="card hover mt" href="js-class-01.html"
+          style="display:flex;gap:16px;align-items:center;text-decoration:none;color:inherit;flex-wrap:wrap;border-color:rgba(234,179,8,.5)">
+          <span
+            style="width:52px;height:52px;border-radius:12px;background:#f7df1e;color:#111;font:800 1.3rem var(--font);display:grid;place-items:center">JS</span>
+          <span style="flex:1;min-width:220px"><span
+              style="font-family:var(--mono);font-size:.8rem;color:#eab308;font-weight:600">JAVASCRIPT BASICS · CLASS
+              1</span><br>
+            <b style="font-size:1.15rem">Introduction to JavaScript</b><br>
+            <span class="muted">The browser console, variables (let / const), data types, operators and template
+              literals, with live JS editors.</span></span>
+          <span class="btn small primary">Open slides →</span>
+        </a>
+        <div class="card mt" style="border-color:rgba(55,118,171,.6)">
+          <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+            <span
+              style="width:52px;height:52px;border-radius:12px;background:linear-gradient(135deg,#3776ab 0 50%,#ffd43b 50% 100%);font-size:1.7rem;display:grid;place-items:center">🐍</span>
+            <span style="flex:1;min-width:220px"><span
+                style="font-family:var(--mono);font-size:.8rem;color:#4b8bbe;font-weight:600">PYTHON · ZERO TO
+                INTERVIEW-READY · 4 CLASSES × 90 MIN</span><br>
+              <b style="font-size:1.15rem">Python course, beginner to advanced</b><br>
+              <span class="muted">Real Python runs inside the slides. Every class ends with an interview corner and a
+                "predict the output" round.</span></span>
+          </div>
+          <div class="grid cols-4 mt">
+            <a class="card hover" href="py-class-01.html" style="text-decoration:none;color:inherit"><b>1 · Foundations</b><br><span class="muted">How Python runs, variables, types, operators, strings</span></a>
+            <a class="card hover" href="py-class-02.html" style="text-decoration:none;color:inherit"><b>2 · Logic &amp; Data Structures</b><br><span class="muted">if/loops, list, tuple, set, dict, comprehensions, copying</span></a>
+            <a class="card hover" href="py-class-03.html" style="text-decoration:none;color:inherit"><b>3 · Functions &amp; OOP</b><br><span class="muted">*args/**kwargs, scope, closures, classes, inheritance, dunders</span></a>
+            <a class="card hover" href="py-class-04.html" style="text-decoration:none;color:inherit"><b>4 · Advanced &amp; Interview Prep</b><br><span class="muted">Exceptions, generators, decorators, GIL, coding problems</span></a>
+          </div>
+        </div>
+        <div id="weeks"></div>
+      </div>
+    </section>
+
+    <section class="section" id="blueprint">
+      <div class="wrap">
+        <span class="kicker">Class format</span>
+        <h2>The 60-minute blueprint</h2>
+        <p class="lead">Every deck follows the same rhythm, so students always know what comes next.</p>
+        <div class="grid cols-2 mt">
+          <ol class="timeline blueprint">
+            <li><span class="time">0–10</span>
+              <div><b>🎯 Hook and recap</b><small>A real-life question or demo, plus a quick look back at the last
+                  class</small></div>
+            </li>
+            <li><span class="time">10–25</span>
+              <div><b>🧠 Concept + analogy</b><small>Every idea is tied to something from daily life</small></div>
+            </li>
+            <li><span class="time">25–40</span>
+              <div><b>💻 Live coding</b><small>Edit the live playground in the slides or work in VS Code</small></div>
+            </li>
+            <li><span class="time">40–52</span>
+              <div><b>🧪 Student exercise</b><small>Starter code with TODOs is ready in the slides</small></div>
+            </li>
+            <li><span class="time">52–60</span>
+              <div><b>✅ Quiz, recap, To Practice</b><small>Clickable quiz with confetti, flip-card recap and To
+                  Practice</small></div>
+            </li>
+          </ol>
+          <div class="stack">
+            <div class="analogy">
+              <h3>Why real-life examples?</h3>
+              <p>Beginners remember stories better than syntax. A <b>component</b> is a cookie cutter, <b>props</b> are
+                a coffee order, <b>state</b> is a cricket scoreboard and an <b>API</b> is a restaurant waiter. Each
+                concept gets one memorable picture.</p>
+            </div>
+            <div class="callout tip">
+              <p>The weekly <b>checkpoints</b> are quick tests. Before moving on, ask 3 students to explain a checkpoint
+                item in their own words.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="how">
+      <div class="wrap">
+        <span class="kicker">Presenting</span>
+        <h2>How to present the slides</h2>
+        <div class="grid cols-4 mt how-grid">
+          <div class="card"><span class="icon">⌨️</span><b>Navigate</b><span class="muted"><kbd>→</kbd> /
+              <kbd>Space</kbd> reveals the next point, <kbd>←</kbd> goes back.</span></div>
+          <div class="card"><span class="icon">📝</span><b>Teacher notes</b><span class="muted">Press <kbd>N</kbd> for
+              talking points, questions to ask and common mistakes.</span></div>
+          <div class="card"><span class="icon">⏱</span><b>Class timer</b><span class="muted">Press <kbd>T</kbd>. It
+              turns yellow 5 minutes before the end and red when time is up.</span></div>
+          <div class="card"><span class="icon">▦</span><b>Overview</b><span class="muted"><kbd>O</kbd> jumps to any
+              slide, <kbd>F</kbd> goes fullscreen and <kbd>D</kbd> switches the theme.</span></div>
+        </div>
+        <div class="callout warn mt">
+          <p>The <b>live playgrounds</b> load React from the internet (unpkg.com), so keep the classroom PC online.
+            Everything else works offline.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="setup">
+      <div class="wrap">
+        <span class="kicker">Before Class 2</span>
+        <h2>Student setup checklist</h2>
+        <div class="grid cols-2 mt">
+          <div class="card">
+            <ul class="checklist">
+              <li><b>Node.js LTS</b> from nodejs.org. Check with <code>node -v</code></li>
+              <li><b>VS Code</b> from code.visualstudio.com</li>
+              <li>VS Code extensions: <b>ES7+ React snippets</b>, <b>Prettier</b></li>
+              <li>A modern browser (Chrome or Edge) + <b>React Developer Tools</b> extension</li>
+            </ul>
+          </div>
+          <div class="code">
+            <div class="code-head"><span class="dots"><i></i><i></i><i></i></span><span class="file">Terminal</span>
+            </div>
+            <pre><code><span class="line"><span class="t-com"># create and run your first app</span></span><span class="line"><span class="t-prompt">$ </span><span class="t-fn">npm create vite@latest my-app -- --template react</span></span><span class="line"><span class="t-prompt">$ </span><span class="t-fn">cd my-app</span></span><span class="line"><span class="t-prompt">$ </span><span class="t-fn">npm install</span></span><span class="line"><span class="t-prompt">$ </span><span class="t-fn">npm run dev</span></span></code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="hub-foot wrap">Made for the classroom ⚛️ · Open any class, press <kbd>?</kbd> for shortcuts</footer>
+
+  <script>
+    const WEEKS = [
+      {
+        title: 'Week 1: React foundations',color: '#61dafb',
+        goal: 'Understand what React is, set up the project, and learn how components work.',
+        checkpoint: 'Students can explain React, run a React project, write JSX, create components and pass props.',
+        classes: [
+          { n: 1,icon: '⚛️',title: 'Introduction to React',topics: ['What React is and why we need it','React vs plain JavaScript, declarative UI','Components and the Virtual DOM (high level)'],ex: 'Identify five components on Amazon or another familiar site',analogy: 'LEGO bricks' },
+          { n: 2,icon: '🛠️',title: 'Project setup & folder structure',topics: ['Node.js, npm and Vite','Create and run the dev server','src, App.jsx and main.jsx'],ex: 'Run the app and change the default heading',analogy: 'Setting up a kitchen' },
+          { n: 3,icon: '✍️',title: 'JSX & JavaScript expressions',topics: ['JSX syntax and curly braces','Variables in JSX, className','Single root element and fragments'],ex: "Show a student's name, age and course from variables",analogy: 'Fill-in-the-blank form' },
+          { n: 4,icon: '🧱',title: 'Components & reusable UI',topics: ['Function components and naming','Import / export','Parent-child relationships and composition'],ex: 'Split a page into Header, ProfileCard, Footer',analogy: 'Cookie cutter' },
+          { n: 5,icon: '🎁',title: 'Props & component reuse',topics: ['Passing values parent → child','Destructuring props','Why props are read-only'],ex: 'Three product cards using one component',analogy: 'Coffee order' }
+        ]
+      },
+      {
+        title: 'Week 2: Events, state & rendering',color: '#a78bfa',
+        goal: 'Understand how a React page responds when a user interacts with it.',
+        checkpoint: 'Students understand user action → state change → updated UI, and can build simple interactive pages and forms.',
+        classes: [
+          { n: 6,icon: '🖱️',title: 'Event handling',topics: ['onClick, onChange','Event handlers','Passing vs calling a function'],ex: 'Buttons that show an alert and change a message',analogy: 'Doorbell' },
+          { n: 7,icon: '🔢',title: 'State with useState',topics: ['What state means','Setter functions and re-rendering',"Why normal variables don't update the UI"],ex: 'Increment, decrement and reset buttons',analogy: 'Cricket scoreboard' },
+          { n: 8,icon: '🚦',title: 'Conditional rendering',topics: ['if statements','Ternary operator','The && operator'],ex: 'Welcome vs login message',analogy: 'Traffic signal' },
+          { n: 9,icon: '📋',title: 'Lists, map() & keys',topics: ['Rendering arrays','The map() method','Stable keys'],ex: 'List of students or products',analogy: 'Roll numbers' },
+          { n: 10,icon: '📝',title: 'Forms & controlled inputs',topics: ['value + onChange','onSubmit, preventDefault()','Simple validation'],ex: 'Form with name and email',analogy: 'Bank form with a teller' }
+        ]
+      },
+      {
+        title: 'Week 3: Styling, effects & data',color: '#f472b6',
+        goal: 'Learn how React apps handle styling, side effects and external data.',
+        checkpoint: 'Students understand styling, basic effects, API communication, loading states and navigation, and focus on purpose over memorising.',
+        classes: [
+          { n: 11,icon: '🎨',title: 'Styling React components',topics: ['External CSS and className','Inline and conditional styles','Responsive basics'],ex: 'Style the student cards from Class 5',analogy: 'Dressing a mannequin' },
+          { n: 12,icon: '⏰',title: 'useEffect fundamentals',topics: ['Side effects','Dependency arrays','Cleanup, effects vs events'],ex: 'Update the browser tab title with the count',analogy: 'Auto-lights after sunset' },
+          { n: 13,icon: '🌐',title: 'API & JSON fundamentals',topics: ['Client and server','HTTP, GET, JSON','fetch()'],ex: 'Fetch users and inspect them in the console',analogy: 'Restaurant waiter' },
+          { n: 14,icon: '🔌',title: 'API integration with React',topics: ['Fetching in useEffect','Loading and error states','Rendering results with map()'],ex: 'Show user names and emails from the API',analogy: 'Food delivery tracking' },
+          { n: 15,icon: '🧭',title: 'React Router basics',topics: ['Single-page apps','Routes, Link','useNavigate'],ex: 'Home, About and Contact pages',analogy: 'Mall directory' }
+        ]
+      },
+      {
+        title: 'Week 4: Core concepts, debugging & projects',color: '#34d399',
+        goal: 'Connect the concepts, write cleaner React code and build confidence solving problems independently.',
+        checkpoint: 'Students build and present a working project and explain how each React concept is used.',
+        classes: [
+          { n: 16,icon: '🔁',title: 'State vs props & data flow',topics: ['One-way data flow','State ownership','Lifting state up'],ex: 'Parent passes a selected product to a child',analogy: 'Family pocket money' },
+          { n: 17,icon: '🗂️',title: 'Updating arrays & objects',topics: ['Immutable updates','Spread operator','Add / delete / update items'],ex: 'Add and delete tasks in a to-do list',analogy: 'Photocopy, then edit' },
+          { n: 18,icon: '🐞',title: 'Debugging & best practices',topics: ['Reading errors','React DevTools','Common state mistakes'],ex: 'Find the bugs in a broken component',analogy: 'Doctor diagnosing' },
+          { n: 19,icon: '🎓',title: 'Mini project: Student Management App',topics: ['Add, list and delete students','Empty state','Styled with CSS'],ex: 'Build together, then add one feature alone',analogy: 'School register' },
+          { n: 20,icon: '🏆',title: 'Revision, assessment & presentation',topics: ['Theory assessment','Practical assessment','Project presentations'],ex: 'Build a product list or task tracker',analogy: 'Graduation day' }
+        ]
+      }
+    ];
+
+    const READY = 5; // classes with finished slide decks
+    const pad = n => String(n).padStart(2,'0');
+    const store = {
+      get(k) { try { return JSON.parse(localStorage.getItem(k) || '[]'); } catch (e) { return []; } },
+      set(k,v) { try { localStorage.setItem(k,JSON.stringify(v)); } catch (e) { } }
+    };
+    let done = new Set(store.get('rc-done'));
+
+    const weeksEl = document.getElementById('weeks');
+    weeksEl.innerHTML = WEEKS.map((w,i) => `
+    <div class="phase">
+      <div class="phase-head"><span class="phase-num" style="background:${w.color}">W${i + 1}</span><h3>${w.title}</h3></div>
+      <p class="week-goal">🎯 ${w.goal}</p>
+      <div class="class-grid">
+        ${w.classes.map(c => `
+          <div class="card hover class-card" data-n="${c.n}">
+            <span class="cnum">CLASS ${pad(c.n)}</span>
+            <h3>${c.icon} ${c.title}</h3>
+            <ul>${c.topics.map(t => `<li>${t}</li>`).join('')}</ul>
+            <div class="practice">🧪 <b>Exercise:</b> ${c.ex}</div>
+            <span class="pill yellow" style="align-self:flex-start">🌍 ${c.analogy}</span>
+            <div class="foot">
+              ${c.n <= READY ? `<a class="btn small primary" href="class-${pad(c.n)}.html">Open slides →</a>` : `<span class="pill">🕒 Slides coming soon</span>`}
+              <label class="done-toggle"><input type="checkbox" ${done.has(c.n) ? 'checked' : ''}> Taught</label>
+            </div>
+          </div>`).join('')}
+      </div>
+      <div class="card checkpoint"><b>✅ Week ${i + 1} checkpoint:</b> <span class="muted">${w.checkpoint}</span></div>
+    </div>`).join('');
+
+    function renderProgress() {
+      document.querySelectorAll('.class-card').forEach(c => c.classList.toggle('is-done',done.has(+c.dataset.n)));
+      document.getElementById('courseBar').style.width = (done.size / 20 * 100) + '%';
+      document.getElementById('courseCount').textContent = `${done.size} / 20 taught`;
+    }
+    weeksEl.addEventListener('change',e => {
+      const card = e.target.closest('.class-card'); if (!card) return;
+      const n = +card.dataset.n;
+      e.target.checked ? done.add(n) : done.delete(n);
+      store.set('rc-done',[...done]);
+      renderProgress();
+    });
+    renderProgress();
+
+    document.getElementById('themeBtn').addEventListener('click',() => {
+      const t = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+      document.documentElement.dataset.theme = t;
+      try { localStorage.setItem('rc-theme',t); } catch (e) { }
+    });
+  </script>
+</body>
+
+</html>

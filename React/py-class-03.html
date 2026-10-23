@@ -1,0 +1,2308 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Python Class 3 · Functions &amp; OOP</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <style>
+    /* Python logo + shared Python course bits (same block in every py-class file) */
+    .py-logo {
+      width: clamp(100px, 13vw, 150px);
+      aspect-ratio: 1;
+      margin: 0 auto 12px;
+      border-radius: 26px;
+      display: grid;
+      place-items: center;
+      font-size: clamp(3rem, 7vw, 4.6rem);
+      background: linear-gradient(135deg, #3776ab 0 50%, #ffd43b 50% 100%);
+      box-shadow: 0 0 50px rgba(55, 118, 171, .4);
+      animation: bob 4s ease-in-out infinite;
+    }
+
+    .slide>.py-logo {
+      width: clamp(100px, 13vw, 150px);
+    }
+
+    @keyframes bob {
+      50% {
+        transform: translateY(-8px) rotate(-3deg);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .py-logo {
+        animation: none;
+      }
+    }
+
+    .pyb {
+      color: #4b8bbe;
+    }
+
+    .pyy {
+      color: #eab308;
+    }
+
+    /* Interview question cards */
+    .iq {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid #eab308;
+      border-radius: 14px;
+      padding: 12px 16px;
+    }
+
+    .iq .q {
+      font-weight: 700;
+      margin: 0 0 6px;
+    }
+
+    .iq .q::before {
+      content: "🎯 ";
+    }
+
+    .iq p {
+      margin: 0;
+    }
+
+    .iq-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    @media (max-width: 860px) {
+      .iq-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .predict {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    @media (max-width: 960px) {
+      .predict {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .predict .card code {
+      display: block;
+      white-space: pre;
+      font-size: .9rem;
+      margin-bottom: 8px;
+    }
+
+    @keyframes pop {
+      40% {
+        transform: scale(1.06);
+      }
+    }
+
+    .chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 12px;
+    }
+
+    .chips button {
+      font: 600 .9rem var(--mono);
+      padding: 6px 12px;
+      border-radius: 99px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .chips button:hover,
+    .chips button.on {
+      border-color: #ffd43b;
+    }
+
+    .chips button.on {
+      background: rgba(255, 212, 59, .15);
+    }
+
+    /* Compact interview grid for 10 questions */
+    .iq-grid.tight .iq {
+      padding: 9px 14px;
+      font-size: .93rem;
+    }
+
+    .iq-grid.tight .iq .q {
+      margin-bottom: 3px;
+    }
+
+    /* Demo: *args / **kwargs packer */
+    .pk-sig {
+      text-align: center;
+      font: 600 1.15rem var(--mono);
+    }
+
+    .pk-call {
+      font: 600 1.05rem var(--mono);
+      text-align: center;
+      margin: 14px 0 6px;
+      line-height: 2.3;
+    }
+
+    .pk-arg {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 10px;
+      border: 2px dashed var(--border);
+      background: var(--surface2);
+      margin: 0 3px;
+      transition: .3s;
+      line-height: 1.6;
+    }
+
+    .pk-arg.cur {
+      transform: translateY(-5px);
+      box-shadow: 0 0 0 4px rgba(255, 212, 59, .35);
+    }
+
+    .pk-arg.to-c {
+      border: 2px solid var(--accent);
+    }
+
+    .pk-arg.to-i {
+      border: 2px solid var(--violet);
+    }
+
+    .pk-arg.to-e {
+      border: 2px solid var(--pink);
+    }
+
+    .pk-note {
+      text-align: center;
+      color: var(--muted);
+      font-size: .9rem;
+      min-height: 1.4em;
+    }
+
+    .pk-bins {
+      display: grid;
+      grid-template-columns: 1fr 1.3fr 1.5fr;
+      gap: 14px;
+      margin-top: 12px;
+    }
+
+    .pk-bin {
+      border: 2px solid var(--c);
+      border-radius: 14px;
+      padding: 10px 14px;
+      min-height: 112px;
+      background: var(--surface2);
+    }
+
+    .pk-bin h4 {
+      margin: 0;
+      font: 700 1rem var(--mono);
+      color: var(--c);
+    }
+
+    .pk-bin .pk-type {
+      font-size: .78rem;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .pk-bin .pk-val {
+      font: 600 1.1rem var(--mono);
+      word-break: break-word;
+    }
+
+    .pk-bin .pk-val.bump {
+      animation: pop .4s ease;
+    }
+
+    /* Demo: LEGB explorer */
+    .lg-wrap {
+      display: grid;
+      grid-template-columns: minmax(0, .95fr) minmax(0, 1.2fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .lg-code {
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 14px;
+      padding: 12px 0;
+      font: 500 .95rem/1.55 var(--mono);
+      white-space: pre;
+      overflow: hidden;
+      font-variant-ligatures: none;
+    }
+
+    .lg-code div {
+      padding: 0 16px;
+      border-left: 3px solid transparent;
+      min-height: 1.55em;
+    }
+
+    .lg-code .c {
+      color: #6b7aa6;
+      font-style: italic;
+    }
+
+    .lg-code .pr {
+      background: rgba(255, 212, 59, .14);
+      border-left-color: #ffd43b;
+    }
+
+    .lg-code .gone {
+      text-decoration: line-through;
+      opacity: .35;
+    }
+
+    .lg-box {
+      --c: var(--accent);
+      border: 2px solid var(--c);
+      border-radius: 14px;
+      padding: 8px 12px 10px;
+      background: color-mix(in srgb, var(--c) 7%, var(--surface));
+      transition: box-shadow .3s, background .3s;
+    }
+
+    .lg-box .lg-box {
+      margin-top: 6px;
+    }
+
+    .lg-h {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font: 700 .85rem var(--font);
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--c);
+    }
+
+    .lg-h small {
+      font-weight: 500;
+      text-transform: none;
+      letter-spacing: 0;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+
+    .lg-st {
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    .lg-st.miss {
+      color: var(--red);
+    }
+
+    .lg-st.ok {
+      color: var(--green);
+    }
+
+    .lg-names {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin: 5px 0 0;
+    }
+
+    .lg-name {
+      font: 600 .88rem var(--mono);
+      padding: 2px 9px;
+      border-radius: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+    }
+
+    .lg-name.hit {
+      background: #ffd43b;
+      color: #111;
+      border-color: #eab308;
+      animation: pop .4s ease;
+    }
+
+    .lg-name.gone {
+      text-decoration: line-through;
+      opacity: .35;
+    }
+
+    .lg-box.look {
+      box-shadow: 0 0 0 4px color-mix(in srgb, var(--c) 45%, transparent);
+    }
+
+    .lg-msg {
+      min-height: 3.2em;
+    }
+
+    /* Demo: recursion call stack */
+    .rs-wrap {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+      gap: 22px;
+      align-items: start;
+    }
+
+    .rs-stack {
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 8px;
+      min-height: 250px;
+      padding: 10px;
+      border: 2px solid var(--border);
+      border-top: 0;
+      border-radius: 0 0 16px 16px;
+      justify-content: flex-start;
+    }
+
+    .rs-frame {
+      border: 2px solid var(--accent);
+      border-radius: 12px;
+      padding: 8px 14px;
+      background: var(--surface2);
+      font: 600 1rem var(--mono);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      animation: fadeUp .3s ease;
+    }
+
+    .rs-frame small {
+      font: 500 .85rem var(--font);
+      color: var(--muted);
+    }
+
+    .rs-frame.base {
+      border-color: var(--yellow);
+    }
+
+    .rs-frame.ret {
+      border-color: var(--green);
+      background: color-mix(in srgb, var(--green) 16%, var(--surface));
+    }
+
+    .rs-frame.ret small {
+      color: var(--green);
+      font-weight: 700;
+    }
+
+    .rs-top {
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .rs-result {
+      text-align: center;
+      font: 800 1.6rem var(--mono);
+      min-height: 1.4em;
+    }
+
+    /* Demo: class -> object factory */
+    .cf-wrap {
+      display: grid;
+      grid-template-columns: minmax(0, .95fr) minmax(0, 1.3fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .cf-blue {
+      background:
+        linear-gradient(rgba(255, 255, 255, .07) 1px, transparent 1px) 0 0 / 18px 18px,
+        linear-gradient(90deg, rgba(255, 255, 255, .07) 1px, transparent 1px) 0 0 / 18px 18px,
+        #1e40af;
+      color: #e0ecff;
+      border-radius: 14px;
+      padding: 10px 16px;
+      font: 500 .9rem/1.5 var(--mono);
+      white-space: pre;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .cf-blue .ca {
+      background: #ffd43b;
+      color: #111;
+      padding: 0 4px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    .cf-blue .cm {
+      color: #9fc1ff;
+      font-style: italic;
+    }
+
+    .cf-form {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr .8fr;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .cf-form input,
+    .cf-form select {
+      font: 600 .95rem var(--font);
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      min-width: 0;
+    }
+
+    .cf-objs {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      align-content: start;
+      min-height: 200px;
+    }
+
+    .cf-obj {
+      border: 2px solid var(--accent);
+      border-radius: 14px;
+      padding: 8px 12px;
+      background: var(--surface2);
+      animation: stamp .45s ease;
+      font-size: .86rem;
+    }
+
+    @keyframes stamp {
+      from {
+        transform: scale(1.25) rotate(-5deg);
+        opacity: 0;
+      }
+    }
+
+    .cf-obj h4 {
+      font: 700 .9rem var(--mono);
+      margin: 0 0 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .cf-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-family: var(--mono);
+      padding: 2px 0;
+      border-top: 1px dashed var(--border);
+    }
+
+    .cf-row span:last-child {
+      text-align: right;
+    }
+
+    .cf-row.shared {
+      color: var(--violet);
+    }
+
+    .cf-row.own-c {
+      color: var(--pink);
+    }
+
+    .cf-row small {
+      font: 500 .72rem var(--font);
+      color: var(--muted);
+      display: block;
+    }
+
+    .cf-row.col {
+      display: block;
+    }
+
+    .cf-row.col b {
+      display: block;
+      text-align: right;
+      font-weight: 600;
+    }
+
+    .cf-row.col small {
+      display: inline;
+      margin-left: 4px;
+    }
+
+    .cf-row.flash {
+      animation: pop .5s ease;
+    }
+
+    .cf-empty {
+      grid-column: 1 / -1;
+      color: var(--muted);
+      font-style: italic;
+      text-align: center;
+      padding: 40px 10px;
+      border: 2px dashed var(--border);
+      border-radius: 14px;
+    }
+
+    /* MRO diamond */
+    .diamond {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 34px 20px;
+      justify-items: center;
+      position: relative;
+      padding: 6px 0;
+    }
+
+    .diamond .dn {
+      background: var(--surface);
+      border: 2px solid var(--accent);
+      border-radius: 12px;
+      padding: 8px 14px;
+      font: 700 .95rem var(--mono);
+      text-align: center;
+      z-index: 1;
+      min-width: 130px;
+    }
+
+    .diamond .dn small {
+      display: block;
+      font: 500 .75rem var(--font);
+      color: var(--muted);
+    }
+
+    .diamond .full {
+      grid-column: 1 / -1;
+    }
+
+    .diamond .ord {
+      display: inline-grid;
+      place-items: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #ffd43b;
+      color: #111;
+      font: 800 .75rem var(--font);
+      margin-right: 6px;
+    }
+
+    .diamond svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    /* Full-width playground with a wider editor + compact cards under it */
+    .playground.wide {
+      grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
+    }
+
+    .card.mini {
+      padding: 10px 14px;
+      font-size: .93rem;
+      line-height: 1.45;
+    }
+
+    .callout.mini {
+      padding: 10px 14px;
+      font-size: .93rem;
+      line-height: 1.45;
+    }
+
+    .analogy.mini {
+      padding: 16px 16px 10px;
+      font-size: .93rem;
+      line-height: 1.45;
+    }
+
+    .map-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    .map-row span {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      padding: 5px 12px;
+      font-size: .9rem;
+    }
+
+    /* Fit 1400x900: a little less vertical padding than the shared deck */
+    .slide {
+      padding-top: 26px;
+      padding-bottom: 26px;
+    }
+
+    .iq-grid.tight {
+      gap: 10px;
+    }
+
+    .predict .card {
+      padding: 12px 14px;
+    }
+
+    .predict .card code {
+      font-size: .85rem;
+    }
+  </style>
+</head>
+
+<body class="deck" data-class="3" data-course="Python Course" data-icon="🐍" data-title="Functions &amp; OOP"
+  data-duration="90">
+  <main class="slides">
+
+    <!-- 1 -->
+    <section class="slide title" data-title="Welcome">
+      <div class="py-logo">🐍</div>
+      <div>
+        <span class="kicker">Python: Zero to Interview-Ready · Class 3 of 4</span>
+        <h1><span class="grad">Functions</span> &amp; OOP</h1>
+        <p class="lead">Write code once, reuse it everywhere: functions, <code>*args</code>/<code>**kwargs</code>,
+          closures, classes, inheritance and the magic methods interviewers love.</p>
+      </div>
+      <div class="row">
+        <span class="pill yellow">⏱ 90 minutes</span>
+        <span class="pill blue">▶ Live Python in the browser</span>
+        <span class="pill violet">🧩 Functions</span>
+        <span class="pill pink">🏗️ Classes</span>
+        <span class="pill green">🎯 Interview questions</span>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Press <b>T</b> to start the timer. Hook: "Today is the class that turns scripts into real software. Every
+            backend at Swiggy, Zomato or your bank is built from functions and classes."</li>
+          <li>Quick 2-minute recap of Class 2: ask one student what a dict is and one what a list comprehension is.</li>
+          <li>Reminder: the code boxes run real Python. The first run takes ~5 seconds (needs internet).</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 2 -->
+    <section class="slide" data-title="Today's plan">
+      <header>
+        <span class="kicker">Agenda · 90 min</span>
+        <h2>Today's plan</h2>
+      </header>
+      <ol class="timeline">
+        <li class="step"><span class="time">00–20</span>
+          <div><b>🧩 Function basics</b><small>def/return, parameters vs arguments, default, keyword-only,
+              <code>*args</code> and <code>**kwargs</code>, the mutable default trap</small></div>
+        </li>
+        <li class="step"><span class="time">20–40</span>
+          <div><b>🔭 Scope, lambda, closures, recursion</b><small>LEGB rule, <code>global</code>/<code>nonlocal</code>,
+              map/filter/sorted, the call stack</small></div>
+        </li>
+        <li class="step"><span class="time">40–55</span>
+          <div><b>🏗️ Classes and objects</b><small>Blueprint vs object, <code>__init__</code>, <code>self</code>, class vs
+              instance attributes</small></div>
+        </li>
+        <li class="step"><span class="time">55–75</span>
+          <div><b>🏛️ The 4 pillars + magic methods</b><small>Encapsulation, inheritance, polymorphism, abstraction, MRO,
+              dunders, classmethod/staticmethod</small></div>
+        </li>
+        <li class="step"><span class="time">75–90</span>
+          <div><b>🎯 Interview corner, predict the output, quiz and practice</b></div>
+        </li>
+      </ol>
+      <aside class="notes">Reveal each row with →. Tell them the second half (OOP) is where most "explain with an
+        example" interview questions come from.</aside>
+    </section>
+
+    <!-- 3 -->
+    <section class="slide section-slide" data-title="Functions">
+      <span class="big-emoji">🧩</span>
+      <span class="kicker" style="justify-content:center">00–20 min</span>
+      <h1>Functions: <span class="grad">write once, call anywhere</span></h1>
+      <p class="lead" style="margin-inline:auto">Ask: "How many times does Swiggy calculate a bill each day?" Millions.
+        It's the same code, called again and again: a function.</p>
+      <aside class="notes">Get one or two guesses, then reveal: one function, millions of calls. DRY = Don't Repeat
+        Yourself.</aside>
+    </section>
+
+    <!-- 4 -->
+    <section class="slide" data-title="def and return">
+      <div class="split">
+        <div>
+          <span class="kicker">Function basics</span>
+          <h2><code>def</code>, <code>return</code>, parameters vs arguments</h2>
+          <script type="text/x-code" data-lang="python" data-file="chai.py" data-hl="1,7">
+          def chai_bill(cups, price=15):     # cups, price = PARAMETERS
+              """Return the total bill for chai."""   # docstring
+              total = cups * price
+              return total                    # send a value back
+
+          print(chai_bill(2, 20))             # 40
+          bill = chai_bill(3)                 # 3 = ARGUMENT -> 45
+
+          def greet(name: str) -> None:      # type hints (optional)
+              print(f"Vanakkam, {name}!")
+
+          result = greet("Priya")             # prints the greeting
+          print(result)                       # None (no return!)
+          help(chai_bill)                     # shows the docstring
+        </script>
+        </div>
+        <div class="stack">
+          <div class="analogy step" data-label="☕ Real-life example">
+            <p>A function is the <b>tea stall recipe</b>. "Cups" and "price" are blanks in the recipe
+              (<b>parameters</b>). When you order "3 cups", 3 is the real value you hand over (<b>argument</b>). The
+              bill you get back is the <b>return value</b>.</p>
+          </div>
+          <div class="card step"><b>🔁 return vs print</b><br><span class="muted"><code>return</code> hands a value back to
+              the caller and <b>ends</b> the function. <code>print</code> only shows it on screen. No
+              <code>return</code> → the function returns <code>None</code>.</span></div>
+          <div class="card step"><b>📝 Docstring &amp; type hints</b><br><span class="muted">The <code>"""..."""</code>
+              line is read by <code>help()</code> and IDEs. Hints like <code>name: str</code> are <b>not enforced</b>
+              at runtime; tools like mypy check them.</span></div>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Interview phrasing: "Parameter is the variable in the definition; argument is the value passed in the
+            call."</li>
+          <li>Ask: "What does <code>print(greet('Priya'))</code> show?" Two lines: the greeting, then None.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 5 -->
+    <section class="slide" data-title="Positional, keyword, default">
+      <header>
+        <span class="kicker">Live code · IRCTC booking</span>
+        <h2>Positional, keyword, default and keyword-only 🚆</h2>
+      </header>
+      <div class="playground wide" data-mode="py" data-height="380">
+        <script type="text/x-playground">
+        def book_ticket(name, source, dest, berth="Lower", *, quota="GENERAL"):
+            """Book an IRCTC ticket and return a confirmation."""
+            return f"{name}: {source} -> {dest} | {berth} | {quota}"
+
+        # 1. Positional: order matters
+        print(book_ticket("Arun", "Chennai", "Madurai"))
+
+        # 2. Keyword: order does NOT matter
+        print(book_ticket(dest="Delhi", name="Meena", source="Bhopal"))
+
+        # 3. Override the default value
+        print(book_ticket("Ravi", "Pune", "Goa", "Upper"))
+
+        # 4. Keyword-only (after *) MUST be named
+        print(book_ticket("Kavya", "Kochi", "Mysuru", quota="TATKAL"))
+
+        # Uncomment to see the TypeError:
+        # print(book_ticket("A", "B", "C", "Side", "TATKAL"))
+      </script>
+      </div>
+      <div class="grid cols-3">
+        <div class="card mini step"><b>Rule 1</b><br><span class="muted">Positional arguments come <b>before</b> keyword
+            arguments in a call.</span></div>
+        <div class="card mini step"><b>Rule 2</b><br><span class="muted">Parameters with defaults come <b>after</b> ones
+            without: <code>def f(a=1, b)</code> is a SyntaxError.</span></div>
+        <div class="card mini step"><b>Keyword-only</b><br><span class="muted">Everything after a bare
+            <code>*</code> must be named. Full order: <code>(pos, default, *args, kw_only, **kwargs)</code></span></div>
+      </div>
+      <aside class="notes">Uncomment the last line live to show <code>TypeError: book_ticket() takes from 3 to 4
+          positional arguments but 5 were given</code>. Explain why keyword-only args make APIs safer: nobody passes
+        "TATKAL" by accident as a berth.</aside>
+    </section>
+
+    <!-- 6 -->
+    <section class="slide" data-title="*args and **kwargs">
+      <header>
+        <span class="kicker">Live code · Swiggy bill · interview favourite</span>
+        <h2><code>*args</code> and <code>**kwargs</code>: any number of arguments 🛵</h2>
+      </header>
+      <div class="playground wide" data-mode="py" data-height="390">
+        <script type="text/x-playground">
+        def order_total(restaurant, *items, **extras):
+            print("restaurant:", restaurant)
+            print("items  ->", items)     # a tuple
+            print("extras ->", extras)    # a dict
+            total = sum(price for name, price in items)
+            total += extras.get("delivery", 0) + extras.get("tip", 0)
+            total -= extras.get("discount", 0)
+            return total
+
+        bill = order_total("A2B", ("Masala Dosa", 90), ("Filter Coffee", 40),
+                           delivery=25, tip=20, discount=50)
+        print("To pay: Rs", bill)
+
+        # Unpacking at the CALL site with * and **
+        cart = [("Biryani", 250), ("Raita", 30)]
+        offers = {"delivery": 0, "discount": 75}
+        print("To pay: Rs", order_total("Paradise", *cart, **offers))
+      </script>
+      </div>
+      <div class="grid cols-4">
+        <div class="card mini step"><b class="pyb">*items</b> → <b>tuple</b><br><span class="muted">Collects the extra
+            <b>positional</b> arguments.</span></div>
+        <div class="card mini step"><b class="pyy">**extras</b> → <b>dict</b><br><span class="muted">Collects the extra
+            <b>keyword</b> arguments.</span></div>
+        <div class="card mini step"><b>At the call site</b><br><span class="muted"><code>*cart</code> spreads a list into
+            positional args, <code>**offers</code> spreads a dict into keyword args.</span></div>
+        <div class="callout mini tip step">
+          <p>The names <code>args</code>/<code>kwargs</code> are only a convention. The <b>stars</b> do the work.</p>
+        </div>
+      </div>
+      <aside class="notes">Ask: "Add a <code>packing=10</code> charge without changing the function." It just works
+        because of **extras. Then show the next slide to visualise the packing.</aside>
+    </section>
+
+    <!-- 7 -->
+    <section class="slide" data-title="Demo: argument packer" id="packDemo">
+      <header>
+        <span class="kicker">Interactive · how Python packs a call</span>
+        <h2>Where does each argument go? 📦</h2>
+      </header>
+      <div class="demo">
+        <div class="pk-sig"><span class="t-kw">def</span> place_order(<span style="color:var(--accent)">customer</span>,
+          <span style="color:var(--violet)">*items</span>, <span style="color:var(--pink)">**extras</span>):</div>
+        <div class="chips" id="pkPresets"></div>
+        <div class="pk-call" id="pkCall"></div>
+        <div class="pk-note" id="pkNote"></div>
+        <div class="pk-bins">
+          <div class="pk-bin" style="--c:var(--accent)">
+            <h4>customer</h4><span class="pk-type">normal parameter (first positional)</span>
+            <div class="pk-val" id="pkC"></div>
+          </div>
+          <div class="pk-bin" style="--c:var(--violet)">
+            <h4>items</h4><span class="pk-type">*items → a tuple of leftover positionals</span>
+            <div class="pk-val" id="pkI"></div>
+          </div>
+          <div class="pk-bin" style="--c:var(--pink)">
+            <h4>extras</h4><span class="pk-type">**extras → a dict of leftover keywords</span>
+            <div class="pk-val" id="pkE"></div>
+          </div>
+        </div>
+        <div class="row" style="margin-top:12px;justify-content:center">
+          <button class="btn" id="pkNext">Next arg ▶</button>
+          <button class="btn ghost" id="pkAll">Show all ⏩</button>
+          <button class="btn ghost" id="pkReset">↺ Reset</button>
+        </div>
+      </div>
+      <div class="callout info" id="pkMsg">
+        <p>Press <b>Next arg ▶</b>.</p>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Pick a call, then press <b>Next arg</b>. Ask the class to predict the box before each click.</li>
+          <li>"Meena" shows that <code>*items</code> can be an empty tuple <code>()</code>.</li>
+          <li>The <code>*cart, **offers</code> call shows unpacking: the list is spread first, then packed again.</li>
+          <li>The last call ends with the real <code>TypeError</code>: nothing filled <code>customer</code>.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 8 -->
+    <section class="slide" data-title="Mutable default trap">
+      <header>
+        <span class="kicker">Live code · the most famous Python trap</span>
+        <h2>The mutable default trap 🪤 + returning many values</h2>
+      </header>
+      <div class="playground wide" data-mode="py" data-height="390">
+        <script type="text/x-playground">
+        def add_item(item, cart=[]):       # BAD: list made ONCE
+            cart.append(item)
+            return cart
+
+        print(add_item("milk"))
+        print(add_item("bread"))           # surprise!
+
+        def add_item_safe(item, cart=None):  # GOOD: the fix
+            if cart is None:
+                cart = []                  # new list every call
+            cart.append(item)
+            return cart
+
+        print(add_item_safe("milk"))
+        print(add_item_safe("bread"))
+
+        # Returning many values = returning ONE tuple
+        def min_max(marks):
+            return min(marks), max(marks)
+
+        low, high = min_max([67, 92, 45, 88])
+        print(low, high, type(min_max([1, 2])))
+      </script>
+      </div>
+      <div class="grid cols-3">
+        <div class="card mini bad step">
+          <p><b>Why it happens:</b> <span class="muted">default values are evaluated <b>once</b>, when <code>def</code> runs, not on every call.
+            Every call without <code>cart</code> shares the <b>same list</b>.</span></p>
+        </div>
+        <div class="analogy mini step" data-label="🛒 Real-life example">
+          <p>A supermarket that gives every new customer <b>the same trolley</b> without emptying it. The second
+            customer finds milk already inside!</p>
+        </div>
+        <div class="callout mini tip step">
+          <p>Use <code>None</code> as the default and create the list inside. You can even peek at the shared list:
+            <code>add_item.__defaults__</code>.</p>
+        </div>
+      </div>
+      <aside class="notes">Before the output appears, cover it and ask the class to predict line 6. Almost everyone says
+        <code>['bread']</code>. This is asked in a huge number of Python interviews.</aside>
+    </section>
+
+    <!-- 9 -->
+    <section class="slide" data-title="Demo: LEGB scope" id="legbDemo">
+      <header>
+        <span class="kicker">Interactive · scope · 20–40 min</span>
+        <h2>The LEGB rule: where does Python look for a name? 🔭</h2>
+        <p class="lead"><b>L</b>ocal → <b>E</b>nclosing → <b>G</b>lobal → <b>B</b>uilt-in. First match wins.</p>
+      </header>
+      <div class="lg-wrap">
+        <div>
+          <div class="lg-code" id="lgCode"></div>
+          <div class="chips" id="lgChips" style="justify-content:flex-start"></div>
+          <div class="row" style="margin-top:10px">
+            <button class="btn small ghost" id="lgDel">🗑 Delete local x</button>
+          </div>
+        </div>
+        <div class="stack">
+          <div id="lgBoxes"></div>
+          <div class="callout info lg-msg" id="lgMsg">
+            <p>Click a name to look it up from inside <code>inner()</code>.</p>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Start with <b>x</b>: found immediately in Local. Then delete local x and look up x again: Enclosing wins.
+          </li>
+          <li><b>len</b> walks all the way to Built-in. <b>pincode</b> is never defined: NameError.</li>
+          <li>Real-life: looking for your phone charger. Your bag (local), then your room (enclosing), then the house
+            (global), then the shop (built-in).</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 10 -->
+    <section class="slide" data-title="global and nonlocal">
+      <div class="split">
+        <div>
+          <span class="kicker">Scope keywords</span>
+          <h2><code>global</code> and <code>nonlocal</code></h2>
+          <script type="text/x-code" data-lang="python" data-file="scope.py" data-hl="4,10">
+          visitors = 0                 # global
+
+          def visit():
+              global visitors          # "use the module's one"
+              visitors += 1
+
+          def make_counter():
+              clicks = 0               # enclosing
+              def click():
+                  nonlocal clicks      # "use outer()'s one"
+                  clicks += 1
+                  return clicks
+              return click
+
+          visit(); visit()
+          c = make_counter()
+          c(); print(visitors, c())    # 2 2
+        </script>
+        </div>
+        <div class="stack">
+          <div class="card bad step">
+            <h3>💥 UnboundLocalError</h3>
+            <p class="muted">Remove the <code>global</code> line and <code>visitors += 1</code> fails. Assigning to a
+              name anywhere in a function makes it <b>local for the whole function</b>, so Python can't read the
+              global one first.</p>
+          </div>
+          <div class="card step"><b><code>global</code></b> → module-level variable<br><b><code>nonlocal</code></b> →
+            variable of the nearest <b>enclosing function</b> (never the global)</div>
+          <div class="callout tip step">
+            <p><b>Best practice:</b> avoid <code>global</code>. Pass values in and <code>return</code> results out. It
+              keeps functions testable.</p>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">Reading a global inside a function is fine without the keyword; only <b>assigning</b> needs
+        it. That distinction is the interview answer.</aside>
+    </section>
+
+    <!-- 11 -->
+    <section class="slide" data-title="lambda, map, filter, sorted">
+      <header>
+        <span class="kicker">Live code · functions are objects</span>
+        <h2>First-class functions, <code>lambda</code>, <code>map</code>/<code>filter</code>/<code>reduce</code> 🎓</h2>
+      </header>
+      <div class="playground wide" data-mode="py" data-height="390">
+        <script type="text/x-playground">
+        from functools import reduce
+
+        students = [("Arun", 78), ("Priya", 92), ("Kiran", 65), ("Divya", 88)]
+
+        # sorted with a key: rank by marks, highest first
+        ranked = sorted(students, key=lambda s: s[1], reverse=True)
+        print(ranked)
+        print(sorted(["Kiran", "Al", "Divya"], key=len))
+
+        marks = [m for _, m in students]
+        print(list(map(lambda m: m + 5, marks)))       # +5 grace marks
+        print(list(filter(lambda m: m >= 75, marks)))  # distinction
+        print(reduce(lambda a, b: a + b, marks))       # total
+
+        # Functions are objects: store them, pass them around
+        def shout(text): return text.upper()
+        def whisper(text): return text.lower()
+        for f in (shout, whisper):
+            print(f.__name__, "->", f("UPI Payment Done"))
+      </script>
+      </div>
+      <div class="grid cols-3">
+        <div class="card mini step"><b>lambda</b> = a one-line, nameless function<br><code>lambda s: s[1]</code><br><span
+            class="muted">Only a single expression, no statements.</span></div>
+        <div class="card mini step"><b>map</b> transforms every item, <b>filter</b> keeps some, <b>reduce</b> folds them
+          into one value. map/filter return <b>lazy iterators</b> (wrap in <code>list()</code>).</div>
+        <div class="callout mini tip step">
+          <p>In real code, comprehensions are often clearer: <code>[m + 5 for m in marks]</code>. But
+            <code>sorted(key=lambda ...)</code> is used everywhere.</p>
+        </div>
+      </div>
+      <aside class="notes">Ask a student to sort by name instead (<code>key=lambda s: s[0]</code>). "First-class" means a
+        function can be stored in a variable, passed as an argument, and returned: that's what makes closures and
+        decorators (Class 4) possible.</aside>
+    </section>
+
+    <!-- 12 -->
+    <section class="slide" data-title="Closures">
+      <header>
+        <span class="kicker">Live code · closures</span>
+        <h2>Closures: functions that <span class="grad">remember</span> 🎟️</h2>
+      </header>
+      <div class="playground wide" data-mode="py" data-height="390">
+        <script type="text/x-playground">
+        def make_discount(percent):
+            def apply(price):
+                return price - price * percent / 100
+            return apply                 # return the inner function
+
+        diwali_sale = make_discount(40)
+        student_offer = make_discount(10)
+        print(diwali_sale(1000), student_offer(1000))
+        print(diwali_sale.__closure__[0].cell_contents)  # remembers 40
+
+        def make_counter():
+            count = 0
+            def next_token():
+                nonlocal count
+                count += 1
+                return f"Token #{count}"
+            return next_token
+
+        bank_queue = make_counter()
+        print(bank_queue(), bank_queue(), bank_queue())
+
+        # Late-binding trap: i is looked up when called
+        funcs = [lambda: i for i in range(3)]
+        print([f() for f in funcs])
+        funcs = [lambda i=i: i for i in range(3)]   # fix
+        print([f() for f in funcs])
+      </script>
+      </div>
+      <div class="grid cols-3">
+        <div class="card mini step"><b>A closure is</b> an inner function + the variables it remembers from the enclosing
+          scope, even after the outer function has finished.</div>
+        <div class="analogy mini step" data-label="🎫 Real-life example">
+          <p>A <b>coupon printer</b>: set it to 40% once, and every coupon it prints remembers 40%. Each printer
+            (closure) keeps its own setting.</p>
+        </div>
+        <div class="callout mini warn step">
+          <p><b>Late binding:</b> closures remember the <i>variable</i>, not its value at that moment. All three
+            lambdas see the final <code>i = 2</code>.</p>
+        </div>
+      </div>
+      <aside class="notes">The late-binding loop appears again in the Predict round. Closures are the foundation of
+        decorators next class, so make sure everyone gets <code>make_discount</code>.</aside>
+    </section>
+
+    <!-- 13 -->
+    <section class="slide" data-title="Demo: recursion call stack" id="recDemo">
+      <header>
+        <span class="kicker">Interactive · recursion</span>
+        <h2>Recursion: a function that calls itself 🪆</h2>
+      </header>
+      <div class="rs-wrap">
+        <div class="stack">
+          <script type="text/x-code" data-lang="python" data-file="factorial.py" data-hl="2-3">
+          def factorial(n):
+              if n == 1:              # base case: STOP
+                  return 1
+              return n * factorial(n - 1)   # smaller problem
+
+          print(factorial(4))         # 24
+        </script>
+          <div class="analogy" data-label="🪆 Real-life example">
+            <p><b>Russian dolls</b>: open a doll, find a smaller one, keep going until the tiniest doll (base case), then
+              close them back up in reverse order.</p>
+          </div>
+          <div class="callout warn">
+            <p>No base case → <code>RecursionError: maximum recursion depth exceeded</code> (default limit about
+              1000 frames).</p>
+          </div>
+        </div>
+        <div class="demo">
+          <span class="demo-label">The call stack</span>
+          <div class="row" style="margin-bottom:10px">
+            <span>n =</span>
+            <div class="chips" id="rsN" style="margin:0"></div>
+            <button class="btn small" id="rsNext">Next step ▶</button>
+            <button class="btn small ghost" id="rsPlay">⏯ Auto</button>
+            <button class="btn small ghost" id="rsReset">↺</button>
+          </div>
+          <div class="rs-top">▲ top of stack</div>
+          <div class="rs-stack" id="rsStack"></div>
+          <div class="rs-result" id="rsResult"></div>
+          <div class="callout info" id="rsMsg">
+            <p>Press <b>Next step ▶</b> to call <code>factorial(4)</code>.</p>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Step through slowly. Frames pile up (push) until the base case, then each one returns and is popped.</li>
+          <li>Ask: "What happens if we delete the base case?" (RecursionError.)</li>
+          <li>Interview: recursion vs iteration. Recursion is elegant for trees/divide and conquer, but uses stack
+            memory; Python has no tail-call optimisation.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 14 -->
+    <section class="slide section-slide" data-title="OOP">
+      <span class="big-emoji">🏗️</span>
+      <span class="kicker" style="justify-content:center">40–75 min</span>
+      <h1>Object-Oriented Programming: <span class="grad">blueprints &amp; objects</span></h1>
+      <p class="lead" style="margin-inline:auto">Ask: "In the IRCTC app, what 'things' exist?" Trains, passengers,
+        tickets, payments. Each one becomes a class.</p>
+      <aside class="notes">Collect 4–5 nouns from the class and write them on the board. Then ask what each one
+        <b>has</b> (attributes) and <b>does</b> (methods).</aside>
+    </section>
+
+    <!-- 15 -->
+    <section class="slide" data-title="Class, __init__, self">
+      <div class="split">
+        <div class="stack">
+          <span class="kicker">Classes</span>
+          <h2 style="margin:0">Class = <span class="grad">blueprint</span>, object = the real thing</h2>
+          <div class="analogy step" data-label="🏠 Real-life example">
+            <p>An architect draws <b>one house blueprint</b>. A builder builds <b>many houses</b> from it, each with a
+              different owner and paint colour. Or a <b>cookie cutter</b> (class) and the cookies (objects).</p>
+          </div>
+          <ul class="checklist">
+            <li class="step"><code>__init__</code> runs automatically when you create an object: it sets up its data.
+            </li>
+            <li class="step"><code>self</code> is the object being worked on. <code>nexon.drive(120)</code> is really
+              <code>Car.drive(nexon, 120)</code>.</li>
+            <li class="step"><code>self</code> is <b>not a keyword</b>, just a strong convention (always use it).</li>
+          </ul>
+        </div>
+        <script type="text/x-code" data-lang="python" data-file="car.py" data-hl="2,5-7">
+        class Car:                       # PascalCase name
+            wheels = 4                   # class attribute (shared)
+
+            def __init__(self, brand, colour):
+                self.brand = brand       # instance attributes:
+                self.colour = colour     # different per object
+                self.km = 0
+
+            def drive(self, distance):   # method
+                self.km += distance
+                return f"{self.brand} drove {self.km} km"
+
+        nexon = Car("Tata Nexon", "blue")     # object 1
+        swift = Car("Maruti Swift", "red")    # object 2
+        print(nexon.drive(120))   # Tata Nexon drove 120 km
+        print(swift.km, swift.wheels)         # 0 4
+      </script>
+      </div>
+      <aside class="notes">Draw two boxes (nexon, swift) on the board with their own brand/colour/km, and one box for the
+        class with wheels = 4. The next slide animates exactly this.</aside>
+    </section>
+
+    <!-- 16 -->
+    <section class="slide" data-title="Demo: object factory" id="cfDemo">
+      <header>
+        <span class="kicker">Interactive · class vs instance attributes</span>
+        <h2>The object factory: one blueprint, many objects 🍪</h2>
+      </header>
+      <div class="cf-wrap">
+        <div>
+          <div class="cf-blue" id="cfBlue"></div>
+          <div class="cf-form">
+            <input id="cfName" value="Priya" aria-label="name" maxlength="12">
+            <select id="cfDept" aria-label="dept">
+              <option>CSE</option>
+              <option>ECE</option>
+              <option>Mech</option>
+              <option>IT</option>
+            </select>
+            <input id="cfCgpa" value="8.9" aria-label="cgpa" maxlength="4">
+          </div>
+          <div class="row" style="margin-top:10px">
+            <button class="btn primary" id="cfMake">🍪 Create object</button>
+            <button class="btn small" id="cfClass">Student.college = "IIT Madras"</button>
+            <button class="btn small" id="cfOwn">s1.college = "NIT Trichy"</button>
+            <button class="btn small ghost" id="cfReset">↺ Reset</button>
+          </div>
+          <div class="callout info" id="cfMsg" style="margin-top:12px">
+            <p>Click <b>Create object</b> a few times.</p>
+          </div>
+        </div>
+        <div class="cf-objs" id="cfObjs"></div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Create 3 students. Point out <b>own</b> attributes (name, dept, cgpa) vs the <b>shared</b> college that
+            lives on the class.</li>
+          <li>Click <code>Student.college = ...</code>: every object changes, because none of them stores college.</li>
+          <li>Click <code>s1.college = ...</code>: this creates a NEW instance attribute on s1 only that
+            <b>shadows</b> the class one. Others are unaffected. This is a classic Predict-the-output question.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 17 -->
+    <section class="slide" data-title="BankAccount class">
+      <header>
+        <span class="kicker">Live code · your bank account as a class</span>
+        <h2>Methods change the object's state 🏦</h2>
+      </header>
+      <div class="playground wide" data-mode="py" data-height="390">
+        <script type="text/x-playground">
+        class BankAccount:
+            bank_name = "SBI"                 # class attribute
+
+            def __init__(self, owner, balance=0):
+                self.owner = owner            # instance attributes
+                self.balance = balance
+
+            def deposit(self, amount):
+                if amount <= 0:
+                    raise ValueError("Deposit must be positive")
+                self.balance += amount
+                return self.balance
+
+            def withdraw(self, amount):
+                if amount > self.balance:
+                    print(f"{self.owner}: insufficient balance!")
+                    return self.balance
+                self.balance -= amount
+                return self.balance
+
+        priya = BankAccount("Priya", 5000)
+        arun = BankAccount("Arun")
+        priya.deposit(2000)
+        priya.withdraw(10000)
+        arun.deposit(1500)
+        print(priya.owner, priya.balance, priya.bank_name)
+        print(arun.owner, arun.balance, arun.bank_name)
+        print(vars(priya))                    # the object's own data
+      </script>
+      </div>
+      <div class="grid cols-4">
+        <div class="card mini step"><b>Instance attribute</b><br><span class="muted"><code>self.balance</code>: each account
+            has its own.</span></div>
+        <div class="card mini step"><b>Class attribute</b><br><span class="muted"><code>bank_name</code>: one copy on the
+            class, read through any object.</span></div>
+        <div class="card mini bad step"><b>⚠️ Mutable class attribute</b><br><span class="muted"><code>history = []</code>
+            at class level is <b>shared by all accounts</b>. Put lists in <code>__init__</code>.</span></div>
+        <div class="callout mini tip step">
+          <p><code>vars(obj)</code> or <code>obj.__dict__</code> shows only the <b>instance</b> attributes.</p>
+        </div>
+      </div>
+      <aside class="notes">Live challenge: add a <code>transfer(self, other, amount)</code> method. Answer:
+        <code>self.withdraw(amount); other.deposit(amount)</code> (and discuss checking the balance first).</aside>
+    </section>
+
+    <!-- 18 -->
+    <section class="slide" data-title="The 4 pillars">
+      <header>
+        <span class="kicker">55–75 min · asked in almost every interview</span>
+        <h2>The 4 pillars of OOP 🏛️</h2>
+      </header>
+      <div class="grid cols-4">
+        <div class="card hover step"><span class="icon">💊</span>
+          <h3>Encapsulation</h3>
+          <p class="muted">Bundle data + methods, and control access to the data.</p>
+          <p><b>ATM:</b> you press buttons; you can't touch the cash vault.</p>
+        </div>
+        <div class="card hover step"><span class="icon">👨‍👧</span>
+          <h3>Inheritance</h3>
+          <p class="muted">A child class reuses and extends a parent class.</p>
+          <p><b>Manager IS-A Employee:</b> gets salary, adds a team.</p>
+        </div>
+        <div class="card hover step"><span class="icon">🎭</span>
+          <h3>Polymorphism</h3>
+          <p class="muted">Same method name, different behaviour per class.</p>
+          <p><b>pay():</b> UPI, card and cash all "pay" differently.</p>
+        </div>
+        <div class="card hover step"><span class="icon">🎛️</span>
+          <h3>Abstraction</h3>
+          <p class="muted">Show <i>what</i> it does, hide <i>how</i>.</p>
+          <p><b>Car driver:</b> uses the steering and pedals, not the engine wiring.</p>
+        </div>
+      </div>
+      <div class="callout tip step">
+        <p><b>Interview tip:</b> for each pillar give <b>definition → real-life example → Python feature</b>:
+          <code>_x</code>/<code>@property</code>, <code>class B(A)</code>/<code>super()</code>, duck typing /
+          overriding, <code>abc.ABC</code>.</p>
+      </div>
+      <aside class="notes">Ask 4 students to each pick a pillar and give their own Indian real-life example before
+        revealing the cards (e.g. Aadhaar: you share the number, not the biometric data = encapsulation).</aside>
+    </section>
+
+    <!-- 19 -->
+    <section class="slide" data-title="Encapsulation">
+      <header>
+        <span class="kicker">Pillar 1 · live code</span>
+        <h2>Encapsulation: <code>_protected</code>, <code>__private</code>, <code>@property</code> 🔐</h2>
+      </header>
+      <div class="playground wide" data-mode="py" data-height="390">
+        <script type="text/x-playground">
+        class UPIAccount:
+            def __init__(self, upi_id, pin):
+                self.upi_id = upi_id        # public
+                self._bank = "HDFC"         # "protected" (convention)
+                self.__pin = pin            # "private" -> name mangled
+                self._balance = 0
+
+            @property
+            def balance(self):              # read like an attribute
+                return self._balance
+
+            @balance.setter
+            def balance(self, value):       # validation on write
+                if value < 0:
+                    raise ValueError("balance can't be negative")
+                self._balance = value
+
+        acc = UPIAccount("priya@okhdfc", 1234)
+        acc.balance = 2500                  # calls the setter
+        print(acc.balance)
+        try:
+            acc.balance = -100
+        except ValueError as e:
+            print("Blocked:", e)
+
+        try:
+            print(acc.__pin)
+        except AttributeError as e:
+            print("AttributeError:", e)
+        print(acc._UPIAccount__pin)         # mangled name still works!
+      </script>
+      </div>
+      <div class="grid cols-3">
+        <div class="card mini step"><b><code>_bank</code></b> (one underscore)<br><span class="muted">"Internal, please
+            don't touch." Only a convention; Python doesn't stop you.</span></div>
+        <div class="card mini step"><b><code>__pin</code></b> (two underscores)<br><span class="muted">Name mangling
+            renames it to <code>_UPIAccount__pin</code>. Avoids clashes in subclasses, but it's <b>not</b> real
+            security.</span></div>
+        <div class="card mini good step"><b><code>@property</code></b><br><span class="muted">Getter/setter with normal
+            attribute syntax. The Pythonic way to add validation.</span></div>
+      </div>
+      <aside class="notes">Interview: "Does Python have private variables?" Answer: no true private; <code>_x</code> is
+        a convention, <code>__x</code> triggers name mangling. "We are all consenting adults here."</aside>
+    </section>
+
+    <!-- 20 -->
+    <section class="slide" data-title="Inheritance & super()">
+      <header>
+        <span class="kicker">Pillar 2 · live code · Employee → Manager</span>
+        <h2>Inheritance and <code>super()</code> 👨‍👧</h2>
+      </header>
+      <div class="playground wide" data-mode="py" data-height="390">
+        <script type="text/x-playground">
+        class Employee:
+            def __init__(self, name, salary):
+                self.name = name
+                self.salary = salary            # monthly
+
+            def annual_ctc(self):
+                return self.salary * 12
+
+            def describe(self):
+                return f"{self.name}: Rs {self.annual_ctc():,} per year"
+
+        class Manager(Employee):                # Manager IS-A Employee
+            def __init__(self, name, salary, team):
+                super().__init__(name, salary)  # reuse parent setup
+                self.team = team
+
+            def annual_ctc(self):               # override
+                bonus = 50000 * len(self.team)
+                return super().annual_ctc() + bonus
+
+        dev = Employee("Kiran", 60000)
+        lead = Manager("Divya", 120000, ["Kiran", "Arun", "Meena"])
+        for person in (dev, lead):
+            print(person.describe())            # same call, different result
+
+        print(isinstance(lead, Employee), issubclass(Manager, Employee))
+      </script>
+      </div>
+      <div class="grid cols-3">
+        <div class="card mini step"><b>Reuse</b><br><span class="muted"><code>describe()</code> is written once in
+            Employee; Manager gets it for free.</span></div>
+        <div class="card mini step"><b>Override</b><br><span class="muted">Manager redefines <code>annual_ctc()</code>.
+            <code>describe()</code> automatically calls the right version.</span></div>
+        <div class="card mini bad step"><b>Forgot <code>super().__init__()</code>?</b><br><span
+            class="muted"><code>self.name</code> never gets set → <code>AttributeError</code>.</span></div>
+      </div>
+      <aside class="notes">Point out that <code>describe()</code> lives in Employee yet calls Manager's
+        <code>annual_ctc()</code> for Divya: <code>self</code> is the Manager object. That's polymorphism already.
+        Inheritance = IS-A. Composition (HAS-A, e.g. Car has an Engine) is often preferred.</aside>
+    </section>
+
+    <!-- 21 -->
+    <section class="slide" data-title="Polymorphism & abstraction">
+      <header>
+        <span class="kicker">Pillars 3 &amp; 4 · live code · checkout page</span>
+        <h2>Polymorphism, duck typing and abstract classes 🦆</h2>
+      </header>
+      <div class="playground wide" data-mode="py" data-height="390">
+        <script type="text/x-playground">
+        from abc import ABC, abstractmethod
+
+        class Payment(ABC):                     # abstract base class
+            @abstractmethod
+            def pay(self, amount):
+                ...
+
+        class UPI(Payment):
+            def pay(self, amount):
+                return f"Paid Rs {amount} via UPI"
+
+        class Card(Payment):
+            def pay(self, amount):
+                return f"Paid Rs {amount} by card, OTP sent"
+
+        class CashOnDelivery:                   # NOT a Payment subclass!
+            def pay(self, amount):
+                return f"Collect Rs {amount} at the door"
+
+        for method in (UPI(), Card(), CashOnDelivery()):
+            print(method.pay(499))              # duck typing
+
+        try:
+            Payment()
+        except TypeError as e:
+            print("TypeError:", e)
+      </script>
+      </div>
+      <div class="grid cols-3">
+        <div class="card mini step"><b>🎭 Polymorphism</b><br><span class="muted">One call, <code>method.pay(499)</code>,
+            many behaviours. The checkout page doesn't care which.</span></div>
+        <div class="analogy mini step" data-label="🦆 Duck typing">
+          <p>"If it walks like a duck and quacks like a duck, it's a duck." <code>CashOnDelivery</code> isn't a
+            Payment, but it has <code>pay()</code>, so it works.</p>
+        </div>
+        <div class="card mini step"><b>🎛️ Abstraction</b><br><span class="muted"><code>ABC</code> +
+            <code>@abstractmethod</code> = a contract. You can't create a Payment, and every subclass
+            <b>must</b> implement <code>pay()</code>.</span></div>
+      </div>
+      <aside class="notes">Ask: "Add a Wallet class (Paytm) without changing the loop." Also mention operator
+        polymorphism: <code>+</code> adds ints, joins strings, merges lists. Python has no method overloading by
+        signature; use default args or *args instead.</aside>
+    </section>
+
+    <!-- 22 -->
+    <section class="slide" data-title="Multiple inheritance & MRO">
+      <header>
+        <span class="kicker">Advanced · interview favourite</span>
+        <h2>Multiple inheritance and the MRO 💎</h2>
+        <p class="lead">A Smartphone is a Camera <b>and</b> a Phone. Which <code>boot()</code> runs, in what order?</p>
+      </header>
+      <div class="split" style="grid-template-columns:.75fr 1.25fr;align-items:start">
+        <div class="stack">
+          <div class="demo">
+            <span class="demo-label">The diamond · MRO order</span>
+            <div class="diamond" id="diamond">
+              <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                <g stroke="currentColor" stroke-width=".6" fill="none" style="color:var(--muted)">
+                  <line x1="50" y1="16" x2="25" y2="42" />
+                  <line x1="50" y1="16" x2="75" y2="42" />
+                  <line x1="25" y1="58" x2="50" y2="84" />
+                  <line x1="75" y1="58" x2="50" y2="84" />
+                </g>
+              </svg>
+              <div class="dn full"><span class="ord">4</span>Device<small>base class</small></div>
+              <div class="dn"><span class="ord">2</span>Camera<small>(Device)</small></div>
+              <div class="dn"><span class="ord">3</span>Phone<small>(Device)</small></div>
+              <div class="dn full" style="border-color:#ffd43b"><span class="ord">1</span>Smartphone<small>(Camera,
+                  Phone)</small></div>
+            </div>
+          </div>
+          <div class="callout mini tip step">
+            <p><b>C3 linearization:</b> child first, parents left → right, a shared base only after all its children.
+              See it with <code>Cls.__mro__</code>.</p>
+          </div>
+        </div>
+        <div class="playground" data-mode="py" data-height="420">
+          <script type="text/x-playground">
+          class Device:
+              def boot(self):
+                  print("Device: power on")
+
+          class Camera(Device):
+              def boot(self):
+                  print("Camera: lens ready")
+                  super().boot()
+
+          class Phone(Device):
+              def boot(self):
+                  print("Phone: SIM ready")
+                  super().boot()
+
+          class Smartphone(Camera, Phone):
+              def boot(self):
+                  print("Smartphone: starting")
+                  super().boot()
+
+          Smartphone().boot()
+          print([c.__name__ for c in Smartphone.__mro__])
+        </script>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>The surprise: inside Camera, <code>super().boot()</code> calls <b>Phone</b>, not Device! super() means
+            "next class in the MRO of the actual object", not "my parent".</li>
+          <li>Device runs only once even though two classes inherit from it. That's what C3 solves.</li>
+          <li>Swap to <code>class Smartphone(Phone, Camera)</code> and run again to see the order change.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 23 -->
+    <section class="slide" data-title="Dunder methods">
+      <header>
+        <span class="kicker">Magic methods · live code · a Rupee type</span>
+        <h2>Dunder methods: make your objects feel built-in ✨</h2>
+      </header>
+      <div class="playground wide" data-mode="py" data-height="400">
+        <script type="text/x-playground">
+        class Rupee:
+            def __init__(self, amount):
+                self.amount = amount
+
+            def __str__(self):             # for users: print()
+                return f"₹{self.amount:,.2f}"
+
+            def __repr__(self):            # for developers
+                return f"Rupee({self.amount})"
+
+            def __add__(self, other):      # r1 + r2
+                return Rupee(self.amount + other.amount)
+
+            def __eq__(self, other):       # r1 == r2
+                return self.amount == other.amount
+
+            def __lt__(self, other):       # r1 < r2 (sorted works!)
+                return self.amount < other.amount
+
+        lunch, coffee = Rupee(180), Rupee(45.5)
+        print(lunch + coffee)              # __add__ then __str__
+        print([lunch, coffee])             # a list shows __repr__
+        print(Rupee(100) == Rupee(100), lunch < coffee)
+        print(sorted([lunch, coffee, Rupee(99)]))
+
+        class Cart:
+            def __init__(self, *items):
+                self.items = items
+            def __len__(self):
+                return len(self.items)
+
+        print(len(Cart("pen", "notebook", "bag")))
+      </script>
+      </div>
+      <div class="map-row">
+        <span><code>print(r)</code> → <code>__str__</code></span>
+        <span>lists / REPL → <code>__repr__</code></span>
+        <span><code>a + b</code> → <code>a.__add__(b)</code></span>
+        <span><code>a == b</code> → <code>__eq__</code></span>
+        <span><code>a &lt; b</code>, <code>sorted()</code> → <code>__lt__</code></span>
+        <span><code>len(x)</code> → <code>__len__</code></span>
+        <span><code>Rupee(10)</code> → <code>__init__</code></span>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Delete <code>__str__</code> and rerun: print falls back to <code>__repr__</code>. Delete both: you get
+            <code>&lt;__main__.Rupee object at 0x...&gt;</code>.</li>
+          <li>Interview line: "<code>__str__</code> is readable for end users; <code>__repr__</code> is unambiguous for
+            developers, ideally valid code to recreate the object."</li>
+          <li>Without <code>__eq__</code>, <code>==</code> compares identity (like <code>is</code>).</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 24 -->
+    <section class="slide" data-title="classmethod vs staticmethod">
+      <header>
+        <span class="kicker">Live code · 3 kinds of methods</span>
+        <h2>Instance method vs <code>@classmethod</code> vs <code>@staticmethod</code> 🎓</h2>
+      </header>
+      <div class="playground wide" data-mode="py" data-height="390">
+        <script type="text/x-playground">
+        class Student:
+            college = "Anna University"
+            count = 0
+
+            def __init__(self, name, cgpa):
+                self.name, self.cgpa = name, cgpa
+                Student.count += 1
+
+            def grade(self):                  # uses self (the object)
+                return "Distinction" if self.cgpa >= 8.5 else "First class"
+
+            @classmethod
+            def from_csv(cls, row):           # uses cls (the class)
+                name, cgpa = row.split(",")
+                return cls(name, float(cgpa))  # alternative constructor
+
+            @staticmethod
+            def is_valid_cgpa(value):         # no self, no cls
+                return 0 <= value <= 10
+
+        s1 = Student("Priya", 9.1)
+        s2 = Student.from_csv("Arun,7.8")
+        print(s1.name, s1.grade())
+        print(s2.name, s2.grade())
+        print(Student.is_valid_cgpa(11.2), Student.count)
+      </script>
+      </div>
+      <div class="grid cols-3">
+        <div class="card mini step"><b>Instance method</b> · first arg <code>self</code><br><span class="muted">Reads or
+            changes <b>one object's</b> data.</span></div>
+        <div class="card mini step"><b>@classmethod</b> · first arg <code>cls</code><br><span class="muted">Works with the
+            <b>class</b>: alternative constructors like <code>from_csv</code> or <code>dict.fromkeys</code>.</span></div>
+        <div class="card mini step"><b>@staticmethod</b> · no automatic arg<br><span class="muted">A plain helper
+            function that logically belongs in the class.</span></div>
+      </div>
+      <aside class="notes">Classic interview question. Key phrase: "classmethod receives the class, staticmethod receives
+        nothing, instance method receives the object." Real example: <code>datetime.fromtimestamp()</code> is a
+        classmethod. A classmethod called on a subclass builds the subclass, because <code>cls</code> is the
+        subclass.</aside>
+    </section>
+
+    <!-- 25 -->
+    <section class="slide" data-title="Interview corner">
+      <header>
+        <span class="kicker">🎯 Interview corner · 75–90 min</span>
+        <h2>10 questions you will be asked</h2>
+      </header>
+      <div class="iq-grid tight">
+        <div class="iq">
+          <p class="q">What are <code>*args</code> and <code>**kwargs</code>?</p>
+          <p class="spoiler"><code>*args</code> packs extra positional args into a <b>tuple</b>;
+            <code>**kwargs</code> packs extra keyword args into a <b>dict</b>. At a call, <code>*</code>/<code>**</code>
+            unpack.</p>
+        </div>
+        <div class="iq">
+          <p class="q">Why is <code>def f(lst=[])</code> dangerous?</p>
+          <p class="spoiler">Defaults are evaluated <b>once</b> at definition, so all calls share one list. Use
+            <code>lst=None</code> and create it inside.</p>
+        </div>
+        <div class="iq">
+          <p class="q">Explain the LEGB rule.</p>
+          <p class="spoiler">Name lookup order: <b>L</b>ocal → <b>E</b>nclosing → <b>G</b>lobal → <b>B</b>uilt-in.
+            Assigning needs <code>global</code>/<code>nonlocal</code> to target outer scopes.</p>
+        </div>
+        <div class="iq">
+          <p class="q">What is a closure?</p>
+          <p class="spoiler">An inner function that remembers variables of its enclosing scope after the outer function
+            returns. Used for factories and decorators.</p>
+        </div>
+        <div class="iq">
+          <p class="q">Is Python pass-by-value or pass-by-reference?</p>
+          <p class="spoiler"><b>Pass-by-object-reference</b> (assignment). A function can mutate a passed list, but
+            rebinding the parameter doesn't affect the caller.</p>
+        </div>
+        <div class="iq">
+          <p class="q"><code>__str__</code> vs <code>__repr__</code>?</p>
+          <p class="spoiler"><code>__str__</code>: readable, for users (<code>print</code>). <code>__repr__</code>:
+            unambiguous, for developers. <code>print</code> falls back to <code>__repr__</code>.</p>
+        </div>
+        <div class="iq">
+          <p class="q"><code>@classmethod</code> vs <code>@staticmethod</code>?</p>
+          <p class="spoiler">classmethod gets <code>cls</code> (alternative constructors, class state). staticmethod
+            gets nothing: a utility function grouped in the class.</p>
+        </div>
+        <div class="iq">
+          <p class="q">Does Python have private variables?</p>
+          <p class="spoiler">No true private. <code>_x</code> = convention; <code>__x</code> = name mangling to
+            <code>_Class__x</code>. Use <code>@property</code> to control access.</p>
+        </div>
+        <div class="iq">
+          <p class="q">What is MRO?</p>
+          <p class="spoiler">Method Resolution Order: the order classes are searched for attributes, computed by
+            <b>C3 linearization</b>. See it with <code>Cls.__mro__</code>; <code>super()</code> follows it.</p>
+        </div>
+        <div class="iq">
+          <p class="q">What is <code>self</code>? Is it a keyword?</p>
+          <p class="spoiler">The instance the method was called on, passed automatically as the first argument. Not a
+            keyword, just a convention.</p>
+        </div>
+      </div>
+      <aside class="notes">Pick students at random. Ask for the answer structure: definition → example → one extra
+        detail. Bonus follow-ups: "lambda vs def?" (lambda = single expression, anonymous) and "What is duck typing?"
+      </aside>
+    </section>
+
+    <!-- 26 -->
+    <section class="slide" data-title="Predict the output">
+      <header>
+        <span class="kicker">🎯 Interview round · trick questions</span>
+        <h2>Predict the output 🧠</h2>
+      </header>
+      <div class="predict">
+        <div class="card"><code>def f(x, lst=[]):
+    lst.append(x)
+    return lst
+f(1)
+print(f(2))</code><span class="spoiler"><b>[1, 2]</b>: the default list is shared between calls.</span></div>
+        <div class="card"><code>fs = [lambda: i
+      for i in range(3)]
+print([f() for f in fs])</code><span class="spoiler"><b>[2, 2, 2]</b>: late binding; all see the final
+            <code>i</code>.</span></div>
+        <div class="card"><code>class Dog:
+    tricks = []
+a, b = Dog(), Dog()
+a.tricks.append("sit")
+print(b.tricks)</code><span class="spoiler"><b>['sit']</b>: a mutable class attribute is shared by all
+            instances.</span></div>
+        <div class="card"><code>class C:
+    x = 1
+a = C()
+a.x = 5
+print(C.x, a.x)</code><span class="spoiler"><b>1 5</b>: assigning through an instance creates an instance attribute
+            (shadowing).</span></div>
+        <div class="card"><code>class A: x = "A"
+class B(A): pass
+class C(A): x = "C"
+class D(B, C): pass
+print(D.x)</code><span class="spoiler"><b>C</b>: MRO is D, B, C, A. B has no x, so C is next, before A.</span></div>
+        <div class="card"><code>x = 10
+def f():
+    print(x)
+    x = 20
+f()</code><span class="spoiler"><b>UnboundLocalError</b>: <code>x</code> is local in the whole function because
+            it is assigned.</span></div>
+        <div class="card"><code>def greet():
+    print("Hi")
+r = greet()
+print(r)</code><span class="spoiler"><b>Hi</b> then <b>None</b>: no return statement.</span></div>
+        <div class="card"><code>f = lambda *a, **k: (a, k)
+print(f(1, 2, z=3))</code><span class="spoiler"><b>((1, 2), {'z': 3})</b>: a tuple and a dict.</span></div>
+      </div>
+      <aside class="notes">Team game: two teams, one point per correct guess. If anyone disputes an answer, paste it into
+        any playground (for example slide 11) and run it.</aside>
+    </section>
+
+    <!-- 27 -->
+    <section class="slide" data-title="Common mistakes">
+      <header>
+        <span class="kicker">Watch out</span>
+        <h2>Common mistakes 🚧</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="card bad step">
+          <h3>Forgetting <code>self</code></h3><code>def deposit(amount):</code>
+          <p class="muted" style="margin-top:8px"><code>TypeError: BankAccount.deposit() takes 1 positional argument but 2
+              were given</code>.</p>
+        </div>
+        <div class="card bad step">
+          <h3>print instead of return</h3><code>total = calc_bill(3)</code>
+          <p class="muted" style="margin-top:8px"><code>total</code> is <code>None</code> if the function only prints.
+          </p>
+        </div>
+        <div class="card bad step">
+          <h3>Missing parentheses</h3><code>print(acc.get_balance)</code>
+          <p class="muted" style="margin-top:8px">Prints <code>&lt;bound method ...&gt;</code>. Call it:
+            <code>get_balance()</code>.</p>
+        </div>
+        <div class="card bad step">
+          <h3>Mutable default / class list</h3><code>def f(x, items=[])</code>
+          <p class="muted" style="margin-top:8px">Shared between calls or objects. Use <code>None</code> and build it
+            in <code>__init__</code>.</p>
+        </div>
+        <div class="card bad step">
+          <h3>No <code>super().__init__()</code></h3><code>class Manager(Employee):</code>
+          <p class="muted" style="margin-top:8px">Parent attributes are never set → <code>AttributeError</code>.</p>
+        </div>
+        <div class="card bad step">
+          <h3>Recursion without base case</h3><code>return n * fact(n - 1)</code>
+          <p class="muted" style="margin-top:8px"><code>RecursionError</code>. Always write the stop condition first.
+          </p>
+        </div>
+      </div>
+      <aside class="notes">Paste one or two of these into a playground to show the exact error message. Students should
+        learn to read the last line of a traceback first.</aside>
+    </section>
+
+    <!-- 28 -->
+    <section class="slide" data-title="Quick quiz">
+      <header>
+        <span class="kicker">Recap</span>
+        <h2>⚡ Quick quiz</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="quiz" data-answer="b">
+          <p class="q">1. <code>def f(*args): return type(args)</code><br>What does <code>f(1, 2)</code> return?</p>
+          <div class="opts">
+            <button data-opt="a">&lt;class 'list'&gt;</button>
+            <button data-opt="b">&lt;class 'tuple'&gt;</button>
+            <button data-opt="c">&lt;class 'dict'&gt;</button>
+          </div>
+          <p class="explain">✅ <b>tuple</b>. <code>*args</code> always packs into a tuple; <code>**kwargs</code> into
+            a dict.</p>
+        </div>
+        <div class="quiz" data-answer="c">
+          <p class="q">2. In what order does Python look up a name?</p>
+          <div class="opts">
+            <button data-opt="a">Global → Local → Built-in</button>
+            <button data-opt="b">Built-in → Global → Local</button>
+            <button data-opt="c">Local → Enclosing → Global → Built-in</button>
+          </div>
+          <p class="explain">✅ <b>LEGB</b>, innermost first. The first match wins.</p>
+        </div>
+        <div class="quiz" data-answer="a">
+          <p class="q">3. Which method receives the <b>class</b> as its first argument?</p>
+          <div class="opts">
+            <button data-opt="a">@classmethod</button>
+            <button data-opt="b">@staticmethod</button>
+            <button data-opt="c">__init__</button>
+          </div>
+          <p class="explain">✅ <b>@classmethod</b> gets <code>cls</code>. <code>__init__</code> gets
+            <code>self</code>, staticmethod gets nothing.</p>
+        </div>
+      </div>
+      <aside class="notes">Show of hands for each option first, then click.</aside>
+    </section>
+
+    <!-- 29 -->
+    <section class="slide" data-title="Recap">
+      <header>
+        <span class="kicker">Recap</span>
+        <h2>Today you learned… ✅</h2>
+      </header>
+      <div class="grid cols-4">
+        <div class="flip">
+          <div class="front"><span class="icon">🧩</span>
+            <h3>Arguments</h3>
+          </div>
+          <div class="back">
+            <p>Positional, keyword, default, keyword-only (after <code>*</code>). Never a mutable default.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">📦</span>
+            <h3>*args / **kwargs</h3>
+          </div>
+          <div class="back">
+            <p>Pack extras into a tuple / dict. <code>*</code> and <code>**</code> unpack at the call.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🔭</span>
+            <h3>Scope &amp; closures</h3>
+          </div>
+          <div class="back">
+            <p>LEGB lookup. Closures remember enclosing variables (late binding!).</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">λ</span>
+            <h3>lambda &amp; recursion</h3>
+          </div>
+          <div class="back">
+            <p><code>sorted(key=lambda ...)</code>, map/filter/reduce. Recursion needs a base case.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🏗️</span>
+            <h3>Classes</h3>
+          </div>
+          <div class="back">
+            <p>Blueprint → objects. <code>__init__</code> sets up, <code>self</code> is the object. Class vs instance
+              attributes.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🏛️</span>
+            <h3>4 pillars</h3>
+          </div>
+          <div class="back">
+            <p>Encapsulation, Inheritance, Polymorphism, Abstraction.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">💎</span>
+            <h3>MRO</h3>
+          </div>
+          <div class="back">
+            <p>C3 order: child, parents left → right, shared base last. <code>super()</code> follows it.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">✨</span>
+            <h3>Dunders</h3>
+          </div>
+          <div class="back">
+            <p><code>__str__</code>/<code>__repr__</code>, <code>__add__</code>, <code>__eq__</code>,
+              <code>__lt__</code>, <code>__len__</code>.</p>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">Ask a different student to explain each card before you flip it.</aside>
+    </section>
+
+    <!-- 30 -->
+    <section class="slide" data-title="To Practice">
+      <header>
+        <span class="kicker">To Practice</span>
+        <h2>📚 To Practice</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="card accent">
+          <span class="icon">🏦</span>
+          <h3>1. BankAccount</h3>
+          <p>Write a <code>BankAccount</code> class with <code>deposit</code>, <code>withdraw</code> (print
+            "Insufficient balance" when needed), a <code>history</code> list (in <code>__init__</code>!) and
+            <code>__str__</code>. Then a <code>SavingsAccount(BankAccount)</code> that keeps a minimum balance of
+            ₹1,000 using <code>super()</code>.</p>
+        </div>
+        <div class="card">
+          <span class="icon">🛵</span>
+          <h3>2. Swiggy cart functions</h3>
+          <p><code>cart_total(*items, **charges)</code> where items are <code>(name, price)</code> tuples. Sort the
+            menu by price with <code>sorted(key=lambda ...)</code>, and write a closure
+            <code>make_coupon(percent)</code> that returns a discount function.</p>
+        </div>
+        <div class="card">
+          <span class="icon">🎓</span>
+          <h3>3. Student ranking</h3>
+          <p>A <code>Student</code> class with <code>@classmethod from_csv</code>, <code>__repr__</code> and
+            <code>__lt__</code> (by CGPA) so <code>sorted(students)</code> works. Then answer the 10 interview
+            questions out loud in under 30 seconds each.</p>
+        </div>
+      </div>
+      <div class="callout tip">
+        <p><b>Next class:</b> exceptions, iterators and generators, decorators (closures in action!), the GIL, memory
+          management, and live coding interview problems. 🚀</p>
+      </div>
+      <aside class="notes">Ask 2 students to demo their BankAccount at the start of next class, including the
+        insufficient balance case.</aside>
+    </section>
+
+    <!-- 31 -->
+    <section class="slide title" data-title="Thank you">
+      <div class="py-logo">🐍</div>
+      <h1>Thank you! <span class="grad">Questions?</span></h1>
+      <p class="lead">"Explicit is better than implicit." That's why Python makes you write <code>self</code>. 🧘</p>
+      <div class="row">
+        <a class="btn ghost" href="py-class-02.html">← Class 2</a>
+        <a class="btn" href="py-class-04.html">Next: Class 4 →</a>
+        <a class="btn ghost" href="index.html">📋 Course hub</a>
+      </div>
+      <aside class="notes">Open the floor for questions. Remind everyone to finish the BankAccount task before Class 4.
+      </aside>
+    </section>
+
+  </main>
+
+  <script src="assets/deck.js"></script>
+  <script>
+    const escH = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+    /* Demo: *args / **kwargs packer */
+    (() => {
+      // each arg: [keyword or '', text as typed, Python repr]
+      const PRESETS = [
+        {
+          label: 'Ravi', call: 'place_order(ARGS)', args: [['', '"Ravi"', "'Ravi'"], ['', '"Biryani"', "'Biryani'"],
+          ['', '"Coke"', "'Coke'"], ['tip', '30', '30'], ['note', '"extra spicy"', "'extra spicy'"]]
+        },
+        { label: 'Meena', call: 'place_order(ARGS)', args: [['', '"Meena"', "'Meena'"]] },
+        {
+          label: 'Arun', call: 'place_order(ARGS)', args: [['', '"Arun"', "'Arun'"], ['', '"Dosa"', "'Dosa'"],
+          ['coupon', '"SWIGGY50"', "'SWIGGY50'"], ['tip', '20', '20']]
+        },
+        { label: 'customer=', call: 'place_order(ARGS)', args: [['customer', '"Kiran"', "'Kiran'"], ['tip', '10', '10']] },
+        {
+          label: '*cart, **offers', call: 'place_order(*cart, **offers)',
+          note: 'cart = ["Divya", "Pizza", "Pepsi"] · offers = {"discount": 100} → unpacked into:',
+          args: [['', '"Divya"', "'Divya'"], ['', '"Pizza"', "'Pizza'"], ['', '"Pepsi"', "'Pepsi'"], ['discount', '100', '100']]
+        },
+        { label: 'tip=30 only ❌', call: 'place_order(ARGS)', args: [['tip', '30', '30']] }
+      ];
+      const presetsEl = document.getElementById('pkPresets'), callEl = document.getElementById('pkCall'),
+        noteEl = document.getElementById('pkNote'), msg = document.getElementById('pkMsg'),
+        C = document.getElementById('pkC'), I = document.getElementById('pkI'), E = document.getElementById('pkE');
+      let p = 0, i = 0;
+      presetsEl.innerHTML = PRESETS.map((x, k) => `<button data-k="${k}">${escH(x.label)}</button>`).join('');
+      const argText = a => (a[0] ? a[0] + '=' : '') + a[1];
+      function simulate(n) {
+        const st = { c: null, items: [], extras: [], dest: [] };
+        PRESETS[p].args.slice(0, n).forEach(a => {
+          if (!a[0]) {
+            if (st.c === null) { st.c = a[2]; st.dest.push('c'); } else { st.items.push(a[2]); st.dest.push('i'); }
+          } else if (a[0] === 'customer') { st.c = a[2]; st.dest.push('c'); }
+          else { st.extras.push(`'${a[0]}': ${a[2]}`); st.dest.push('e'); }
+        });
+        return st;
+      }
+      function render() {
+        const P = PRESETS[p], st = simulate(i), last = st.dest[i - 1];
+        [...presetsEl.children].forEach((b, k) => b.classList.toggle('on', k === p));
+        const chips = P.args.map((a, k) => `<span class="pk-arg${k < i ? ' to-' + st.dest[k] : ''}${k === i - 1 ? ' cur' : ''}">${escH(argText(a))}</span>`).join(', ');
+        callEl.innerHTML = P.note
+          ? `<span class="muted">${escH(P.call)}</span><br>place_order(${chips})`
+          : P.call.replace('ARGS', chips);
+        noteEl.textContent = P.note || '';
+        const done = i === P.args.length;
+        const err = done && st.c === null;
+        C.innerHTML = st.c === null ? (err ? '<span style="color:var(--red)">missing!</span>' : '<span class="muted">—</span>') : escH(st.c);
+        I.textContent = '(' + st.items.join(', ') + (st.items.length === 1 ? ',' : '') + ')';
+        E.textContent = '{' + st.extras.join(', ') + '}';
+        const box = { c: C, i: I, e: E }[last];
+        if (box) { box.classList.remove('bump'); void box.offsetWidth; box.classList.add('bump'); }
+        let m;
+        if (i === 0) m = 'Press <b>Next arg ▶</b>. Where will the first argument go?';
+        else {
+          const a = P.args[i - 1], t = `<code>${escH(argText(a))}</code>`;
+          if (last === 'c') m = a[0] ? `${t} is a keyword argument whose name matches the parameter <b>customer</b>, so it fills it directly.` : `${t} is the first positional argument → it fills <b>customer</b>.`;
+          else if (last === 'i') m = `${t} is positional, but <code>customer</code> is already filled → it goes into the <b>items</b> tuple.`;
+          else m = `${t} is a keyword argument with no matching parameter → it goes into the <b>extras</b> dict.`;
+        }
+        if (done) {
+          m += err
+            ? `<br>❌ <b>TypeError:</b> <code>place_order() missing 1 required positional argument: 'customer'</code>`
+            : `<br>✅ Done! Inside the function: <code>customer=${escH(st.c)}</code>, <code>items=${escH(I.textContent)}</code>, <code>extras=${escH(E.textContent)}</code>`;
+        }
+        msg.innerHTML = `<p>${m}</p>`;
+      }
+      presetsEl.addEventListener('click', e => { const b = e.target.closest('button'); if (b) { p = +b.dataset.k; i = 0; render(); } });
+      document.getElementById('pkNext').addEventListener('click', () => { if (i < PRESETS[p].args.length) { i++; render(); } });
+      document.getElementById('pkAll').addEventListener('click', () => { i = PRESETS[p].args.length; render(); });
+      document.getElementById('pkReset').addEventListener('click', () => { i = 0; render(); });
+      render();
+    })();
+
+    /* Demo: LEGB scope explorer */
+    (() => {
+      const LEVELS = [
+        { name: 'Local', sub: 'inner()', c: 'var(--green)', icon: '🎒', vals: { total: '500', x: "'local x'" } },
+        { name: 'Enclosing', sub: 'outer()', c: 'var(--yellow)', icon: '🏠', vals: { discount: '10', x: "'enclosing x'" } },
+        { name: 'Global', sub: 'module', c: 'var(--accent)', icon: '🌆', vals: { city: "'Chennai'", x: "'global x'", outer: '&lt;function outer&gt;' } },
+        { name: 'Built-in', sub: 'builtins', c: 'var(--violet)', icon: '🏛️', vals: { len: '&lt;built-in function len&gt;', print: '&lt;built-in function print&gt;', sum: '&lt;built-in function sum&gt;' } }
+      ];
+      const CODE = [
+        ['# Built-in: len, print, sum, range ...', 'c'],
+        ['city = "Chennai"         # Global', ''],
+        ['x = "global x"', ''],
+        ['', ''],
+        ['def outer():', ''],
+        ['    discount = 10        # Enclosing', ''],
+        ['    x = "enclosing x"', ''],
+        ['    def inner():', ''],
+        ['        total = 500      # Local', ''],
+        ['        x = "local x"', 'lx'],
+        ['        print(?)', 'pr'],
+        ['    inner()', ''],
+        ['', ''],
+        ['outer()', '']
+      ];
+      const NAMES = ['x', 'total', 'discount', 'city', 'len', 'pincode'];
+      const codeEl = document.getElementById('lgCode'), boxesEl = document.getElementById('lgBoxes'),
+        chips = document.getElementById('lgChips'), msg = document.getElementById('lgMsg'), del = document.getElementById('lgDel');
+      let removed = false, timers = [], current = '?';
+      function renderCode() {
+        codeEl.innerHTML = CODE.map(([t, k]) => {
+          if (k === 'pr') t = `        print(${current})`;
+          const cls = k === 'c' ? 'c' : k === 'pr' ? 'pr' : (k === 'lx' && removed ? 'gone' : '');
+          return `<div class="${cls}">${escH(t) || ' '}</div>`;
+        }).join('');
+      }
+      function box(k) {
+        const L = LEVELS[k];
+        return `<div class="lg-box" data-k="${k}" style="--c:${L.c}"><div class="lg-h"><span>${L.icon} ${L.name} <small>${L.sub}</small></span><span class="lg-st"></span></div>` +
+          `<div class="lg-names">${Object.keys(L.vals).map(n => `<span class="lg-name${k === 0 && n === 'x' && removed ? ' gone' : ''}" data-n="${n}">${n}</span>`).join('')}</div>` +
+          (k > 0 ? box(k - 1) : '') + '</div>';
+      }
+      function renderBoxes() { boxesEl.innerHTML = box(3); }
+      const has = (k, n) => n in LEVELS[k].vals && !(k === 0 && n === 'x' && removed);
+      function lookup(n) {
+        timers.forEach(clearTimeout); timers = [];
+        current = n; renderCode(); renderBoxes();
+        [...chips.children].forEach(b => b.classList.toggle('on', b.dataset.n === n));
+        const trail = [];
+        msg.innerHTML = `<p>Looking for <code>${n}</code>…</p>`;
+        for (let k = 0; k < 4; k++) {
+          timers.push(setTimeout(() => {
+            boxesEl.querySelectorAll('.lg-box').forEach(b => b.classList.toggle('look', +b.dataset.k === k));
+            const b = boxesEl.querySelector(`.lg-box[data-k="${k}"]`), st = b.querySelector(':scope > .lg-h .lg-st');
+            if (has(k, n)) {
+              st.textContent = '✓ found!'; st.className = 'lg-st ok';
+              b.querySelector(`:scope > .lg-names [data-n="${n}"]`).classList.add('hit');
+              trail.push(`<b style="color:var(--green)">${LEVELS[k].name} ✓</b>`);
+              msg.innerHTML = `<p>${trail.join(' → ')}<br>Found in <b>${LEVELS[k].name}</b>: <code>${n}</code> = <code>${LEVELS[k].vals[n]}</code>. The search stops here.</p>`;
+              timers.forEach(clearTimeout);
+            } else {
+              st.textContent = '✗ not here'; st.className = 'lg-st miss';
+              trail.push(`${LEVELS[k].name} ✗`);
+              msg.innerHTML = `<p>${trail.join(' → ')}</p>`;
+              if (k === 3) msg.innerHTML = `<p>${trail.join(' → ')}<br><b style="color:var(--red)">NameError: name '${n}' is not defined</b></p>`;
+            }
+          }, 250 + k * 750));
+        }
+      }
+      chips.innerHTML = NAMES.map(n => `<button data-n="${n}">${n}</button>`).join('');
+      chips.addEventListener('click', e => { const b = e.target.closest('button'); if (b) lookup(b.dataset.n); });
+      del.addEventListener('click', () => {
+        removed = !removed;
+        del.textContent = removed ? '↩ Restore local x' : '🗑 Delete local x';
+        lookup('x');
+      });
+      renderCode(); renderBoxes();
+    })();
+
+    /* Demo: recursion call stack for factorial(n) */
+    (() => {
+      const stackEl = document.getElementById('rsStack'), msg = document.getElementById('rsMsg'),
+        result = document.getElementById('rsResult'), nEl = document.getElementById('rsN'), playBtn = document.getElementById('rsPlay');
+      let n = 4, steps = [], i = -1, auto = null;
+      function build() {
+        const S = [], st = [];
+        const snap = () => st.map(f => ({ ...f }));
+        for (let k = n; k >= 1; k--) {
+          st.push(k === 1
+            ? { k, d: 'n == 1 → base case!', s: 'base' }
+            : { k, d: `waiting for factorial(${k - 1})…`, s: '' });
+          S.push({
+            st: snap(), r: '', m: k === n
+              ? `<code>factorial(${n})</code> is called → a new <b>frame</b> is <b>pushed</b> on the stack.`
+              : k === 1
+                ? `<code>factorial(1)</code> is pushed. <b>n == 1</b>: the base case! No more calls.`
+                : `<code>factorial(${k + 1})</code> needs <code>factorial(${k})</code> → push another frame.`
+          });
+        }
+        let val = 1;
+        for (let k = 1; k <= n; k++) {
+          if (k > 1) { st.pop(); val = k * val; }
+          const top = st[st.length - 1];
+          top.s = 'ret';
+          top.d = k === 1 ? 'return 1' : `${k} * ${val / k} = return ${val}`;
+          S.push({
+            st: snap(), r: '', m: k === 1
+              ? `The base case <b>returns 1</b>. Now the stack starts to unwind.`
+              : `factorial(${k - 1}) was <b>popped</b> and gave ${val / k}. So factorial(${k}) = ${k} × ${val / k} = <b>${val}</b>.`
+          });
+        }
+        st.pop();
+        S.push({ st: snap(), r: `factorial(${n}) = ${val}`, m: `The last frame is popped and <code>print</code> shows <b>${val}</b>. The stack is empty again. ✅` });
+        return S;
+      }
+      function render() {
+        if (i < 0) {
+          stackEl.innerHTML = ''; result.textContent = '';
+          msg.innerHTML = `<p>Press <b>Next step ▶</b> to call <code>factorial(${n})</code>.</p>`; return;
+        }
+        const s = steps[i];
+        stackEl.innerHTML = s.st.map(f => `<div class="rs-frame ${f.s}"><span>factorial(${f.k})</span><small>${f.d}</small></div>`).join('');
+        result.innerHTML = s.r ? `<span class="grad">${s.r}</span>` : '';
+        msg.innerHTML = `<p>Step ${i + 1}/${steps.length}: ${s.m}</p>`;
+      }
+      function stop() { clearInterval(auto); auto = null; playBtn.textContent = '⏯ Auto'; }
+      function next() { if (i < steps.length - 1) { i++; render(); } else stop(); }
+      function reset() { stop(); steps = build(); i = -1; render(); }
+      nEl.innerHTML = [3, 4, 5].map(k => `<button data-n="${k}">${k}</button>`).join('');
+      const markN = () => [...nEl.children].forEach(b => b.classList.toggle('on', +b.dataset.n === n));
+      nEl.addEventListener('click', e => { const b = e.target.closest('button'); if (b) { n = +b.dataset.n; markN(); reset(); } });
+      document.getElementById('rsNext').addEventListener('click', () => { stop(); next(); });
+      document.getElementById('rsReset').addEventListener('click', reset);
+      playBtn.addEventListener('click', () => {
+        if (auto) { stop(); return; }
+        if (i >= steps.length - 1) { i = -1; render(); }
+        playBtn.textContent = '⏸ Pause'; auto = setInterval(next, 1100);
+      });
+      markN(); reset();
+    })();
+
+    /* Demo: class -> object factory */
+    (() => {
+      const blue = document.getElementById('cfBlue'), objsEl = document.getElementById('cfObjs'), msg = document.getElementById('cfMsg'),
+        nameIn = document.getElementById('cfName'), deptIn = document.getElementById('cfDept'), cgpaIn = document.getElementById('cfCgpa');
+      const NEXT = [['Arun', 'ECE', '7.6'], ['Meena', 'IT', '9.2'], ['Kiran', 'Mech', '8.1'], ['Divya', 'CSE', '8.4'], ['Rahul', 'ECE', '6.9'], ['Sneha', 'IT', '9.5']];
+      let college, objs, flash;
+      function renderBlue() {
+        blue.innerHTML =
+          `<span class="t-kw">class</span> Student:\n` +
+          `    college = <span class="ca">"${escH(college)}"</span>  <span class="cm"># class attr</span>\n` +
+          `    count = ${objs.length}             <span class="cm"># shared</span>\n\n` +
+          `    <span class="t-kw">def</span> __init__(self, name, dept, cgpa):\n` +
+          `        self.name = name     <span class="cm"># per object</span>\n` +
+          `        self.dept = dept\n` +
+          `        self.cgpa = cgpa\n` +
+          `        Student.count += 1`;
+      }
+      function renderObjs() {
+        if (!objs.length) { objsEl.innerHTML = '<div class="cf-empty">No objects yet. The class is only a blueprint.<br>Click <b>🍪 Create object</b>.</div>'; return; }
+        objsEl.innerHTML = objs.map((o, k) => {
+          const own = o.college !== undefined;
+          const fl = flash === 'all' || (flash === k) ? ' flash' : '';
+          return `<div class="cf-obj"><h4>s${k + 1} <small class="muted">· Student object</small></h4>` +
+            `<div class="cf-row"><span>name</span><span>"${escH(o.name)}"</span></div>` +
+            `<div class="cf-row"><span>dept</span><span>"${escH(o.dept)}"</span></div>` +
+            `<div class="cf-row"><span>cgpa</span><span>${escH(o.cgpa)}</span></div>` +
+            `<div class="cf-row col ${own ? 'own-c' : 'shared'}${fl}">college<small>${own ? 'own (shadows class)' : '↑ from the class'}</small><b>"${escH(own ? o.college : college)}"</b></div></div>`;
+        }).join('');
+      }
+      function render() { renderBlue(); renderObjs(); flash = null; }
+      function reset() {
+        college = 'Anna University'; objs = []; flash = null;
+        nameIn.value = 'Priya'; deptIn.value = 'CSE'; cgpaIn.value = '8.9';
+        msg.innerHTML = '<p>Click <b>🍪 Create object</b> a few times.</p>'; render();
+      }
+      document.getElementById('cfMake').addEventListener('click', () => {
+        if (objs.length >= 6) { msg.innerHTML = '<p>That\'s enough students for one projector! Press <b>↺ Reset</b> to start again.</p>'; return; }
+        const o = { name: nameIn.value.trim() || 'Student', dept: deptIn.value, cgpa: cgpaIn.value.trim() || '0' };
+        objs.push(o);
+        msg.innerHTML = `<p><code>s${objs.length} = Student("${escH(o.name)}", "${escH(o.dept)}", ${escH(o.cgpa)})</code> → a <b>new object</b> with its own name, dept and cgpa. <code>Student.count</code> is now ${objs.length}.</p>`;
+        const nx = NEXT[(objs.length - 1) % NEXT.length];
+        [nameIn.value, deptIn.value, cgpaIn.value] = nx;
+        render();
+      });
+      document.getElementById('cfClass').addEventListener('click', () => {
+        college = college === 'IIT Madras' ? 'Anna University' : 'IIT Madras';
+        flash = 'all';
+        msg.innerHTML = `<p><code>Student.college = "${college}"</code> changes the <b>class</b>. Every object that doesn't have its own <code>college</code> sees the new value instantly. 🔄</p>`;
+        render();
+      });
+      document.getElementById('cfOwn').addEventListener('click', () => {
+        if (!objs.length) { msg.innerHTML = '<p>Create <code>s1</code> first!</p>'; return; }
+        objs[0].college = 'NIT Trichy'; flash = 0;
+        msg.innerHTML = `<p><code>s1.college = "NIT Trichy"</code> creates a <b>new instance attribute</b> on s1 only. It shadows the class one; the class is unchanged and the others still read <code>"${escH(college)}"</code>.</p>`;
+        render();
+      });
+      document.getElementById('cfReset').addEventListener('click', reset);
+      reset();
+    })();
+  </script>
+</body>
+
+</html>

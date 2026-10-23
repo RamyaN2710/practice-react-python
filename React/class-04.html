@@ -1,0 +1,1189 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Class 4 · Components &amp; Reusable UI</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <style>
+    /* --- Hook: 50 pages --- */
+    .pages {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      justify-content: center;
+    }
+
+    .pages i {
+      width: 26px;
+      height: 34px;
+      border-radius: 4px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      position: relative;
+      display: block;
+    }
+
+    .pages i::after {
+      content: '';
+      position: absolute;
+      left: 3px;
+      right: 3px;
+      bottom: 3px;
+      height: 6px;
+      border-radius: 2px;
+      background: var(--red);
+      opacity: .8;
+    }
+
+    .pages.one i::after {
+      background: var(--green);
+    }
+
+    .big-num {
+      font-size: 3rem;
+      font-weight: 800;
+      line-height: 1;
+      display: block;
+    }
+
+    .big-num.bad {
+      color: var(--red);
+    }
+
+    .big-num.good {
+      color: var(--green);
+    }
+
+    /* --- Demo: page builder --- */
+    .pb {
+      display: grid;
+      grid-template-columns: 190px minmax(0, 1fr) minmax(0, 1fr);
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    @media (max-width: 1000px) {
+      .pb {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .pb-palette {
+      display: grid;
+      gap: 8px;
+      align-content: start;
+    }
+
+    .pb-palette button {
+      text-align: left;
+      font: 600 .92rem var(--font);
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 2px solid var(--c);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      transition: transform .15s, background .2s;
+    }
+
+    .pb-palette button:hover {
+      transform: translateX(4px);
+      background: color-mix(in srgb, var(--c) 18%, var(--surface));
+    }
+
+    .pb-palette .tools-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .pb-palette .tools-row button {
+      border-color: var(--border);
+      flex: 1;
+      text-align: center;
+      font-size: .82rem;
+      padding: 7px;
+    }
+
+    .pb-preview {
+      background: #fff;
+      color: #1e293b;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      min-height: 380px;
+    }
+
+    .pb-preview .bar {
+      background: #eef1f7;
+      padding: 7px 12px;
+      font: .74rem var(--mono);
+      color: #475569;
+      border-bottom: 1px solid #dde3ee;
+    }
+
+    .pb-canvas {
+      flex: 1;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow: auto;
+      max-height: 420px;
+    }
+
+    .pb-empty {
+      margin: auto;
+      color: #94a3b8;
+      text-align: center;
+      font-size: .92rem;
+    }
+
+    .blk {
+      border-radius: 10px;
+      padding: 10px 12px;
+      position: relative;
+      cursor: pointer;
+      animation: drop .35s ease;
+      outline: 2px solid transparent;
+      transition: outline-color .2s;
+      font-size: .88rem;
+    }
+
+    .blk:hover {
+      outline-color: #ef4444;
+    }
+
+    .blk:hover::after {
+      content: '✕ remove';
+      position: absolute;
+      top: 4px;
+      right: 6px;
+      font: 700 .66rem var(--mono);
+      color: #ef4444;
+    }
+
+    .blk .tag {
+      font: 700 .66rem var(--mono);
+      color: var(--c);
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    @keyframes drop {
+      from {
+        opacity: 0;
+        transform: translateY(-14px) scale(.97);
+      }
+    }
+
+    .blk.nav {
+      background: #0f172a;
+      color: #fff;
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .blk.nav b {
+      margin-right: auto;
+    }
+
+    .blk.herob {
+      background: linear-gradient(135deg, #fde68a, #f9a8d4);
+      text-align: center;
+      padding: 18px;
+    }
+
+    .blk.herob h4 {
+      margin: 0 0 4px;
+      font-size: 1.15rem;
+    }
+
+    .blk.prof {
+      background: #f1f5f9;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .blk.prof .av {
+      font-size: 1.8rem;
+    }
+
+    .blk.foot {
+      background: #1e293b;
+      color: #cbd5e1;
+      text-align: center;
+      font-size: .8rem;
+    }
+
+    .pb-code {
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 14px;
+      padding: 14px 16px;
+      font: clamp(.76rem, .95vw, .88rem)/1.65 var(--mono);
+      white-space: pre;
+      overflow: auto;
+      max-height: 460px;
+      box-shadow: var(--shadow);
+    }
+
+    .pb-code .k {
+      color: #c4a5ff;
+    }
+
+    .pb-code .s {
+      color: #a5e3a1;
+    }
+
+    .pb-code .t {
+      color: #ff8fab;
+    }
+
+    .pb-code .new {
+      background: rgba(52, 211, 153, .22);
+      border-radius: 4px;
+    }
+  </style>
+</head>
+
+<body class="deck" data-class="4" data-title="Components & Reusable UI" data-duration="60">
+  <main class="slides">
+
+    <!-- 1 -->
+    <section class="slide title" data-title="Welcome">
+      <div class="react-logo"></div>
+      <div>
+        <span class="kicker">Week 1 · React Foundations · Class 4</span>
+        <h1>Components &amp; <span class="grad">reusable UI</span></h1>
+        <p class="lead">Build once, use everywhere. Break a big page into small pieces that snap together.</p>
+      </div>
+      <div class="row">
+        <span class="pill blue">⏱ 60 minutes</span>
+        <span class="pill violet">🧱 Function components</span>
+        <span class="pill pink">📤 Import &amp; export</span>
+        <span class="pill green">👨‍👩‍👧 Parent &amp; child</span>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Start the timer with <b>T</b>.</li>
+          <li>Connect to Class 1: "Remember the LEGO bricks and the component detective? Today we actually <b>build</b>
+            those bricks in code."</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 2 -->
+    <section class="slide" data-title="Today's plan">
+      <header>
+        <span class="kicker">Agenda</span>
+        <h2>Today's plan</h2>
+      </header>
+      <ol class="timeline">
+        <li class="step"><span class="time">00–05</span>
+          <div><b>🔁 Quick recap</b><small>JSX rules and curly braces</small></div>
+        </li>
+        <li class="step"><span class="time">05–15</span>
+          <div><b>🧱 Function components</b><small>What they are and how to name them</small></div>
+        </li>
+        <li class="step"><span class="time">15–25</span>
+          <div><b>👨‍👩‍👧 Parent, child and composition</b><small>Build a page from small parts</small></div>
+        </li>
+        <li class="step"><span class="time">25–35</span>
+          <div><b>📤 Import and export</b><small>Default vs named, one component per file</small></div>
+        </li>
+        <li class="step"><span class="time">35–52</span>
+          <div><b>🧪 Page builder + practice</b><small>Split a page into Header, ProfileCard and Footer</small></div>
+        </li>
+        <li class="step"><span class="time">52–60</span>
+          <div><b>✅ Quiz, recap and To Practice</b><small>A page with four components</small></div>
+        </li>
+      </ol>
+      <aside class="notes">Reveal each block with →. Tell students that components are the single most important idea in
+        React.</aside>
+    </section>
+
+    <!-- 3 -->
+    <section class="slide" data-title="Recap: Class 3">
+      <header>
+        <span class="kicker">Quick recap · 00–05 min</span>
+        <h2>Remember the rules of JSX? ✍️</h2>
+        <p class="lead">Say the answer out loud, then tap to check.</p>
+      </header>
+      <div class="grid cols-4">
+        <div class="flip">
+          <div class="front"><span class="icon">{ }</span>
+            <h3>Show a variable?</h3>
+          </div>
+          <div class="back">
+            <p>Wrap it in curly braces: <code>{name}</code></p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🏷️</span>
+            <h3>class or className?</h3>
+          </div>
+          <div class="back">
+            <p><code>className</code>, because <code>class</code> is reserved in JavaScript.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🍱</span>
+            <h3>Two elements in return?</h3>
+          </div>
+          <div class="back">
+            <p>Wrap them in one root: a div or a fragment <code>&lt;&gt;&lt;/&gt;</code>.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🔒</span>
+            <h3>&lt;img&gt; in JSX?</h3>
+          </div>
+          <div class="back">
+            <p>Must be closed: <code>&lt;img src="..." /&gt;</code></p>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">Pick students at random. If someone did the To Practice introduction card, ask them to share
+        their screen for 30 seconds.</aside>
+    </section>
+
+    <!-- 4 -->
+    <section class="slide" data-title="Hook: 50 pages">
+      <header class="center">
+        <span class="kicker">Think first</span>
+        <h2>Your college website has <span class="grad">50 pages</span> 🏫</h2>
+        <p class="lead">The office phone number in the footer changes. How many files do you need to edit?</p>
+      </header>
+      <div class="grid cols-2">
+        <div class="card bad step center">
+          <h3>❌ Copy-paste the footer on every page</h3>
+          <div class="pages">
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+          </div>
+          <span class="big-num bad">50 edits</span>
+          <p class="muted">…and you will surely forget one page 😬</p>
+        </div>
+        <div class="card good step center">
+          <h3>✅ One <code>&lt;Footer /&gt;</code> component</h3>
+          <div class="pages one"><i></i></div>
+          <span class="big-num good">1 edit</span>
+          <p class="muted">Fix it once, and all 50 pages are updated.</p>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Ask the question and wait for answers. Someone will say 50. Then reveal the left card.</li>
+          <li>Reveal the right card: "This is why components exist. Today we learn to write them."</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 5 -->
+    <section class="slide" data-title="Function components">
+      <div class="split">
+        <div>
+          <span class="kicker">Concept · 05–15 min</span>
+          <h2>A component is just a <span class="grad">function</span></h2>
+          <p class="lead">A <b style="color:var(--text)">function component</b> is a JavaScript function that <b
+              style="color:var(--text)">returns JSX</b>.</p>
+          <script type="text/x-code" data-file="Header.jsx" data-hl="1,2">
+          function Header() {
+            return <h1>My Website</h1>;
+          }
+        </script>
+          <ul class="checklist" style="margin-top:14px">
+            <li class="step">Write it <b>once</b> as a function</li>
+            <li class="step">Use it like an HTML tag: <code>&lt;Header /&gt;</code></li>
+            <li class="step">Use it <b>as many times as you want</b></li>
+          </ul>
+        </div>
+        <div class="analogy step" data-label="🖋️ Real-life example">
+          <span class="big-emoji">🖋️</span>
+          <h3>A rubber stamp</h3>
+          <p>The college office has a "VERIFIED" rubber stamp. They made it <b>once</b>, and they stamp it on hundreds
+            of forms.</p>
+          <p>The function is the <b>stamp</b>. Each <code>&lt;Header /&gt;</code> on the page is one <b>stamp mark</b>.
+          </p>
+        </div>
+      </div>
+      <aside class="notes">Point out: "You already wrote a component! <code>App</code> is a component." Every component
+        works exactly the same way.</aside>
+    </section>
+
+    <!-- 6 -->
+    <section class="slide" data-title="Naming components">
+      <header>
+        <span class="kicker">Rule</span>
+        <h2>Component names start with a <span class="grad">Capital letter</span> 🔠</h2>
+      </header>
+      <div class="split">
+        <table class="table">
+          <tr>
+            <th>Name</th>
+            <th>OK?</th>
+            <th>Why</th>
+          </tr>
+          <tr class="step">
+            <td><code>Header</code></td>
+            <td>✅</td>
+            <td>Capital letter, clear name</td>
+          </tr>
+          <tr class="step">
+            <td><code>ProfileCard</code></td>
+            <td>✅</td>
+            <td>PascalCase: every word starts with a capital</td>
+          </tr>
+          <tr class="step">
+            <td><code>header</code></td>
+            <td>❌</td>
+            <td>React thinks it is the HTML <code>&lt;header&gt;</code> tag</td>
+          </tr>
+          <tr class="step">
+            <td><code>profile-card</code></td>
+            <td>❌</td>
+            <td>Dashes are not allowed in function names</td>
+          </tr>
+          <tr class="step">
+            <td><code>Box1</code></td>
+            <td>😕</td>
+            <td>Works, but nobody knows what it is</td>
+          </tr>
+        </table>
+        <div class="analogy step" data-label="🪪 Real-life example">
+          <span class="big-emoji">🪪</span>
+          <h3>Names vs common words</h3>
+          <p>We write <b>Priya</b>, <b>Chennai</b> and <b>Flipkart</b> with a capital letter because they are
+            <i>names</i>.
+          </p>
+          <p>Same in React: <code>&lt;footer&gt;</code> is a common HTML tag, but <code>&lt;Footer /&gt;</code> is
+            <b>your</b> component with its own name.
+          </p>
+        </div>
+      </div>
+      <aside class="notes">Common mistake: <code>function header()</code> then <code>&lt;header /&gt;</code>. No error
+        appears, but React draws an empty HTML header tag instead of the component. Very confusing for beginners, so
+        stress it.</aside>
+    </section>
+
+    <!-- 7 -->
+    <section class="slide" data-title="Syllabus example">
+      <header>
+        <span class="kicker">Code example</span>
+        <h2>Three components working together</h2>
+      </header>
+      <div class="split">
+        <script type="text/x-code" data-file="App.jsx" data-hl="1,5,9,12,14,19">
+        function Header() {
+          return <h1>My Website</h1>;
+        }
+
+        function Footer() {
+          return <footer>Copyright 2026</footer>;
+        }
+
+        function App() {
+          return (
+            <>
+              <Header />
+              <main>Home page</main>
+              <Footer />
+            </>
+          );
+        }
+
+        export default App;
+      </script>
+        <div class="stack">
+          <div class="card step"><span class="icon">1️⃣</span><b>Define</b> small components: <code>Header</code> and
+            <code>Footer</code>.
+          </div>
+          <div class="card step"><span class="icon">2️⃣</span><b>Use</b> them inside <code>App</code> like tags:
+            <code>&lt;Header /&gt;</code>, <code>&lt;Footer /&gt;</code>.
+          </div>
+          <div class="card step"><span class="icon">3️⃣</span>Notice <code>&lt;footer&gt;</code> (HTML tag, lowercase)
+            inside <code>Footer</code> (component, capital). Both exist!</div>
+          <div class="card step"><span class="icon">4️⃣</span><b>Export</b> App so <code>main.jsx</code> can import it.
+          </div>
+        </div>
+      </div>
+      <aside class="notes">Read the code top to bottom. Ask: "Which of these are components and which are HTML tags?"
+        (Header, Footer, App are components; h1, footer, main are HTML tags.)</aside>
+    </section>
+
+    <!-- 8 -->
+    <section class="slide" data-title="Parent and child">
+      <header>
+        <span class="kicker">Concept · 15–25 min</span>
+        <h2>Parent and child components 👨‍👩‍👧</h2>
+        <p class="lead">When a component uses another component, it becomes the <b style="color:var(--text)">parent</b>.
+          The one inside is the <b style="color:var(--text)">child</b>.</p>
+      </header>
+      <div class="split">
+        <div class="flow" style="flex-direction:column;align-items:center">
+          <div class="node step" style="max-width:none;border-color:var(--accent)"><span
+              class="icon">🏠</span><b>&lt;App /&gt;</b><small>parent of everything</small></div>
+          <div class="arrow step">↓</div>
+          <div class="flow step" style="width:100%">
+            <div class="node"><b>&lt;Header /&gt;</b><small>child of App</small></div>
+            <div class="node"><b>&lt;ProfileCard /&gt;</b><small>child of App</small></div>
+            <div class="node"><b>&lt;Footer /&gt;</b><small>child of App</small></div>
+          </div>
+          <div class="arrow step">↓</div>
+          <div class="flow step" style="width:100%">
+            <div class="node"><b>&lt;Logo /&gt;</b><small>child of Header</small></div>
+            <div class="node"><b>&lt;Avatar /&gt;</b><small>child of ProfileCard</small></div>
+          </div>
+        </div>
+        <div class="analogy step" data-label="👨‍👩‍👧‍👦 Real-life example">
+          <span class="big-emoji">🏡</span>
+          <h3>A joint family</h3>
+          <p>Grandfather (App) → father and uncle (Header, ProfileCard) → children (Logo, Avatar).</p>
+          <p>Everyone is someone's child, and some are also parents. The <b>whole family tree</b> is your app.</p>
+        </div>
+      </div>
+      <aside class="notes">Ask: "Is Header a parent or a child?" (Both: child of App, parent of Logo.) This tree is how
+        React DevTools shows your app, which we will use in Class 18.</aside>
+    </section>
+
+    <!-- 9 -->
+    <section class="slide" data-title="Composition">
+      <header>
+        <span class="kicker">Composition</span>
+        <h2>Composition: build big things from small things 🍽️</h2>
+      </header>
+      <div class="split">
+        <div class="analogy" data-label="🍽️ Real-life example">
+          <span class="big-emoji">🍽️</span>
+          <h3>A South Indian thali</h3>
+          <p>A thali is not one big dish. It is <b>rice + sambar + rasam + poriyal + curd + payasam</b>, each in its own
+            katori.</p>
+          <p>Want a new meal? Swap one katori. Your page works the same way: <b>combine small components</b> to make a
+            full page.</p>
+        </div>
+        <script type="text/x-code" data-file="App.jsx" class="step" data-hl="4,15,16">
+        function ProfileCard() {
+          return (
+            <div className="card">
+              <Avatar />
+              <h2>Sneha Reddy</h2>
+              <p>Frontend learner</p>
+            </div>
+          );
+        }
+
+        function App() {
+          return (
+            <>
+              <Header />
+              <ProfileCard />
+              <ProfileCard />
+              <Footer />
+            </>
+          );
+        }
+      </script>
+      </div>
+      <div class="callout tip step">
+        <p><b>How to break a page into parts:</b> draw boxes around anything that (1) <b>repeats</b>, (2) has <b>one
+            clear job</b>, or (3) is <b>big enough</b> to deserve a name.</p>
+      </div>
+      <aside class="notes">Highlight that ProfileCard is used twice and that ProfileCard itself contains another
+        component (Avatar). Components inside components inside components: that is composition.</aside>
+    </section>
+
+    <!-- 10 -->
+    <section class="slide" data-title="Playground: components">
+      <header>
+        <span class="kicker">Live coding · Try it!</span>
+        <h2>Make your own components ✨</h2>
+        <p class="lead">This is the syllabus example plus a <code>Navbar</code>. Try copying
+          <code>&lt;Navbar /&gt;</code> three times.
+        </p>
+      </header>
+      <div class="playground" data-height="440">
+        <script type="text/x-playground">
+        function Navbar() {
+          return (
+            <nav className="nav">
+              <b>🎓 CampusHub</b>
+              <span>Home · Courses · Contact</span>
+            </nav>
+          );
+        }
+
+        function Header() {
+          return <h1>My Website</h1>;
+        }
+
+        function Footer() {
+          return <footer>Copyright 2026</footer>;
+        }
+
+        function App() {
+          console.log("App rendered");
+          return (
+            <>
+              <Navbar />
+              <Header />
+              <main>Home page</main>
+              <Footer />
+            </>
+          );
+        }
+
+        export default App;
+      </script>
+        <script type="text/x-playground-css">
+        .nav { display: flex; justify-content: space-between; background: #0f172a; color: #fff; padding: 10px 16px; border-radius: 12px; }
+        main { background: #fff; padding: 30px; border-radius: 12px; margin: 10px 0; text-align: center; }
+        footer { text-align: center; color: #64748b; font-size: .9rem; }
+      </script>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Duplicate <code>&lt;Footer /&gt;</code> to show reuse. Then change the text inside <code>Footer</code>:
+            every copy changes.</li>
+          <li>Rename <code>Header</code> to <code>header</code> (lowercase) in both places and show that the heading
+            disappears. Then fix it.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 11 -->
+    <section class="slide" data-title="Demo: page builder" id="pageBuilder">
+      <header>
+        <span class="kicker">Live demo</span>
+        <h2>🏗️ Page builder: snap components together</h2>
+        <p class="lead">Click a component to add it. Click a block in the preview to remove it. Watch the <b
+            style="color:var(--text)">App code</b> write itself.</p>
+      </header>
+      <div class="pb">
+        <div class="pb-palette">
+          <button data-add="Navbar" style="--c:#ef4444">🧭 Navbar</button>
+          <button data-add="Hero" style="--c:#f59e0b">🌟 Hero</button>
+          <button data-add="ProfileCard" style="--c:#3b82f6">🧑 ProfileCard</button>
+          <button data-add="Footer" style="--c:#ec4899">🔻 Footer</button>
+          <div class="tools-row">
+            <button data-pb="undo">↶ Undo</button>
+            <button data-pb="clear">🗑 Clear</button>
+          </div>
+          <button data-pb="sample" style="--c:var(--accent)">✨ Build a sample page</button>
+        </div>
+        <div class="pb-preview">
+          <div class="bar">🌐 http://localhost:5173/</div>
+          <div class="pb-canvas"></div>
+        </div>
+        <div class="pb-code" aria-live="polite"></div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Start empty. Ask the class: "What should a profile page have first?" Add components in the order they
+            suggest.</li>
+          <li>Add ProfileCard 3 times. Point out that the <b>import line appears only once</b>, but the tag appears 3
+            times. Write once, use many times.</li>
+          <li>Remove a block by clicking it in the preview and watch the code update.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 12 -->
+    <section class="slide" data-title="Import and export">
+      <header>
+        <span class="kicker">Import &amp; export · 25–35 min</span>
+        <h2>One component per file: <span class="grad">export</span> it, then <span class="grad">import</span> it 📤📥
+        </h2>
+      </header>
+      <div class="split">
+        <div class="tabs">
+          <div class="tab" data-label="components/Header.jsx">
+            <script type="text/x-code" data-file="src/components/Header.jsx" data-hl="5">
+            function Header() {
+              return <h1>My Website</h1>;
+            }
+
+            export default Header;
+          </script>
+          </div>
+          <div class="tab" data-label="components/ProfileCard.jsx">
+            <script type="text/x-code" data-file="src/components/ProfileCard.jsx" data-hl="1">
+            export default function ProfileCard() {
+              return (
+                <div className="card">
+                  <h2>Arun Kumar</h2>
+                  <p>Learning React at CampusHub</p>
+                </div>
+              );
+            }
+          </script>
+          </div>
+          <div class="tab" data-label="components/Footer.jsx">
+            <script type="text/x-code" data-file="src/components/Footer.jsx" data-hl="1">
+            export function Footer() {
+              return <footer>Copyright 2026</footer>;
+            }
+            // named export (no "default")
+          </script>
+          </div>
+          <div class="tab" data-label="App.jsx">
+            <script type="text/x-code" data-file="src/App.jsx" data-hl="1-3">
+            import Header from "./components/Header";
+            import ProfileCard from "./components/ProfileCard";
+            import { Footer } from "./components/Footer";
+
+            function App() {
+              return (
+                <>
+                  <Header />
+                  <ProfileCard />
+                  <Footer />
+                </>
+              );
+            }
+
+            export default App;
+          </script>
+          </div>
+        </div>
+        <div class="analogy step" data-label="📚 Real-life example">
+          <span class="big-emoji">📚</span>
+          <h3>Borrowing a book from the library</h3>
+          <p><b>export</b> = the library puts the book <b>on the shelf</b> so others can borrow it.</p>
+          <p><b>import</b> = you <b>borrow</b> it and use it in your room.</p>
+          <p class="muted">If the book was never put on the shelf (no export), nobody can borrow it.</p>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Click through the tabs in order. In VS Code, create <code>src/components/</code> and make these files
+            live.</li>
+          <li>The path <code>./components/Header</code> starts with <code>./</code> which means "from this folder". The
+            <code>.jsx</code> extension is optional with Vite.
+          </li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 13 -->
+    <section class="slide" data-title="Default vs named export">
+      <header>
+        <span class="kicker">Import &amp; export</span>
+        <h2>Default export vs named export</h2>
+      </header>
+      <div class="grid cols-2">
+        <div class="card accent">
+          <span class="icon">⭐</span>
+          <h3>Default export</h3>
+          <p class="muted">The <b>main thing</b> a file shares. Only <b>one</b> per file.</p>
+          <script type="text/x-code" data-file="export / import">
+          export default Header;
+
+          import Header from "./components/Header";
+          // no { }, and you may rename it
+        </script>
+        </div>
+        <div class="card">
+          <span class="icon">🏷️</span>
+          <h3>Named export</h3>
+          <p class="muted">A file can share <b>many</b> things by name.</p>
+          <script type="text/x-code" data-file="export / import">
+          export function Footer() { ... }
+
+          import { Footer } from "./components/Footer";
+          // { } and the EXACT same name
+        </script>
+        </div>
+      </div>
+      <div class="analogy step" data-label="🍽️ Real-life example">
+        <p><b>A restaurant menu:</b> the <b>default</b> export is the "Chef's special" (one per restaurant, and you can
+          just say "give me the special"). <b>Named</b> exports are the other dishes: you must ask for them <b>by their
+            exact name</b>, like "one masala dosa".</p>
+      </div>
+      <div class="callout warn step">
+        <p>Beginner tip: use <b>export default</b> for one component per file. Mixing up <code>{ }</code> is the #1
+          import error: "does not provide an export named…".</p>
+      </div>
+      <aside class="notes">Don't spend too long here. The key rule: default = no braces, named = braces and exact name.
+      </aside>
+    </section>
+
+    <!-- 14 -->
+    <section class="slide" data-title="Where do files go?">
+      <header>
+        <span class="kicker">Folder structure</span>
+        <h2>Where do component files go? 📁</h2>
+        <p class="lead">Click a file to see what it holds.</p>
+      </header>
+      <div class="explorer">
+        <ul class="tree">
+          <li><span data-info="Your code lives here, as you learned in Class 2.">📁 src/</span>
+            <ul>
+              <li><span
+                  data-info="A new folder <b>you</b> create to keep all reusable components together, like a shelf for your LEGO bricks.">📁
+                  components/</span>
+                <ul>
+                  <li><span
+                      data-info="Top of the page: logo and title. One component, one file, same name as the component.">⚛️
+                      Header.jsx</span></li>
+                  <li><span data-info="Navigation links. Used on every page.">⚛️ Navbar.jsx</span></li>
+                  <li><span data-info="Shows one person's photo, name and course. Can be used many times.">⚛️
+                      ProfileCard.jsx</span></li>
+                  <li><span data-info="Bottom of the page: copyright and contact.">⚛️ Footer.jsx</span></li>
+                </ul>
+              </li>
+              <li><span data-info="The parent of everything. It <b>imports</b> the components and arranges them.">⚛️
+                  App.jsx</span></li>
+              <li><span
+                  data-info="Entry point. Still renders <code>&lt;App /&gt;</code> into #root. No changes needed.">🔌
+                  main.jsx</span></li>
+            </ul>
+          </li>
+        </ul>
+        <div class="stack">
+          <div class="card explorer-info">
+            <h3>👈 Click a file</h3>
+            <p class="muted">One component per file keeps code easy to find.</p>
+          </div>
+          <ul class="checklist">
+            <li class="step">File name = component name: <code>Footer.jsx</code> exports <code>Footer</code></li>
+            <li class="step">Use the <code>.jsx</code> extension for files with JSX</li>
+            <li class="step">Keep components small: if a file passes ~100 lines, split it</li>
+          </ul>
+        </div>
+      </div>
+      <aside class="notes">Create this structure live in VS Code. Right-click src → New Folder → components. Show that
+        VS Code can auto-import when you type <code>&lt;Footer</code>.</aside>
+    </section>
+
+    <!-- 15 -->
+    <section class="slide" data-title="Exercise: split the page">
+      <header>
+        <span class="kicker">Class exercise · 35–52 min</span>
+        <h2>🧪 Split the page into Header, ProfileCard and Footer</h2>
+        <p class="lead">Everything is in one big App right now. Move each part into its own component.</p>
+      </header>
+      <div class="playground" data-height="420">
+        <script type="text/x-playground">
+        // TODO 1: create a Header component and move the <header> into it
+        // TODO 2: create a ProfileCard component and move the card into it
+        // TODO 3: create a Footer component and move the <footer> into it
+        // TODO 4: use <Header />, <ProfileCard /> and <Footer /> inside App
+        // BONUS: add a Navbar component, and show ProfileCard twice
+
+        function App() {
+          return (
+            <>
+              <header className="top">
+                <h1>🎓 CampusHub</h1>
+              </header>
+
+              <div className="card">
+                <h2>Priya Nair</h2>
+                <p>B.Com student · Loves cricket and chai ☕</p>
+              </div>
+
+              <footer className="bottom">© 2026 CampusHub. Made with React.</footer>
+            </>
+          );
+        }
+
+        export default App;
+      </script>
+        <script type="text/x-playground-css">
+        .top { background: #4f46e5; color: #fff; padding: 8px 16px; border-radius: 12px; margin-bottom: 12px; }
+        .bottom { text-align: center; color: #64748b; font-size: .9rem; margin-top: 12px; }
+      </script>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Give 8–10 minutes. The page should look exactly the same after the change. That is the point: same UI,
+            better organized code.</li>
+          <li>Common mistakes: lowercase component names, forgetting <code>return</code>, defining a component
+            <b>inside</b> App (works, but bad practice), and forgetting the <code>/</code> in
+            <code>&lt;Header /&gt;</code>.
+          </li>
+          <li>Students with VS Code can do it with real files in <code>src/components/</code> and import them.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 16 -->
+    <section class="slide" data-title="Common mistakes">
+      <header>
+        <span class="kicker">Common mistakes</span>
+        <h2>⚠️ Component mistakes to avoid</h2>
+      </header>
+      <table class="table">
+        <tr>
+          <th>❌ Mistake</th>
+          <th>What happens</th>
+          <th>✅ Fix</th>
+        </tr>
+        <tr class="step">
+          <td><code>function footer()</code> + <code>&lt;footer /&gt;</code></td>
+          <td>Your component is ignored, an empty HTML tag is drawn</td>
+          <td>Capital letter: <code>Footer</code></td>
+        </tr>
+        <tr class="step">
+          <td>Forgot <code>return</code> in the component</td>
+          <td>Nothing shows on the screen</td>
+          <td><code>return &lt;h1&gt;...&lt;/h1&gt;;</code></td>
+        </tr>
+        <tr class="step">
+          <td>Forgot <code>export default</code></td>
+          <td>"does not provide an export named default"</td>
+          <td>Add <code>export default Header;</code></td>
+        </tr>
+        <tr class="step">
+          <td><code>import Footer</code> for a named export</td>
+          <td>Import error</td>
+          <td><code>import { Footer }</code>, or make it default</td>
+        </tr>
+        <tr class="step">
+          <td>Wrong path: <code>"./Header"</code></td>
+          <td>"Failed to resolve import"</td>
+          <td><code>"./components/Header"</code></td>
+        </tr>
+        <tr class="step">
+          <td>Calling it like a function: <code>{Header()}</code></td>
+          <td>Works sometimes, breaks later</td>
+          <td>Use it as a tag: <code>&lt;Header /&gt;</code></td>
+        </tr>
+      </table>
+      <aside class="notes">Read each mistake and ask "What will happen?" before revealing the middle column.</aside>
+    </section>
+
+    <!-- 17 -->
+    <section class="slide" data-title="Quick quiz">
+      <header>
+        <span class="kicker">Recap · 52–60 min</span>
+        <h2>⚡ Quick quiz</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="quiz" data-answer="c">
+          <p class="q">1. Which is a valid component name?</p>
+          <div class="opts">
+            <button data-opt="a">profileCard</button>
+            <button data-opt="b">profile-card</button>
+            <button data-opt="c">ProfileCard</button>
+          </div>
+          <p class="explain">✅ Components start with a <b>capital letter</b> (PascalCase).</p>
+        </div>
+        <div class="quiz" data-answer="a">
+          <p class="q">2. How do you import a <b>default</b> export?</p>
+          <div class="opts">
+            <button data-opt="a">import Header from "./Header"</button>
+            <button data-opt="b">import { Header } from "./Header"</button>
+            <button data-opt="c">export Header from "./Header"</button>
+          </div>
+          <p class="explain">✅ Default exports are imported <b>without</b> curly braces.</p>
+        </div>
+        <div class="quiz" data-answer="b">
+          <p class="q">3. App uses &lt;Footer /&gt;. Footer is App's…</p>
+          <div class="opts">
+            <button data-opt="a">parent</button>
+            <button data-opt="b">child</button>
+            <button data-opt="c">sibling</button>
+          </div>
+          <p class="explain">✅ The component <b>inside</b> is the child. App is the parent.</p>
+        </div>
+      </div>
+      <aside class="notes">Show of hands first. For Q2, ask a follow-up: "And for a named export?" (curly braces).
+      </aside>
+    </section>
+
+    <!-- 18 -->
+    <section class="slide" data-title="Recap">
+      <header>
+        <span class="kicker">Recap</span>
+        <h2>Today you learned… ✅</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="flip">
+          <div class="front"><span class="icon">🧱</span>
+            <h3>Function component</h3>
+          </div>
+          <div class="back">
+            <p>A function that <b>returns JSX</b>. Write once, use like a tag.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🔠</span>
+            <h3>Naming</h3>
+          </div>
+          <div class="back">
+            <p>Always start with a <b>Capital letter</b>: <code>ProfileCard</code>.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">👨‍👩‍👧</span>
+            <h3>Parent &amp; child</h3>
+          </div>
+          <div class="back">
+            <p>The component that uses another is the parent. The one inside is the child.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🍽️</span>
+            <h3>Composition</h3>
+          </div>
+          <div class="back">
+            <p>Build big pages from small components, like a thali.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">📤</span>
+            <h3>Export</h3>
+          </div>
+          <div class="back">
+            <p>Put the book on the shelf: <code>export default Header;</code></p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">📥</span>
+            <h3>Import</h3>
+          </div>
+          <div class="back">
+            <p>Borrow it: <code>import Header from "./components/Header";</code></p>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">Ask a student to explain composition using a website they use daily (e.g. YouTube: Navbar,
+        Sidebar, VideoCard…).</aside>
+    </section>
+
+    <!-- 19 -->
+    <section class="slide" data-title="To Practice">
+      <header>
+        <span class="kicker">To Practice</span>
+        <h2>📚 To Practice</h2>
+      </header>
+      <div class="grid cols-2">
+        <div class="card accent">
+          <span class="icon">🧱</span>
+          <h3>Main task: a page with 4+ components</h3>
+          <p>Build a page using <b>at least four</b> separate components, each in its own file in
+            <code>src/components/</code>.
+          </p>
+          <ul class="checklist">
+            <li>Ideas: <code>Navbar</code>, <code>Hero</code>, <code>ProfileCard</code>, <code>SkillList</code>,
+              <code>Footer</code>
+            </li>
+            <li>Export each one and import it into <code>App.jsx</code></li>
+            <li>Use at least one component <b>twice</b></li>
+          </ul>
+        </div>
+        <div class="card">
+          <span class="icon">⭐</span>
+          <h3>Extra practice</h3>
+          <p>Build a <b>navbar</b>, a <b>profile card</b> and a <b>footer</b> for your own portfolio.</p>
+          <p class="muted">Bonus: draw the component tree of your page on paper (App at the top).</p>
+        </div>
+      </div>
+      <div class="callout info">
+        <p><b>Next class:</b> Props. Right now every ProfileCard shows the <i>same</i> name. Next class we'll pass
+          <b>different data</b> into each copy: <code>&lt;ProfileCard name="Priya" /&gt;</code>. 🎁
+        </p>
+      </div>
+      <aside class="notes">Build curiosity for props: show two identical ProfileCards and ask "How could we make the
+        second one say Rahul?" Leave it as a cliffhanger.</aside>
+    </section>
+
+    <!-- 20 -->
+    <section class="slide title" data-title="Thank you">
+      <div class="react-logo"></div>
+      <h1>Thank you! <span class="grad">Questions?</span></h1>
+      <p class="lead">"Build it once, use it everywhere." 🧱</p>
+      <div class="row">
+        <a class="btn" href="index.html">📋 Course plan</a>
+        <a class="btn primary" href="class-05.html">Next: Class 5 →</a>
+      </div>
+      <aside class="notes">Remind students to bring their To Practice project to the next class. We will add props to
+        it.</aside>
+    </section>
+
+  </main>
+
+  <script src="assets/deck.js"></script>
+  <script>
+    /* Demo: page builder */
+    (() => {
+      const root = document.getElementById('pageBuilder');
+      const canvas = root.querySelector('.pb-canvas');
+      const code = root.querySelector('.pb-code');
+      const PEOPLE = [
+        ['👩‍🎓','Priya Nair','B.Com · Chennai'],
+        ['👨‍💻','Rahul Verma','B.Tech CSE · Pune'],
+        ['🧕','Ayesha Khan','BCA · Hyderabad'],
+        ['👨‍🎓','Arun Kumar','B.Sc · Madurai']
+      ];
+      const COLORS = { Navbar: '#ef4444',Hero: '#f59e0b',ProfileCard: '#3b82f6',Footer: '#ec4899' };
+      let items = [],uid = 0,lastAdded = -1;
+
+      function blockHTML(name,n) {
+        if (name === 'Navbar') return { cls: 'nav',html: '<b>🎓 CampusHub</b><span>Home</span><span>Courses</span><span>Contact</span>' };
+        if (name === 'Hero') return { cls: 'herob',html: '<h4>Learn React with us 🚀</h4><div>Join 2,000+ students this year</div>' };
+        if (name === 'ProfileCard') { const p = PEOPLE[n % PEOPLE.length]; return { cls: 'prof',html: `<span class="av">${p[0]}</span><div><b>${p[1]}</b><div style="color:#64748b">${p[2]}</div></div>` }; }
+        return { cls: 'foot',html: '© 2026 CampusHub · About · Help' };
+      }
+      function render() {
+        canvas.innerHTML = '';
+        if (!items.length) canvas.innerHTML = '<div class="pb-empty">🫙 Empty page<br>Add a component from the left</div>';
+        let prof = 0;
+        items.forEach((it,i) => {
+          const b = blockHTML(it.name,it.name === 'ProfileCard' ? prof++ : 0);
+          const el = document.createElement('div');
+          el.className = 'blk ' + b.cls;
+          el.style.setProperty('--c',COLORS[it.name]);
+          el.innerHTML = b.html;
+          el.title = 'Click to remove <' + it.name + ' />';
+          el.addEventListener('click',() => { items.splice(i,1); lastAdded = -1; render(); });
+          canvas.appendChild(el);
+        });
+        // code
+        const used = [...new Set(items.map(i => i.name))];
+        let s = '';
+        used.forEach(n => { s += `<span class="k">import</span> ${n} <span class="k">from</span> <span class="s">"./components/${n}"</span>;\n`; });
+        if (used.length) s += '\n';
+        s += '<span class="k">function</span> App() {\n  <span class="k">return</span> (\n    <span class="t">&lt;&gt;</span>\n';
+        if (!items.length) s += '      <span style="color:#6b7aa6">{/* nothing yet */}</span>\n';
+        items.forEach((it,i) => {
+          const line = `<span class="t">&lt;${it.name} /&gt;</span>`;
+          s += '      ' + (i === lastAdded ? `<span class="new">${line}</span>` : line) + '\n';
+        });
+        s += '    <span class="t">&lt;/&gt;</span>\n  );\n}\n\n<span class="k">export default</span> App;';
+        code.innerHTML = s;
+      }
+      root.querySelectorAll('[data-add]').forEach(b => b.addEventListener('click',() => {
+        const name = b.dataset.add;
+        // keep Footer at the bottom, Navbar at the top, like a real page
+        let pos = items.length;
+        if (name === 'Navbar') pos = 0;
+        else if (name !== 'Footer') { const f = items.findIndex(x => x.name === 'Footer'); if (f >= 0) pos = f; }
+        items.splice(pos,0,{ name,id: ++uid });
+        lastAdded = pos;
+        render();
+        canvas.scrollTop = canvas.scrollHeight;
+      }));
+      root.querySelector('[data-pb="undo"]').addEventListener('click',() => {
+        if (!items.length) return;
+        const maxId = Math.max(...items.map(i => i.id));
+        items = items.filter(i => i.id !== maxId); lastAdded = -1; render();
+      });
+      root.querySelector('[data-pb="clear"]').addEventListener('click',() => { items = []; lastAdded = -1; render(); });
+      root.querySelector('[data-pb="sample"]').addEventListener('click',() => {
+        items = ['Navbar','Hero','ProfileCard','ProfileCard','ProfileCard','Footer'].map(name => ({ name,id: ++uid }));
+        lastAdded = -1; render();
+      });
+      render();
+    })();
+  </script>
+</body>
+
+</html>

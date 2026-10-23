@@ -1,0 +1,1521 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Python Class 1 · Python Foundations</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <style>
+    /* Python logo + shared Python course bits (same block in every py-class file) */
+    .py-logo {
+      width: clamp(100px, 13vw, 150px);
+      aspect-ratio: 1;
+      margin: 0 auto 12px;
+      border-radius: 26px;
+      display: grid;
+      place-items: center;
+      font-size: clamp(3rem, 7vw, 4.6rem);
+      background: linear-gradient(135deg, #3776ab 0 50%, #ffd43b 50% 100%);
+      box-shadow: 0 0 50px rgba(55, 118, 171, .4);
+      animation: bob 4s ease-in-out infinite;
+    }
+
+    .slide>.py-logo {
+      width: clamp(100px, 13vw, 150px);
+    }
+
+    @keyframes bob {
+      50% {
+        transform: translateY(-8px) rotate(-3deg);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .py-logo {
+        animation: none;
+      }
+    }
+
+    .pyb {
+      color: #4b8bbe;
+    }
+
+    .pyy {
+      color: #eab308;
+    }
+
+    /* Interview question cards */
+    .iq {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid #eab308;
+      border-radius: 14px;
+      padding: 12px 16px;
+    }
+
+    .iq .q {
+      font-weight: 700;
+      margin: 0 0 6px;
+    }
+
+    .iq .q::before {
+      content: "🎯 ";
+    }
+
+    .iq p {
+      margin: 0;
+    }
+
+    .iq-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    @media (max-width: 860px) {
+      .iq-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .predict {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    @media (max-width: 960px) {
+      .predict {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .predict .card code {
+      display: block;
+      white-space: pre;
+      font-size: .9rem;
+      margin-bottom: 8px;
+    }
+
+    /* Demo: name tags */
+    .tags {
+      display: grid;
+      grid-template-columns: minmax(240px, 1fr) 1.4fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 860px) {
+      .tags {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .tcode {
+      font: 500 .95rem/1.4 var(--mono);
+      background: var(--code-bg, #0b1220);
+      border-radius: 14px;
+      padding: 10px 0;
+      color: #e2e8f0;
+      font-variant-ligatures: none;
+    }
+
+    .tcode div {
+      padding: 5px 16px;
+      opacity: .35;
+      border-left: 3px solid transparent;
+      transition: .25s;
+    }
+
+    .tcode div.done {
+      opacity: .75;
+    }
+
+    .tcode div.cur {
+      opacity: 1;
+      background: rgba(255, 212, 59, .12);
+      border-left-color: #ffd43b;
+    }
+
+    .tstage {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: 14px;
+      min-height: 230px;
+    }
+
+    .tcol h4 {
+      margin: 0 0 8px;
+      font-size: .8rem;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--muted);
+    }
+
+    .ttag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font: 700 1rem var(--mono);
+      padding: 8px 12px;
+      border-radius: 10px 4px 4px 10px;
+      margin: 0 0 8px;
+      color: #111;
+      animation: fadeUp .3s ease;
+    }
+
+    .ttag::after {
+      content: "→ " attr(data-to);
+      font-weight: 500;
+      font-size: .85rem;
+    }
+
+    .tobj {
+      border: 2px solid;
+      border-radius: 12px;
+      padding: 10px 14px;
+      margin-bottom: 10px;
+      font: 600 1.05rem var(--mono);
+      background: var(--surface);
+      animation: fadeUp .3s ease;
+    }
+
+    .tobj small {
+      display: block;
+      font: 500 .75rem var(--font);
+      color: var(--muted);
+    }
+
+    .tobj.bump {
+      animation: pop .4s ease;
+    }
+
+    @keyframes pop {
+      40% {
+        transform: scale(1.06);
+      }
+    }
+
+    .tmsg {
+      margin-top: 12px;
+      min-height: 3em;
+    }
+
+    /* Demo: string slicer */
+    .letters {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 10px 0 16px;
+    }
+
+    .letter {
+      width: 58px;
+      text-align: center;
+    }
+
+    .letter .i {
+      font: 600 .8rem var(--mono);
+      color: var(--accent);
+    }
+
+    .letter .n {
+      font: 600 .8rem var(--mono);
+      color: var(--pink);
+    }
+
+    .letter .ch {
+      height: 58px;
+      display: grid;
+      place-items: center;
+      font: 800 1.6rem var(--mono);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      background: var(--surface);
+      margin: 4px 0;
+      transition: .25s;
+      position: relative;
+    }
+
+    .letter .ch.sel {
+      background: #ffd43b;
+      color: #111;
+      border-color: #eab308;
+      transform: translateY(-6px);
+    }
+
+    .letter .ch .ord {
+      position: absolute;
+      top: -9px;
+      right: -7px;
+      background: #3776ab;
+      color: #fff;
+      font: 700 .7rem var(--font);
+      border-radius: 99px;
+      padding: 1px 6px;
+    }
+
+    .slicer-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      font: 600 1.15rem var(--mono);
+    }
+
+    .slicer-row input {
+      width: 64px;
+      text-align: center;
+      font: 600 1.05rem var(--mono);
+      padding: 8px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+    }
+
+    .slicer-row input.word {
+      width: 150px;
+    }
+
+    .sresult {
+      text-align: center;
+      font: 700 1.5rem var(--mono);
+      margin-top: 14px;
+    }
+
+    .chips {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 12px;
+    }
+
+    .chips button {
+      font: 600 .9rem var(--mono);
+      padding: 6px 12px;
+      border-radius: 99px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .chips button:hover {
+      border-color: #ffd43b;
+    }
+  </style>
+</head>
+
+<body class="deck" data-class="1" data-course="Python Course" data-icon="🐍" data-title="Python Foundations"
+  data-duration="90">
+  <main class="slides">
+
+    <!-- 1 -->
+    <section class="slide title" data-title="Welcome">
+      <div class="py-logo">🐍</div>
+      <div>
+        <span class="kicker">Python: Zero to Interview-Ready · Class 1 of 4</span>
+        <h1><span class="grad">Python</span> Foundations</h1>
+        <p class="lead">From your very first <code>print()</code> to the questions interviewers love to ask: variables,
+          data types, operators and strings.</p>
+      </div>
+      <div class="row">
+        <span class="pill yellow">⏱ 90 minutes</span>
+        <span class="pill blue">▶ Live Python in the browser</span>
+        <span class="pill violet">🏷️ Variables</span>
+        <span class="pill pink">✂️ Strings</span>
+        <span class="pill green">🎯 Interview questions</span>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Press <b>T</b> to start the timer. Promise: "By the end of today you'll write real Python and answer 10
+            interview questions confidently."</li>
+          <li>Every code box on these slides runs <b>real Python</b> in the browser. The first run takes ~5 seconds
+            while Python loads (needs internet).</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 2 -->
+    <section class="slide" data-title="The 4-class journey">
+      <header>
+        <span class="kicker">Course roadmap</span>
+        <h2>Beginner → Advanced in 4 classes 🗺️</h2>
+      </header>
+      <div class="grid cols-4">
+        <div class="card accent step"><span class="icon">🌱</span>
+          <h3>1. Foundations</h3>
+          <p class="muted">How Python runs, variables, data types, operators, strings.</p>
+          <span class="pill green">Today</span>
+        </div>
+        <div class="card step"><span class="icon">🔀</span>
+          <h3>2. Logic &amp; Data Structures</h3>
+          <p class="muted">if/else, loops, lists, tuples, sets, dicts, comprehensions, copying.</p>
+        </div>
+        <div class="card step"><span class="icon">🧩</span>
+          <h3>3. Functions &amp; OOP</h3>
+          <p class="muted">*args/**kwargs, scope, lambda, closures, classes, inheritance, dunder methods.</p>
+        </div>
+        <div class="card step"><span class="icon">🚀</span>
+          <h3>4. Advanced &amp; Interview Prep</h3>
+          <p class="muted">Exceptions, generators, decorators, GIL, memory, coding problems.</p>
+        </div>
+      </div>
+      <div class="callout info step">
+        <p>Every class ends with a <b>🎯 Interview Corner</b> and a <b>Predict the Output</b> round: the two things
+          that come up most in Python interviews.</p>
+      </div>
+      <aside class="notes">Set expectations: the pace speeds up each class. Class 4 is mostly interview practice.</aside>
+    </section>
+
+    <!-- 3 -->
+    <section class="slide" data-title="Today's plan">
+      <header>
+        <span class="kicker">Agenda · 90 min</span>
+        <h2>Today's plan</h2>
+      </header>
+      <ol class="timeline">
+        <li class="step"><span class="time">00–15</span>
+          <div><b>🐍 Why Python, and how it runs</b><small>Interpreter, bytecode, your first program</small></div>
+        </li>
+        <li class="step"><span class="time">15–35</span>
+          <div><b>🏷️ Variables are name tags</b><small>References, dynamic typing, the famous <code>b = a</code>
+              trap</small></div>
+        </li>
+        <li class="step"><span class="time">35–50</span>
+          <div><b>🔢 Data types, casting and input()</b><small>int, float, str, bool, None; mutable vs
+              immutable</small></div>
+        </li>
+        <li class="step"><span class="time">50–60</span>
+          <div><b>➕ Operators</b><small><code>//</code>, <code>%</code>, <code>**</code>, <code>is</code> vs
+              <code>==</code></small></div>
+        </li>
+        <li class="step"><span class="time">60–78</span>
+          <div><b>✂️ Strings</b><small>Indexing, slicing, methods, f-strings</small></div>
+        </li>
+        <li class="step"><span class="time">78–90</span>
+          <div><b>🎯 Interview corner, quiz and practice</b></div>
+        </li>
+      </ol>
+      <aside class="notes">Reveal each row with →.</aside>
+    </section>
+
+    <!-- 4 -->
+    <section class="slide" data-title="Why Python?">
+      <header>
+        <span class="kicker">Warm-up · 00–15 min</span>
+        <h2>You already use Python every day 🌍</h2>
+        <p class="lead">Ask the class: "Which of these apps did you open today?"</p>
+      </header>
+      <div class="grid cols-3">
+        <div class="card hover step"><span class="icon">📸</span>
+          <h3>Instagram</h3>
+          <p class="muted">Its backend (Django) is one of the largest Python apps in the world.</p>
+        </div>
+        <div class="card hover step"><span class="icon">🎬</span>
+          <h3>Netflix &amp; YouTube</h3>
+          <p class="muted">Recommendations, data pipelines and automation.</p>
+        </div>
+        <div class="card hover step"><span class="icon">🤖</span>
+          <h3>AI &amp; ChatGPT</h3>
+          <p class="muted">Almost all machine learning is written in Python (PyTorch, TensorFlow).</p>
+        </div>
+        <div class="card hover step"><span class="icon">📊</span>
+          <h3>Data analysis</h3>
+          <p class="muted">Pandas and Excel automation in banks, Swiggy, Zomato, Flipkart.</p>
+        </div>
+        <div class="card hover step"><span class="icon">⚙️</span>
+          <h3>Automation</h3>
+          <p class="muted">Rename 1,000 files, send emails, scrape websites: in 10 lines.</p>
+        </div>
+        <div class="card hover step"><span class="icon">🧪</span>
+          <h3>Testing &amp; DevOps</h3>
+          <p class="muted">Selenium, pytest, cloud scripts, Ansible.</p>
+        </div>
+      </div>
+      <div class="analogy step" data-label="🧰 Real-life example">
+        <p>Python is like a <b>Swiss Army knife</b>: not the fastest tool for every single job, but it can do almost
+          everything, and it is <b>easy to hold</b>.</p>
+      </div>
+      <aside class="notes">Mention that Python is consistently #1 or #2 in popularity rankings and is the most common
+        first language in interviews for data, backend and QA roles.</aside>
+    </section>
+
+    <!-- 5 -->
+    <section class="slide" data-title="Hello World in 3 languages">
+      <header>
+        <span class="kicker">Why beginners love it</span>
+        <h2>Same program, three languages</h2>
+        <p class="lead">Click the tabs. Which one would you rather write?</p>
+      </header>
+      <div class="split">
+        <div class="tabs">
+          <div class="tab" data-label="☕ Java">
+            <script type="text/x-code" data-file="Hello.java">
+            public class Hello {
+              public static void main(String[] args) {
+                System.out.println("Hello, World!");
+              }
+            }
+          </script>
+          </div>
+          <div class="tab" data-label="⚙️ C">
+            <script type="text/x-code" data-file="hello.c">
+            #include <stdio.h>
+
+            int main() {
+              printf("Hello, World!\n");
+              return 0;
+            }
+          </script>
+          </div>
+          <div class="tab" data-label="🐍 Python">
+            <script type="text/x-code" data-lang="python" data-file="hello.py">
+            print("Hello, World!")
+          </script>
+          </div>
+        </div>
+        <div class="stack">
+          <div class="card step"><b>✍️ Reads like English</b><br><span class="muted">No semicolons, no curly braces,
+              no type declarations.</span></div>
+          <div class="card step"><b>📏 Indentation matters</b><br><span class="muted">Spaces show which lines belong
+              together (4 spaces is the standard).</span></div>
+          <div class="card step"><b>🔋 "Batteries included"</b><br><span class="muted">A huge standard library, plus
+              500,000+ packages on PyPI.</span></div>
+        </div>
+      </div>
+      <aside class="notes">Start on the Java tab, then C, then Python. The contrast does the teaching.</aside>
+    </section>
+
+    <!-- 6 -->
+    <section class="slide" data-title="How Python runs">
+      <header>
+        <span class="kicker">Under the hood · interview favourite</span>
+        <h2>What happens when you run <code>python main.py</code>?</h2>
+      </header>
+      <div class="flow">
+        <div class="node step"><span class="icon">📄</span><b>main.py</b><small>Your source code</small></div>
+        <div class="arrow step">→</div>
+        <div class="node step"><span class="icon">🔧</span><b>Compiler</b><small>Checks syntax, compiles</small></div>
+        <div class="arrow step">→</div>
+        <div class="node step"><span class="icon">📦</span><b>Bytecode</b><small>.pyc in __pycache__</small></div>
+        <div class="arrow step">→</div>
+        <div class="node step"><span class="icon">🧠</span><b>PVM</b><small>Python Virtual Machine runs it line by
+            line</small></div>
+        <div class="arrow step">→</div>
+        <div class="node step"><span class="icon">🖥️</span><b>Output</b><small>Hello, World!</small></div>
+      </div>
+      <div class="grid cols-2" style="margin-top:18px">
+        <div class="analogy step" data-label="🗣️ Real-life example">
+          <p>A <b>live translator</b> at a meeting: they translate and speak <b>one sentence at a time</b>. If sentence 5
+            has a mistake, sentences 1–4 were still spoken. That's why a Python error can appear halfway through a
+            run.</p>
+        </div>
+        <div class="iq step">
+          <p class="q">Is Python compiled or interpreted?</p>
+          <p class="spoiler"><b>Both.</b> Source is first compiled to <b>bytecode</b>, then the bytecode is
+            <b>interpreted</b> by the PVM. We call it an "interpreted language" because there's no separate build step
+            you run yourself. (CPython is the standard implementation; PyPy uses a JIT.)</p>
+        </div>
+      </div>
+      <aside class="notes">Click the blurred answer only after taking 2–3 guesses from the class. This exact question is
+        asked in most fresher interviews.</aside>
+    </section>
+
+    <!-- 7 -->
+    <section class="slide" data-title="Your first program">
+      <header>
+        <span class="kicker">Live code · this is real Python!</span>
+        <h2>Your first Python program 🎉</h2>
+        <p class="lead">Edit the code: the output updates by itself. (First run loads Python, ~5 sec.)</p>
+      </header>
+      <div class="playground" data-mode="py" data-height="340">
+        <script type="text/x-playground">
+        # My first Python program
+        print("Hello, World!")
+        print("My name is Priya")
+        print(10 + 20)
+
+        # print can take many values
+        print("Age:", 21, "City:", "Chennai")
+        print("2026", "10", "23", sep="-")
+        print("No new line after me...", end=" ")
+        print("see?")
+      </script>
+      </div>
+      <div class="grid cols-3">
+        <div class="card step"><b>print(...)</b><br><span class="muted">Shows values on the screen</span></div>
+        <div class="card step"><b>sep="-"</b><br><span class="muted">What goes <i>between</i> values (default: a
+            space)</span></div>
+        <div class="card step"><b>end=" "</b><br><span class="muted">What goes at the <i>end</i> (default: a new
+            line)</span></div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Ask a student to change "Priya" to their own name.</li>
+          <li>Delete a closing bracket on purpose to show a <code>SyntaxError</code> with its line number. "Errors are
+            your friends, they tell you exactly where to look."</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 8 -->
+    <section class="slide section-slide" data-title="Variables">
+      <span class="big-emoji">🏷️</span>
+      <span class="kicker" style="justify-content:center">15–35 min</span>
+      <h1>Variables are <span class="grad">name tags</span>, not boxes</h1>
+      <p class="lead">This one idea explains half of all Python interview "trick" questions.</p>
+      <aside class="notes">Build suspense: "Most tutorials say variables are boxes. In Python that's slightly wrong, and
+        interviewers know it."</aside>
+    </section>
+
+    <!-- 9 -->
+    <section class="slide" data-title="Name tags">
+      <div class="split">
+        <div>
+          <span class="kicker">Variables</span>
+          <h2>A variable is a <span class="grad">label stuck on an object</span></h2>
+          <script type="text/x-code" data-lang="python" data-file="variables.py">
+          name = "Arun"       # str
+          age = 21            # int
+          cgpa = 8.7          # float
+          is_placed = False   # bool
+
+          age = age + 1       # the tag moves to a NEW object 22
+          print(name, age)    # Arun 22
+        </script>
+          <ul class="checklist">
+            <li class="step">No <code>let</code>, no <code>int</code>: just <code>name = value</code></li>
+            <li class="step"><b>Dynamic typing:</b> the <i>object</i> has a type, the tag doesn't. <code>x = 5</code>
+              then <code>x = "five"</code> is fine.</li>
+            <li class="step">Every object has an identity: <code>id(x)</code> (its address in memory)</li>
+          </ul>
+        </div>
+        <div class="stack">
+          <div class="analogy step" data-label="🧳 Real-life example">
+            <p>At the airport, your suitcase gets a <b>luggage tag</b>. The tag isn't the suitcase. You can put
+              <b>two tags on one suitcase</b>, and if someone opens it through either tag, they see the same clothes.
+            </p>
+          </div>
+          <div class="callout tip step">
+            <p><b>Naming (PEP 8):</b> use <code>snake_case</code> like <code>total_marks</code>. Names can't start
+              with a digit, can't contain spaces or <code>-</code>, and are case-sensitive (<code>Age ≠ age</code>).
+            </p>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">Draw two tags on one suitcase on the whiteboard if you have one. Then go to the next slide to
+        see it animated.</aside>
+    </section>
+
+    <!-- 10 -->
+    <section class="slide" data-title="Demo: two tags, one list" id="tagDemo">
+      <header>
+        <span class="kicker">Interactive · step through the code</span>
+        <h2>The <code>b = a</code> trap 🪤</h2>
+        <p class="lead">Press <b>Next line</b> and ask the class to predict before each step.</p>
+      </header>
+      <div class="tags">
+        <div>
+          <div class="tcode" id="tCode"></div>
+          <div class="row" style="margin-top:12px">
+            <button class="btn" id="tNext">Next line ▶</button>
+            <button class="btn ghost" id="tReset">↺ Reset</button>
+          </div>
+        </div>
+        <div class="demo">
+          <span class="demo-label">Python's memory</span>
+          <div class="tstage">
+            <div class="tcol">
+              <h4>Names (tags)</h4>
+              <div id="tNames"></div>
+            </div>
+            <div class="tcol">
+              <h4>Objects</h4>
+              <div id="tObjs"></div>
+            </div>
+          </div>
+          <div class="callout info tmsg" id="tMsg">
+            <p>Press <b>Next line ▶</b> to run the first line.</p>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Before line 3, ask: "We appended to <code>b</code>. What is <code>a</code> now?" Most will say [1, 2].
+          </li>
+          <li>The last 3 lines show <b>immutable</b> ints behave differently: <code>y += 1</code> makes a new object, so
+            <code>x</code> stays 10.</li>
+          <li>Interview link: "What is the difference between <code>is</code> and <code>==</code>?" and "shallow vs deep
+            copy" (Class 2).</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 11 -->
+    <section class="slide" data-title="Python tricks with variables">
+      <header>
+        <span class="kicker">Live code</span>
+        <h2>Python's neat variable tricks ✨</h2>
+      </header>
+      <div class="playground" data-mode="py" data-height="360">
+        <script type="text/x-playground">
+        # 1. Many variables in one line
+        name, age, city = "Meena", 22, "Madurai"
+        print(name, age, city)
+
+        # 2. Same value to many names
+        x = y = z = 0
+        print(x, y, z)
+
+        # 3. Swap WITHOUT a temp variable (interview favourite!)
+        a, b = 5, 10
+        a, b = b, a
+        print("a =", a, "b =", b)
+
+        # 4. Dynamic typing: the tag can move to any type
+        data = 42
+        print(type(data))
+        data = "forty-two"
+        print(type(data))
+      </script>
+      </div>
+      <div class="callout tip step">
+        <p><b>🎯 Interview:</b> "Swap two numbers without a third variable." In Python: <code>a, b = b, a</code>. It
+          works because the right side builds a <b>tuple</b> <code>(b, a)</code> first, then unpacks it.</p>
+      </div>
+      <aside class="notes">Ask: "How would you swap in C?" (temp variable). Then show the one-liner.</aside>
+    </section>
+
+    <!-- 12 -->
+    <section class="slide" data-title="Data types">
+      <header>
+        <span class="kicker">Data types · 35–50 min</span>
+        <h2>Python's built-in data types 🔢</h2>
+      </header>
+      <div class="grid cols-4">
+        <div class="card step"><b class="pyb">int</b> <code>21</code>, <code>-5</code>, <code>10**100</code><br><span
+            class="muted">Whole numbers. No size limit!</span></div>
+        <div class="card step"><b class="pyb">float</b> <code>8.7</code>, <code>3e8</code><br><span
+            class="muted">Decimal numbers</span></div>
+        <div class="card step"><b class="pyb">complex</b> <code>2+3j</code><br><span class="muted">Used in
+            engineering maths</span></div>
+        <div class="card step"><b class="pyb">bool</b> <code>True</code>, <code>False</code><br><span
+            class="muted">Capital T and F! (a subclass of int)</span></div>
+        <div class="card step"><b class="pyy">str</b> <code>"Chennai"</code><br><span class="muted">Text in single,
+            double or triple quotes</span></div>
+        <div class="card step"><b class="pyy">NoneType</b> <code>None</code><br><span class="muted">"No value yet",
+            like an empty seat</span></div>
+        <div class="card step"><b class="pyy">list / tuple</b> <code>[1, 2]</code> <code>(1, 2)</code><br><span
+            class="muted">Collections (Class 2)</span></div>
+        <div class="card step"><b class="pyy">dict / set</b> <code>{"a": 1}</code> <code>{1, 2}</code><br><span
+            class="muted">Key-value pairs, unique items (Class 2)</span></div>
+      </div>
+      <div class="grid cols-2" style="margin-top:14px">
+        <div class="card good step">
+          <h3>🔒 Immutable (can't change in place)</h3>
+          <p class="muted">int, float, bool, str, tuple, frozenset, None</p>
+        </div>
+        <div class="card bad step" style="border-left-color:var(--yellow)">
+          <h3>✏️ Mutable (can change in place)</h3>
+          <p class="muted">list, dict, set (and most objects you create)</p>
+        </div>
+      </div>
+      <aside class="notes"><b>Interview:</b> "Name mutable and immutable types" is asked constantly. Tie it back to the
+        tag demo: the list changed in place, the int got a new object.</aside>
+    </section>
+
+    <!-- 13 -->
+    <section class="slide" data-title="type() and casting">
+      <header>
+        <span class="kicker">Live code</span>
+        <h2>Checking and converting types 🔄</h2>
+        <p class="lead">Predict each line before you look at the output!</p>
+      </header>
+      <div class="playground" data-mode="py" data-height="380">
+        <script type="text/x-playground">
+        print(type(21), type(8.7), type("hi"), type(None))
+
+        # Casting = converting one type to another
+        print(int("25") + 5)       # "25" -> 25
+        print(float("3.5") * 2)    # 7.0
+        print(str(100) + "%")      # "100%"
+        print(int(9.99))           # cuts off, does NOT round -> 9
+
+        # Truthiness: what counts as False?
+        print(bool(0), bool(""), bool([]), bool(None))
+        print(bool("False"))       # surprise!
+
+        # isinstance is the preferred way to check
+        print(isinstance(True, int))   # bool is a kind of int
+      </script>
+      </div>
+      <div class="grid cols-2">
+        <div class="callout warn step">
+          <p><code>bool("False")</code> is <b>True</b>: any non-empty string is truthy. Only <code>0</code>,
+            <code>0.0</code>, <code>""</code>, <code>[]</code>, <code>{}</code>, <code>()</code>, <code>set()</code>
+            and <code>None</code> are falsy.</p>
+        </div>
+        <div class="callout warn step">
+          <p><code>int("hello")</code> raises <code>ValueError</code>. Try it! Change line 4 and read the error.</p>
+        </div>
+      </div>
+      <aside class="notes">Make the class shout their prediction for <code>int(9.99)</code> and
+        <code>bool("False")</code>. Both are interview traps.</aside>
+    </section>
+
+    <!-- 14 -->
+    <section class="slide" data-title="input()">
+      <header>
+        <span class="kicker">Live code · talk to the user</span>
+        <h2>Getting input from the user ⌨️</h2>
+        <p class="lead">Press <b>▶ Run</b>. A box will pop up and ask for your answers.</p>
+      </header>
+      <div class="playground" data-mode="py" data-height="330">
+        <script type="text/x-playground">
+        name = input("What is your name? ")
+        year = input("Which year were you born? ")
+
+        # input() ALWAYS gives a string, so convert it first
+        age = 2026 - int(year)
+
+        print(f"Hi {name}! You are about {age} years old.")
+        print("Type of year was:", type(year))
+      </script>
+      </div>
+      <div class="callout warn step">
+        <p><b>Classic bug:</b> <code>2026 - year</code> without <code>int()</code> gives <code>TypeError: unsupported
+            operand type(s) for -: 'int' and 'str'</code>. Remove the <code>int()</code> and run it to see.</p>
+      </div>
+      <aside class="notes">Run it with a student's name. Then remove <code>int()</code> to show the TypeError. This is
+        the single most common beginner bug.</aside>
+    </section>
+
+    <!-- 15 -->
+    <section class="slide" data-title="Operators">
+      <header>
+        <span class="kicker">Operators · 50–60 min</span>
+        <h2>Arithmetic operators ➕➖✖️➗</h2>
+      </header>
+      <div class="split">
+        <table class="table">
+          <tr>
+            <th>Operator</th>
+            <th>Meaning</th>
+            <th>Example</th>
+          </tr>
+          <tr>
+            <td><code>+ - *</code></td>
+            <td>Add, subtract, multiply</td>
+            <td><code>3 * 4</code> → 12</td>
+          </tr>
+          <tr>
+            <td><code>/</code></td>
+            <td>Division (always a float)</td>
+            <td><code>10 / 2</code> → 5.0</td>
+          </tr>
+          <tr>
+            <td><code>//</code></td>
+            <td>Floor division (rounds <b>down</b>)</td>
+            <td><code>7 // 2</code> → 3</td>
+          </tr>
+          <tr>
+            <td><code>%</code></td>
+            <td>Remainder (modulus)</td>
+            <td><code>7 % 2</code> → 1</td>
+          </tr>
+          <tr>
+            <td><code>**</code></td>
+            <td>Power</td>
+            <td><code>2 ** 10</code> → 1024</td>
+          </tr>
+        </table>
+        <div class="stack">
+          <h3>🤔 Guess, then click to reveal</h3>
+          <div class="card">
+            <p><code>10 / 2</code> → <span class="spoiler"><b>5.0</b>: <code>/</code> always returns a float.</span></p>
+            <p><code>-7 // 2</code> → <span class="spoiler"><b>-4</b>, not -3! Floor means "towards minus
+                infinity".</span></p>
+            <p><code>-7 % 3</code> → <span class="spoiler"><b>2</b>. In Python the remainder takes the sign of the
+                divisor.</span></p>
+            <p style="margin:0"><code>"Hi" * 3</code> → <span class="spoiler"><b>"HiHiHi"</b>: strings can be
+                repeated.</span></p>
+          </div>
+          <div class="analogy" data-label="🍕 Real-life example">
+            <p><b>7 slices, 2 friends:</b> <code>7 // 2 = 3</code> slices each, and <code>7 % 2 = 1</code> slice left
+              over for you.</p>
+          </div>
+        </div>
+      </div>
+      <aside class="notes"><code>-7 // 2</code> is a genuine interview trick. Use <code>%</code> to explain even/odd
+        checks (<code>n % 2 == 0</code>).</aside>
+    </section>
+
+    <!-- 16 -->
+    <section class="slide" data-title="is vs ==">
+      <header>
+        <span class="kicker">Comparison &amp; logic · interview favourite</span>
+        <h2><code>==</code> vs <code>is</code>, and <code>and / or / not</code></h2>
+      </header>
+      <div class="split">
+        <div class="stack">
+          <div class="analogy" data-label="👯 Real-life example">
+            <p><b>Identical twins</b> look the same (<code>==</code> is True), but they are <b>two different
+                people</b> (<code>is</code> is False).</p>
+          </div>
+          <table class="table">
+            <tr>
+              <th></th>
+              <th>Checks</th>
+              <th>Use it for</th>
+            </tr>
+            <tr>
+              <td><code>==</code></td>
+              <td>Same <b>value</b>?</td>
+              <td>Almost everything</td>
+            </tr>
+            <tr>
+              <td><code>is</code></td>
+              <td>Same <b>object</b> (same <code>id</code>)?</td>
+              <td><code>x is None</code></td>
+            </tr>
+          </table>
+          <div class="callout tip step">
+            <p><b>Short-circuit:</b> <code>and</code> stops at the first falsy value, <code>or</code> stops at the
+              first truthy value, and both return that <b>value</b>, not just True/False. So
+              <code>name or "Guest"</code> is a handy default.</p>
+          </div>
+        </div>
+        <div class="playground" data-mode="py" data-height="380">
+          <script type="text/x-playground">
+          a = [1, 2, 3]
+          b = [1, 2, 3]
+          c = a
+          print(a == b)   # same value?
+          print(a is b)   # same object?
+          print(a is c)
+
+          # Chained comparison (very Pythonic)
+          marks = 72
+          print(35 <= marks < 100)
+
+          # and / or return a VALUE
+          name = ""
+          print(name or "Guest")
+          print(0 and "never seen")
+          print(not True)
+        </script>
+        </div>
+      </div>
+      <aside class="notes">Point out <code>35 &lt;= marks &lt; 100</code>: most languages need <code>&amp;&amp;</code>
+        for this. Ask for predictions on the <code>or</code>/<code>and</code> lines.</aside>
+    </section>
+
+    <!-- 17 -->
+    <section class="slide section-slide" data-title="Strings">
+      <span class="big-emoji">✂️</span>
+      <span class="kicker" style="justify-content:center">60–78 min</span>
+      <h1>Strings: <span class="grad">slice, dice and format</span></h1>
+      <p class="lead">Every app handles text: names, emails, passwords, messages.</p>
+      <aside class="notes">Quick question: "Name 3 things on WhatsApp that are strings." (messages, names, status…)
+      </aside>
+    </section>
+
+    <!-- 18 -->
+    <section class="slide" data-title="String basics">
+      <div class="split">
+        <div>
+          <span class="kicker">Strings</span>
+          <h2>A string is a <span class="grad">sequence of characters</span></h2>
+          <script type="text/x-code" data-lang="python" data-file="strings.py">
+          city = "Chennai"
+          quote = 'He said "hi"'
+          poem = """Line one
+          Line two"""
+
+          print(city[0])     # C   (first)
+          print(city[-1])    # i   (last)
+          print(len(city))   # 7
+
+          city[0] = "K"      # TypeError!
+        </script>
+        </div>
+        <div class="stack">
+          <div class="card step"><b>📍 Indexing starts at 0</b><br><span class="muted">and negative indexes count from
+              the end: <code>-1</code> is the last character.</span></div>
+          <div class="card bad step">
+            <h3>🔒 Strings are immutable</h3>
+            <p class="muted"><code>city[0] = "K"</code> → <code>TypeError: 'str' object does not support item
+                assignment</code>. Make a new string instead: <code>"K" + city[1:]</code></p>
+          </div>
+          <div class="analogy step" data-label="🚆 Real-life example">
+            <p>A string is a <b>train</b>: each coach (character) has a number. You can look into any coach, but you
+              can't swap a coach while the train is running. You build a new train.</p>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">Emphasise immutability: it connects back to the data-types slide and is asked in interviews.
+      </aside>
+    </section>
+
+    <!-- 19 -->
+    <section class="slide" data-title="Demo: string slicer" id="sliceDemo">
+      <header>
+        <span class="kicker">Interactive · slicing</span>
+        <h2><code>text[start : stop : step]</code> ✂️</h2>
+        <p class="lead">Change the numbers or click a chip. <b>start</b> is included, <b>stop</b> is not.</p>
+      </header>
+      <div class="demo">
+        <div class="letters" id="sLetters"></div>
+        <div class="slicer-row">
+          <input class="word" id="sWord" value="PYTHON" maxlength="12" aria-label="Word">
+          <span>[</span><input id="sA" placeholder="start" aria-label="start">
+          <span>:</span><input id="sB" placeholder="stop" aria-label="stop">
+          <span>:</span><input id="sC" placeholder="step" aria-label="step"><span>]</span>
+        </div>
+        <div class="sresult" id="sOut"></div>
+        <div class="chips">
+          <button data-s="0|3|">[0:3]</button>
+          <button data-s="2||">[2:]</button>
+          <button data-s="|-2|">[:-2]</button>
+          <button data-s="-3||">[-3:]</button>
+          <button data-s="||2">[::2]</button>
+          <button data-s="||-1">[::-1] 🔁</button>
+          <button data-s="1|-1|">[1:-1]</button>
+          <button data-s="4|1|-1">[4:1:-1]</button>
+        </div>
+      </div>
+      <div class="callout tip step">
+        <p><b>🎯 Interview:</b> "Reverse a string in one line" → <code>text[::-1]</code>. "Check a palindrome" →
+          <code>word == word[::-1]</code>. Try typing <code>MADAM</code> above!</p>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Blue numbers on top = positive index, pink below = negative index.</li>
+          <li>Ask the class to predict each chip before clicking. Finish with <code>[::-1]</code>.</li>
+          <li>Slicing never raises IndexError: try stop = 100.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 20 -->
+    <section class="slide" data-title="String methods">
+      <header>
+        <span class="kicker">Live code · cleaning real data</span>
+        <h2>String methods you'll use every day 🧹</h2>
+        <p class="lead">A user typed their email messily in a sign-up form. Let's clean it.</p>
+      </header>
+      <div class="split">
+        <div class="playground" data-mode="py" data-height="400">
+          <script type="text/x-playground">
+          raw = "   Priya.S@GMAIL.com  "
+
+          email = raw.strip().lower()
+          print(email)
+          print(email.endswith("@gmail.com"))
+
+          user, domain = email.split("@")
+          print("User:", user, "| Domain:", domain)
+
+          print(email.replace("gmail", "yahoo"))
+          print(email.count("a"), email.find("@"))
+
+          skills = ["python", "sql", "git"]
+          print(", ".join(skills).title())
+
+          print("2026".isdigit(), "abc".isalpha())
+        </script>
+        </div>
+        <table class="table">
+          <tr>
+            <th>Method</th>
+            <th>Does</th>
+          </tr>
+          <tr>
+            <td><code>strip()</code></td>
+            <td>Remove spaces at both ends</td>
+          </tr>
+          <tr>
+            <td><code>lower() / upper() / title()</code></td>
+            <td>Change case</td>
+          </tr>
+          <tr>
+            <td><code>split(sep)</code></td>
+            <td>String → list</td>
+          </tr>
+          <tr>
+            <td><code>sep.join(list)</code></td>
+            <td>List → string</td>
+          </tr>
+          <tr>
+            <td><code>replace(a, b)</code></td>
+            <td>Swap text (returns a <b>new</b> string)</td>
+          </tr>
+          <tr>
+            <td><code>find(x)</code> / <code>count(x)</code></td>
+            <td>Position (-1 if missing) / how many</td>
+          </tr>
+          <tr>
+            <td><code>startswith / endswith</code></td>
+            <td>True or False</td>
+          </tr>
+          <tr>
+            <td><code>isdigit / isalpha</code></td>
+            <td>Validate input</td>
+          </tr>
+        </table>
+      </div>
+      <aside class="notes">Point out that methods <b>return new strings</b> (immutability again): <code>raw</code> is
+        unchanged. Ask: "What would <code>raw.lower()</code> on its own do?" (Nothing visible: the result is thrown
+        away.)</aside>
+    </section>
+
+    <!-- 21 -->
+    <section class="slide" data-title="f-strings">
+      <header>
+        <span class="kicker">Live code · real-life receipt</span>
+        <h2>f-strings: the modern way to format 🧾</h2>
+        <p class="lead">Put an <code>f</code> before the quotes and anything inside <code>{ }</code> gets filled in.
+        </p>
+      </header>
+      <div class="playground" data-mode="py" data-height="380">
+        <script type="text/x-playground">
+        shop = "Murugan Idli Shop"
+        idli, idli_price = 4, 12.5
+        dosa, dosa_price = 2, 45
+
+        total = idli * idli_price + dosa * dosa_price
+        gst = total * 0.05
+
+        print(f"{shop:^30}")
+        print("-" * 30)
+        print(f"{'Idli':<12}{idli:>3} x {idli_price:>6.2f}")
+        print(f"{'Dosa':<12}{dosa:>3} x {dosa_price:>6.2f}")
+        print("-" * 30)
+        print(f"{'GST 5%':<20}{gst:>10.2f}")
+        print(f"{'TOTAL':<20}{total + gst:>10.2f}")
+
+        # Debug trick (Python 3.8+):
+        print(f"{total=}")
+      </script>
+      </div>
+      <div class="grid cols-3">
+        <div class="card step"><code>{x:.2f}</code><br><span class="muted">2 decimal places</span></div>
+        <div class="card step"><code>{x:&lt;12}</code> <code>{x:&gt;6}</code> <code>{x:^30}</code><br><span
+            class="muted">Align left / right / centre</span></div>
+        <div class="card step"><code>{x=}</code><br><span class="muted">Prints the name and value: great for
+            debugging</span></div>
+      </div>
+      <aside class="notes">Change quantities live. Mention older styles exist (<code>"%s" % x</code>,
+        <code>"{}".format(x)</code>) and interviewers may ask which is fastest/cleanest: f-strings.</aside>
+    </section>
+
+    <!-- 22 -->
+    <section class="slide" data-title="Student practice">
+      <header>
+        <span class="kicker">Your turn · 10 min</span>
+        <h2>🧪 Practice: Student report card</h2>
+        <p class="lead">Complete the TODOs. The output updates as you type.</p>
+      </header>
+      <div class="playground" data-mode="py" data-height="400">
+        <script type="text/x-playground">
+        name = "  kavya ramesh  "
+        marks = [78, 92, 85]   # maths, science, english
+
+        # TODO 1: clean the name -> "Kavya Ramesh" (strip + title)
+        clean_name = name
+
+        # TODO 2: total and average (use sum() and len())
+        total = 0
+        average = 0
+
+        # TODO 3: passed if average is 40 or more (a bool)
+        passed = False
+
+        # TODO 4: initials -> "KR" (hint: split, then [0] of each word)
+        initials = ""
+
+        print(f"Student : {clean_name} ({initials})")
+        print(f"Total   : {total}")
+        print(f"Average : {average:.1f}")
+        print(f"Passed  : {passed}")
+      </script>
+      </div>
+      <details class="card step">
+        <summary><b>💡 Show solution</b></summary>
+        <script type="text/x-code" data-lang="python">
+        clean_name = name.strip().title()
+        total = sum(marks)
+        average = total / len(marks)
+        passed = average >= 40
+        first, last = clean_name.split()
+        initials = first[0] + last[0]
+      </script>
+      </details>
+      <aside class="notes">Let students work for 6–7 minutes. Walk around. Then ask one student to share their screen
+        before you open the solution.</aside>
+    </section>
+
+    <!-- 23 -->
+    <section class="slide" data-title="Interview corner">
+      <header>
+        <span class="kicker">🎯 Interview corner · 78–90 min</span>
+        <h2>Questions you will be asked</h2>
+        <p class="lead">Ask the question, let students answer out loud, then click to reveal the model answer.</p>
+      </header>
+      <div class="iq-grid">
+        <div class="iq">
+          <p class="q">What are the key features of Python?</p>
+          <p class="spoiler">Interpreted, dynamically typed, high-level, object-oriented (and supports functional
+            style), huge standard library, cross-platform, open source, readable syntax with indentation.</p>
+        </div>
+        <div class="iq">
+          <p class="q">What is the difference between <code>is</code> and <code>==</code>?</p>
+          <p class="spoiler"><code>==</code> compares <b>values</b> (calls <code>__eq__</code>). <code>is</code>
+            compares <b>identity</b> (same object in memory, same <code>id()</code>). Use <code>is</code> only for
+            <code>None</code>, <code>True</code>, <code>False</code>.</p>
+        </div>
+        <div class="iq">
+          <p class="q">Mutable vs immutable: give examples.</p>
+          <p class="spoiler">Mutable objects can change in place: <b>list, dict, set</b>. Immutable can't:
+            <b>int, float, str, tuple, bool, frozenset</b>. "Changing" an immutable creates a new object.</p>
+        </div>
+        <div class="iq">
+          <p class="q">What is the difference between <code>/</code> and <code>//</code>?</p>
+          <p class="spoiler"><code>/</code> is true division and always returns a float (<code>7/2 = 3.5</code>).
+            <code>//</code> is floor division, rounding towards minus infinity (<code>7//2 = 3</code>,
+            <code>-7//2 = -4</code>).</p>
+        </div>
+        <div class="iq">
+          <p class="q">What is PEP 8?</p>
+          <p class="spoiler">Python's official <b>style guide</b>: 4-space indentation, <code>snake_case</code> for
+            variables/functions, <code>PascalCase</code> for classes, max ~79 chars per line, spaces around operators.
+          </p>
+        </div>
+        <div class="iq">
+          <p class="q">Is Python dynamically typed? What does that mean?</p>
+          <p class="spoiler">Yes. Types are checked at <b>runtime</b> and belong to objects, not variables. The same
+            name can point to an int and later a str. (It is also <b>strongly</b> typed: <code>"1" + 1</code> is an
+            error, not "11".)</p>
+        </div>
+        <div class="iq">
+          <p class="q">How do you reverse a string?</p>
+          <p class="spoiler"><code>s[::-1]</code> (slicing with step -1). Alternative:
+            <code>"".join(reversed(s))</code>.</p>
+        </div>
+        <div class="iq">
+          <p class="q">What is <code>None</code>?</p>
+          <p class="spoiler">A special singleton object of type <code>NoneType</code> meaning "no value". Functions
+            without <code>return</code> return <code>None</code>. Check it with <code>x is None</code>.</p>
+        </div>
+      </div>
+      <aside class="notes">Pick students at random (call names). Encourage short, structured answers: definition →
+        example → one extra detail. That's how to impress an interviewer.</aside>
+    </section>
+
+    <!-- 24 -->
+    <section class="slide" data-title="Predict the output">
+      <header>
+        <span class="kicker">🎯 Interview round · trick questions</span>
+        <h2>Predict the output 🧠</h2>
+        <p class="lead">Every one of these has been asked in real interviews. Guess, then click.</p>
+      </header>
+      <div class="predict">
+        <div class="card"><code>print("5" * 3)</code><span class="spoiler"><b>555</b>: string repetition</span></div>
+        <div class="card"><code>print(0.1 + 0.2 == 0.3)</code><span class="spoiler"><b>False</b>: floats are stored
+            in binary (0.30000000000000004). Use <code>math.isclose</code>.</span></div>
+        <div class="card"><code>print(round(2.5), round(3.5))</code><span class="spoiler"><b>2 4</b>: "banker's
+            rounding" goes to the nearest even number.</span></div>
+        <div class="card"><code>print(True + True)</code><span class="spoiler"><b>2</b>: bool is a subclass of int
+            (True == 1).</span></div>
+        <div class="card"><code>print("Py" "thon")</code><span class="spoiler"><b>Python</b>: string literals next
+            to each other are joined.</span></div>
+        <div class="card"><code>print(10 / 5)</code><span class="spoiler"><b>2.0</b>, not 2</span></div>
+        <div class="card"><code>s = "hello"
+print(s[10:])</code><span class="spoiler"><b>empty string</b>: slicing never raises IndexError (but
+            <code>s[10]</code> does!)</span></div>
+        <div class="card"><code>print(2 ** 3 ** 2)</code><span class="spoiler"><b>512</b>: <code>**</code> is
+            right-associative: 2 ** 9</span></div>
+      </div>
+      <aside class="notes">Make it a team game: split the class into two teams, 1 point per correct guess. Verify any
+        disputed answer in the playground on slide 11.</aside>
+    </section>
+
+    <!-- 25 -->
+    <section class="slide" data-title="Common mistakes">
+      <header>
+        <span class="kicker">Watch out</span>
+        <h2>Common beginner mistakes 🚧</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="card bad step">
+          <h3>Wrong indentation</h3><code>&nbsp;&nbsp;print("hi")</code>
+          <p class="muted" style="margin-top:8px"><code>IndentationError: unexpected indent</code>. Indent only inside
+            blocks.</p>
+        </div>
+        <div class="card bad step">
+          <h3>Forgetting input() is a str</h3><code>age = input(); age + 1</code>
+          <p class="muted" style="margin-top:8px"><code>TypeError</code>. Use <code>int(input())</code>.</p>
+        </div>
+        <div class="card bad step">
+          <h3>true / none in lowercase</h3><code>is_ok = true</code>
+          <p class="muted" style="margin-top:8px"><code>NameError</code>. It's <code>True</code>, <code>False</code>,
+            <code>None</code>.</p>
+        </div>
+        <div class="card bad step">
+          <h3>Joining str and int</h3><code>"Age: " + 21</code>
+          <p class="muted" style="margin-top:8px"><code>TypeError</code>. Use <code>f"Age: {21}"</code> or
+            <code>str(21)</code>.</p>
+        </div>
+        <div class="card bad step">
+          <h3>Using = instead of ==</h3><code>if marks = 35:</code>
+          <p class="muted" style="margin-top:8px"><code>SyntaxError</code>. <code>=</code> assigns, <code>==</code>
+            compares.</p>
+        </div>
+        <div class="card bad step">
+          <h3>Expecting methods to change a str</h3><code>name.upper()</code>
+          <p class="muted" style="margin-top:8px">Strings are immutable: write <code>name = name.upper()</code>.</p>
+        </div>
+      </div>
+      <aside class="notes">Paste a couple of these into any playground to show the real error messages.</aside>
+    </section>
+
+    <!-- 26 -->
+    <section class="slide" data-title="Quick quiz">
+      <header>
+        <span class="kicker">Recap</span>
+        <h2>⚡ Quick quiz</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="quiz" data-answer="b">
+          <p class="q">1. <code>a = [1]; b = a; b.append(2)</code>. What is <code>a</code>?</p>
+          <div class="opts">
+            <button data-opt="a">[1]</button>
+            <button data-opt="b">[1, 2]</button>
+            <button data-opt="c">Error</button>
+          </div>
+          <p class="explain">✅ <b>[1, 2]</b>: <code>a</code> and <code>b</code> are two tags on the same list.</p>
+        </div>
+        <div class="quiz" data-answer="c">
+          <p class="q">2. Which type is <b>mutable</b>?</p>
+          <div class="opts">
+            <button data-opt="a">str</button>
+            <button data-opt="b">tuple</button>
+            <button data-opt="c">list</button>
+          </div>
+          <p class="explain">✅ <b>list</b>. str and tuple are immutable.</p>
+        </div>
+        <div class="quiz" data-answer="a">
+          <p class="q">3. What does <code>"python"[1:4]</code> give?</p>
+          <div class="opts">
+            <button data-opt="a">"yth"</button>
+            <button data-opt="b">"ytho"</button>
+            <button data-opt="c">"pyth"</button>
+          </div>
+          <p class="explain">✅ <b>"yth"</b>: index 1, 2, 3. The stop index (4) is not included.</p>
+        </div>
+      </div>
+      <aside class="notes">Take a show of hands for each option first, then click.</aside>
+    </section>
+
+    <!-- 27 -->
+    <section class="slide" data-title="Recap">
+      <header>
+        <span class="kicker">Recap</span>
+        <h2>Today you learned… ✅</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="flip">
+          <div class="front"><span class="icon">⚙️</span>
+            <h3>How Python runs</h3>
+          </div>
+          <div class="back">
+            <p>Source → <b>bytecode</b> → <b>PVM</b> runs it line by line.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🏷️</span>
+            <h3>Variables</h3>
+          </div>
+          <div class="back">
+            <p>Name tags pointing to objects. <code>b = a</code> copies the tag, not the object.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🔢</span>
+            <h3>Data types</h3>
+          </div>
+          <div class="back">
+            <p>int, float, str, bool, None… Mutable: list, dict, set. Immutable: the rest.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">➗</span>
+            <h3>Operators</h3>
+          </div>
+          <div class="back">
+            <p><code>/</code> float, <code>//</code> floor, <code>%</code> remainder, <code>**</code> power,
+              <code>is</code> vs <code>==</code>.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">✂️</span>
+            <h3>Slicing</h3>
+          </div>
+          <div class="back">
+            <p><code>s[start:stop:step]</code>, stop excluded. <code>s[::-1]</code> reverses.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🧾</span>
+            <h3>f-strings</h3>
+          </div>
+          <div class="back">
+            <p><code>f"{price:.2f}"</code>, alignment with <code>&lt; &gt; ^</code>, and <code>{x=}</code> for
+              debugging.</p>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">Ask a different student to explain each card before you flip it.</aside>
+    </section>
+
+    <!-- 28 -->
+    <section class="slide" data-title="To Practice">
+      <header>
+        <span class="kicker">To Practice</span>
+        <h2>📚 To Practice</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="card accent">
+          <span class="icon">🧮</span>
+          <h3>1. EMI calculator</h3>
+          <p>Ask for loan amount, yearly interest rate and months with <code>input()</code>. Print the monthly EMI
+            using <code>P*r*(1+r)**n / ((1+r)**n - 1)</code> where <code>r</code> = rate/12/100, formatted to 2
+            decimals.</p>
+        </div>
+        <div class="card">
+          <span class="icon">🔤</span>
+          <h3>2. Word stats</h3>
+          <p>For a sentence, print: number of characters, number of words, the sentence reversed, in title case, and
+            how many times "a" appears.</p>
+        </div>
+        <div class="card">
+          <span class="icon">🎯</span>
+          <h3>3. Interview prep</h3>
+          <p>Write your own answers (2–3 lines) to the 8 interview questions on slide 23, and say them out loud.</p>
+        </div>
+      </div>
+      <div class="callout info">
+        <p><b>Set up at home:</b> install Python from <b>python.org</b> (tick "Add to PATH"), then VS Code with the
+          Python extension. Run a file with <code>python main.py</code>.</p>
+      </div>
+      <div class="callout tip">
+        <p><b>Next class:</b> making decisions and repeating work: <code>if/elif/else</code>, loops, and Python's
+          4 collections: list, tuple, set and dict. 🔀</p>
+      </div>
+      <aside class="notes">Ask 2 students to show their EMI calculator at the start of next class.</aside>
+    </section>
+
+    <!-- 29 -->
+    <section class="slide title" data-title="Thank you">
+      <div class="py-logo">🐍</div>
+      <h1>Thank you! <span class="grad">Questions?</span></h1>
+      <p class="lead">"Beautiful is better than ugly. Simple is better than complex." Type <code>import this</code> in
+        Python to read the rest. 🧘</p>
+      <div class="row">
+        <a class="btn" href="py-class-02.html">Next: Class 2 →</a>
+        <a class="btn ghost" href="index.html">📋 Course hub</a>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="assets/deck.js"></script>
+  <script>
+    /* Demo: name tags (b = a trap) */
+    (() => {
+      const COLORS = ['#ffd43b', '#61dafb', '#f472b6', '#34d399', '#a78bfa'];
+      // each step: code line, names {tag: objId}, objects {id: text}, message
+      const STEPS = [
+        ['a = [1, 2]', { a: 1 }, { 1: '[1, 2]' }, 'Python creates a list object and sticks the tag <b>a</b> on it.'],
+        ['b = a', { a: 1, b: 1 }, { 1: '[1, 2]' }, '<b>No copy is made!</b> <code>b</code> is a second tag on the <b>same</b> list.'],
+        ['b.append(3)', { a: 1, b: 1 }, { 1: '[1, 2, 3]' }, 'We changed the list through <code>b</code>… so <code>print(a)</code> shows <b>[1, 2, 3]</b> too! 😱', 1],
+        ['print(a is b)   # True', { a: 1, b: 1 }, { 1: '[1, 2, 3]' }, '<code>is</code> checks: same object? Yes, both tags point to object #1.'],
+        ['c = a.copy()', { a: 1, b: 1, c: 2 }, { 1: '[1, 2, 3]', 2: '[1, 2, 3]' }, '<code>.copy()</code> builds a <b>new</b> list object with the same values.'],
+        ['print(a == c, a is c)   # True False', { a: 1, b: 1, c: 2 }, { 1: '[1, 2, 3]', 2: '[1, 2, 3]' }, 'Same values (<code>==</code> True) but different objects (<code>is</code> False). Like twins! 👯'],
+        ['c.append(4)', { a: 1, b: 1, c: 2 }, { 1: '[1, 2, 3]', 2: '[1, 2, 3, 4]' }, 'Changing the copy leaves <code>a</code> alone. ✅', 2],
+        ['x = 10', { a: 1, b: 1, c: 2, x: 3 }, { 1: '[1, 2, 3]', 2: '[1, 2, 3, 4]', 3: '10' }, 'Now an <b>immutable</b> int.'],
+        ['y = x', { a: 1, b: 1, c: 2, x: 3, y: 3 }, { 1: '[1, 2, 3]', 2: '[1, 2, 3, 4]', 3: '10' }, 'Two tags on the int 10, same as before…'],
+        ['y += 1', { a: 1, b: 1, c: 2, x: 3, y: 4 }, { 1: '[1, 2, 3]', 2: '[1, 2, 3, 4]', 3: '10', 4: '11' }, 'An int can\'t change, so Python makes a <b>new</b> object 11 and moves only the <b>y</b> tag. <code>x</code> is still 10. 🎯 That\'s mutable vs immutable!', 4]
+      ];
+      const code = document.getElementById('tCode'), names = document.getElementById('tNames'),
+        objs = document.getElementById('tObjs'), msg = document.getElementById('tMsg');
+      let i = -1;
+      code.innerHTML = STEPS.map(s => `<div>${s[0].replace(/</g, '&lt;')}</div>`).join('');
+      function render() {
+        [...code.children].forEach((d, k) => { d.className = k < i ? 'done' : k === i ? 'cur' : ''; });
+        if (i < 0) { names.innerHTML = objs.innerHTML = ''; msg.innerHTML = '<p>Press <b>Next line ▶</b> to run the first line.</p>'; return; }
+        const [, n, o, m, bump] = STEPS[i];
+        names.innerHTML = Object.entries(n).map(([k, v]) => `<div><span class="ttag" style="background:${COLORS[(v - 1) % 5]}" data-to="#${v}">${k}</span></div>`).join('');
+        objs.innerHTML = Object.entries(o).map(([k, v]) => `<div class="tobj${+k === bump ? ' bump' : ''}" style="border-color:${COLORS[(k - 1) % 5]}"><small>object #${k} · ${v.startsWith('[') ? 'list (mutable)' : 'int (immutable)'}</small>${v}</div>`).join('');
+        msg.innerHTML = `<p>${m}</p>`;
+      }
+      document.getElementById('tNext').addEventListener('click', () => { if (i < STEPS.length - 1) { i++; render(); } });
+      document.getElementById('tReset').addEventListener('click', () => { i = -1; render(); });
+      render();
+    })();
+
+    /* Demo: string slicer (follows CPython's slice rules) */
+    (() => {
+      const word = document.getElementById('sWord'), A = document.getElementById('sA'), B = document.getElementById('sB'),
+        C = document.getElementById('sC'), letters = document.getElementById('sLetters'), out = document.getElementById('sOut');
+      const isInt = v => v === '' || /^-?\d+$/.test(v);
+      function indices(n, a, b, s) {
+        s = s === '' ? 1 : +s;
+        const norm = (v, def, lo, hi) => {
+          if (v === '') return def;
+          v = +v; if (v < 0) v += n;
+          return Math.min(Math.max(v, lo), hi);
+        };
+        const res = [];
+        if (s > 0) {
+          const start = norm(a, 0, 0, n), stop = norm(b, n, 0, n);
+          for (let k = start; k < stop; k += s) res.push(k);
+        } else {
+          const start = norm(a, n - 1, -1, n - 1), stop = b === '' ? -1 : norm(b, -1, -1, n - 1);
+          for (let k = start; k > stop; k += s) res.push(k);
+        }
+        return res;
+      }
+      function render() {
+        const w = word.value || ' ', n = w.length;
+        const a = A.value.trim(), b = B.value.trim(), c = C.value.trim();
+        const expr = `"${w}"[${a}:${b}${c !== '' ? ':' + c : ''}]`;
+        let sel = [], err = '';
+        if (![a, b, c].every(isInt)) err = 'TypeError: slice indices must be integers';
+        else if (c === '0') err = 'ValueError: slice step cannot be zero';
+        else sel = indices(n, a, b, c);
+        letters.innerHTML = [...w].map((ch, k) => {
+          const o = sel.indexOf(k);
+          return `<div class="letter"><div class="i">${k}</div><div class="ch${o > -1 ? ' sel' : ''}">${ch === ' ' ? '␣' : ch.replace(/</g, '&lt;')}${o > -1 ? `<span class="ord">${o + 1}</span>` : ''}</div><div class="n">${k - n}</div></div>`;
+        }).join('');
+        const result = sel.map(k => w[k]).join('');
+        out.innerHTML = err
+          ? `<span style="color:var(--red)">❌ ${err}</span>`
+          : `<span class="muted" style="font-size:1rem">${expr.replace(/</g, '&lt;')}</span> → <span class="grad">"${result.replace(/</g, '&lt;')}"</span>`;
+      }
+      [word, A, B, C].forEach(el => el.addEventListener('input', render));
+      document.querySelectorAll('#sliceDemo [data-s]').forEach(btn => btn.addEventListener('click', () => {
+        [A.value, B.value, C.value] = btn.dataset.s.split('|');
+        render();
+      }));
+      render();
+    })();
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,1093 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Class 5 · Props &amp; Component Reuse</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <style>
+    /* --- Hook: copy-paste cards --- */
+    .same-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .mini-card {
+      background: #fff;
+      color: #1e293b;
+      border-radius: 14px;
+      padding: 14px;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+
+    .mini-card .av {
+      font-size: 2.2rem;
+    }
+
+    .mini-card small {
+      color: #64748b;
+      display: block;
+    }
+
+    /* --- Demo: props control panel --- */
+    .pp {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    @media (max-width: 860px) {
+      .pp {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .pp-form {
+      display: grid;
+      gap: 10px;
+    }
+
+    .pp-form label {
+      display: grid;
+      grid-template-columns: 80px 1fr;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      font-size: .9rem;
+    }
+
+    .pp-form input,
+    .pp-form select {
+      font: 500 .95rem var(--font);
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+    }
+
+    .pp-form .tp {
+      font: 600 .7rem var(--mono);
+      color: var(--muted);
+      margin-left: 6px;
+    }
+
+    .pp-emojis {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .pp-emojis button {
+      font-size: 1.4rem;
+      background: var(--surface2);
+      border: 2px solid transparent;
+      border-radius: 10px;
+      padding: 2px 8px;
+      cursor: pointer;
+    }
+
+    .pp-emojis button.on {
+      border-color: var(--accent);
+    }
+
+    .pp-out {
+      display: grid;
+      gap: 12px;
+    }
+
+    .pp-line {
+      font: clamp(.8rem, 1.05vw, .95rem)/1.6 var(--mono);
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 12px;
+      padding: 12px 16px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      box-shadow: var(--shadow);
+    }
+
+    .pp-line .t {
+      color: #ff8fab;
+    }
+
+    .pp-line .a {
+      color: #ffd38a;
+    }
+
+    .pp-line .s {
+      color: #a5e3a1;
+    }
+
+    .pp-line .n {
+      color: #ffcb6b;
+    }
+
+    .pp-line .b {
+      color: #61dafb;
+      font-weight: 700;
+    }
+
+    .pp-line .c {
+      color: #6b7aa6;
+      font-style: italic;
+    }
+
+    .pp-line .flash {
+      animation: flashp .7s ease;
+      border-radius: 4px;
+    }
+
+    @keyframes flashp {
+      0% {
+        background: rgba(52, 211, 153, .45);
+      }
+    }
+
+    .pp-stage {
+      background: #f8fafc;
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      min-height: 160px;
+      align-items: flex-start;
+    }
+
+    .s-card {
+      background: #fff;
+      color: #1e293b;
+      border-radius: 14px;
+      padding: 12px 14px;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, .1);
+      width: 150px;
+      text-align: center;
+      animation: fadeUp .35s ease;
+    }
+
+    .s-card.live {
+      outline: 2px dashed #61dafb;
+      outline-offset: 3px;
+    }
+
+    .s-card .av {
+      font-size: 2rem;
+    }
+
+    .s-card b {
+      display: block;
+      word-break: break-word;
+    }
+
+    .s-card small {
+      color: #64748b;
+      display: block;
+    }
+
+    .s-card .stars {
+      color: #f59e0b;
+      letter-spacing: 2px;
+    }
+
+    /* --- Week 1 checkpoint --- */
+    .self-check li {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .self-check li::before {
+      content: '';
+      background: var(--surface2);
+      border: 2px solid var(--border);
+    }
+
+    .self-check li.ok::before {
+      content: '✓';
+      background: rgba(52, 211, 153, .25);
+      border-color: var(--green);
+    }
+
+    .check-meter {
+      height: 12px;
+      background: var(--surface2);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .check-meter i {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, var(--accent), var(--green));
+      transition: width .4s;
+    }
+  </style>
+</head>
+
+<body class="deck" data-class="5" data-title="Props & Component Reuse" data-duration="60">
+  <main class="slides">
+
+    <!-- 1 -->
+    <section class="slide title" data-title="Welcome">
+      <div class="react-logo"></div>
+      <div>
+        <span class="kicker">Week 1 · React Foundations · Class 5</span>
+        <h1>Props &amp; <span class="grad">component reuse</span></h1>
+        <p class="lead">One component, many faces: pass different data into the same component.</p>
+      </div>
+      <div class="row">
+        <span class="pill blue">⏱ 60 minutes</span>
+        <span class="pill violet">🎁 Props</span>
+        <span class="pill pink">📦 Destructuring</span>
+        <span class="pill green">🔒 Read-only</span>
+        <span class="pill yellow">🏁 Week 1 checkpoint</span>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Start the timer with <b>T</b>.</li>
+          <li>Last class of Week 1. Tell students we will finish with a self-check of everything from this week.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 2 -->
+    <section class="slide" data-title="Today's plan">
+      <header>
+        <span class="kicker">Agenda</span>
+        <h2>Today's plan</h2>
+      </header>
+      <ol class="timeline">
+        <li class="step"><span class="time">00–05</span>
+          <div><b>🔁 Quick recap</b><small>Components, naming, import and export</small></div>
+        </li>
+        <li class="step"><span class="time">05–15</span>
+          <div><b>🎁 What are props?</b><small>Passing values from parent to child</small></div>
+        </li>
+        <li class="step"><span class="time">15–25</span>
+          <div><b>🔢 Strings, numbers, arrays and destructuring</b><small>Different kinds of data</small></div>
+        </li>
+        <li class="step"><span class="time">25–35</span>
+          <div><b>🎛️ Props control panel + read-only rule</b><small>Why a child never changes its props</small></div>
+        </li>
+        <li class="step"><span class="time">35–50</span>
+          <div><b>🧪 Practice</b><small>Three product cards from one component</small></div>
+        </li>
+        <li class="step"><span class="time">50–60</span>
+          <div><b>✅ Quiz, Week 1 checkpoint and To Practice</b><small>Can you do everything from this week?</small>
+          </div>
+        </li>
+      </ol>
+      <aside class="notes">Reveal each block with →. Props are used in every React app, so take time on the practice.
+      </aside>
+    </section>
+
+    <!-- 3 -->
+    <section class="slide" data-title="Recap: Class 4">
+      <header>
+        <span class="kicker">Quick recap · 00–05 min</span>
+        <h2>Remember Class 4? 🧱</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="quiz" data-answer="a">
+          <p class="q">A component is…</p>
+          <div class="opts">
+            <button data-opt="a">A function that returns JSX</button>
+            <button data-opt="b">A CSS file</button>
+            <button data-opt="c">An npm command</button>
+          </div>
+          <p class="explain">✅ Write it once, use it like a tag: <code>&lt;Header /&gt;</code>.</p>
+        </div>
+        <div class="quiz" data-answer="c">
+          <p class="q">Why does <code>&lt;footer /&gt;</code> not show my Footer component?</p>
+          <div class="opts">
+            <button data-opt="a">Missing CSS</button>
+            <button data-opt="b">Footer needs props</button>
+            <button data-opt="c">Lowercase means an HTML tag</button>
+          </div>
+          <p class="explain">✅ Components must start with a <b>capital letter</b>.</p>
+        </div>
+        <div class="quiz" data-answer="b">
+          <p class="q">How do you share a component from its file?</p>
+          <div class="opts">
+            <button data-opt="a">import default Header</button>
+            <button data-opt="b">export default Header</button>
+            <button data-opt="c">return Header</button>
+          </div>
+          <p class="explain">✅ <b>export</b> puts the book on the shelf, <b>import</b> borrows it.</p>
+        </div>
+      </div>
+      <aside class="notes">Ask students to vote first. Quick and light, 4 minutes max.</aside>
+    </section>
+
+    <!-- 4 -->
+    <section class="slide" data-title="Hook: same card everywhere">
+      <header class="center">
+        <span class="kicker">The problem</span>
+        <h2>We reused it… but every copy is <span class="grad">the same</span> 😕</h2>
+      </header>
+      <div class="split">
+        <div class="stack">
+          <div class="same-cards">
+            <div class="mini-card">
+              <div class="av">👩‍🎓</div><b>Priya</b><small>React</small>
+            </div>
+            <div class="mini-card">
+              <div class="av">👩‍🎓</div><b>Priya</b><small>React</small>
+            </div>
+            <div class="mini-card">
+              <div class="av">👩‍🎓</div><b>Priya</b><small>React</small>
+            </div>
+          </div>
+          <script type="text/x-code" data-file="App.jsx">
+          <StudentCard />
+          <StudentCard />
+          <StudentCard />
+        </script>
+        </div>
+        <div class="stack">
+          <div class="card step"><span class="icon">🤔</span><b>We want:</b> Priya (React), Arun (JavaScript), Rahul
+            (Python), all from <b>one</b> component.</div>
+          <div class="card bad step"><span class="icon">❌</span>Copy the component 3 times as <code>PriyaCard</code>,
+            <code>ArunCard</code>, <code>RahulCard</code>? For 500 students?? No way.
+          </div>
+          <div class="card good step"><span class="icon">✅</span><b>Props!</b> Keep one component and <b>pass in</b>
+            different data each time.</div>
+        </div>
+      </div>
+      <aside class="notes">This is the cliffhanger from last class. Ask: "How would Swiggy show 1,000 restaurant cards?
+        Do they write 1,000 components?" Let students guess before revealing the answer.</aside>
+    </section>
+
+    <!-- 5 -->
+    <section class="slide" data-title="What are props?">
+      <div class="split">
+        <div>
+          <span class="kicker">Concept · 05–15 min</span>
+          <h2>What are <span class="grad">props</span>? 🎁</h2>
+          <p class="lead"><b style="color:var(--text)">Props</b> (short for <i>properties</i>) are values a <b
+              style="color:var(--text)">parent</b> passes to a <b style="color:var(--text)">child</b> component.</p>
+          <ul class="checklist">
+            <li class="step">They look like HTML attributes: <code>&lt;StudentCard name="Arun" /&gt;</code></li>
+            <li class="step">The child receives them as an <b>object</b>: <code>{ name: "Arun" }</code></li>
+            <li class="step">Same component + different props = <b>different output</b></li>
+            <li class="step">Just like <b>arguments</b> to a JavaScript function</li>
+          </ul>
+        </div>
+        <div class="analogy step" data-label="☕ Real-life example">
+          <span class="big-emoji">☕</span>
+          <h3>The chai stall order</h3>
+          <p>The chai stall has <b>one</b> recipe and <b>one</b> kettle. But every customer orders differently:</p>
+          <p>"One cutting chai, less sugar." "One ginger chai, extra strong."</p>
+          <p>The <b>recipe</b> is the component. The <b>order</b> (sugar, ginger, strength) is the props.</p>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Ask: "In HTML, what does <code>&lt;img src="cat.png"&gt;</code> do?" src is an attribute that changes what
+            the img shows. Props are the same idea for <b>our</b> components.</li>
+          <li>Relate to functions: <code>greet("Arun")</code> vs <code>&lt;Greet name="Arun" /&gt;</code>.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 6 -->
+    <section class="slide" data-title="Syllabus example">
+      <header>
+        <span class="kicker">Code example</span>
+        <h2>One StudentCard, two students</h2>
+      </header>
+      <div class="split">
+        <script type="text/x-code" data-file="App.jsx" data-hl="1,2,8,9">
+        function StudentCard({ name, course }) {
+          return <p>{name} - {course}</p>;
+        }
+
+        function App() {
+          return (
+            <>
+              <StudentCard name="Arun" course="React" />
+              <StudentCard name="Priya" course="JavaScript" />
+            </>
+          );
+        }
+      </script>
+        <div class="stack">
+          <div class="card step"><span class="icon">📤</span><b>Lines 8–9:</b> the parent (<code>App</code>)
+            <b>sends</b> props: <code>name</code> and <code>course</code>.
+          </div>
+          <div class="card step"><span class="icon">📥</span><b>Line 1:</b> the child (<code>StudentCard</code>)
+            <b>receives</b> them inside <code>{ }</code>.
+          </div>
+          <div class="card step"><span class="icon">🖥️</span><b>Line 2:</b> it shows them with curly braces, just like
+            variables.</div>
+          <div class="card accent step"><b>Screen shows:</b><br>Arun - React<br>Priya - JavaScript</div>
+        </div>
+      </div>
+      <aside class="notes">Trace the value "Arun" with your finger: from line 8, into the function on line 1, onto the
+        screen on line 2. Ask a student to trace "Priya" the same way.</aside>
+    </section>
+
+    <!-- 7 -->
+    <section class="slide" data-title="Parent to child">
+      <header>
+        <span class="kicker">How props travel</span>
+        <h2>Props flow <span class="grad">one way</span>: parent → child ⬇️</h2>
+      </header>
+      <div class="flow">
+        <div class="node step" style="border-color:var(--accent)"><span class="icon">👨</span><b>App
+            (parent)</b><small><code>&lt;StudentCard name="Arun" /&gt;</code></small></div>
+        <div class="arrow step">→</div>
+        <div class="node step"><span class="icon">📦</span><b>props
+            object</b><small><code>{ name: "Arun" }</code></small></div>
+        <div class="arrow step">→</div>
+        <div class="node step"><span class="icon">🧒</span><b>StudentCard (child)</b><small>shows
+            <code>{name}</code></small></div>
+      </div>
+      <div class="split">
+        <div class="analogy step" data-label="💰 Real-life example">
+          <span class="big-emoji">💰</span>
+          <h3>Pocket money</h3>
+          <p>Parents give pocket money to the child. The child <b>uses</b> it, but the child can't send money <b>up</b>
+            by changing the parent's wallet.</p>
+          <p>Props work the same way: data goes <b>down</b> from parent to child, never back up.</p>
+        </div>
+        <div class="callout info step">
+          <p>Want to see the props object? Add <code>console.log(props)</code> inside the child. You'll see
+            <code>{ name: "Arun", course: "React" }</code> in the console. Try it on the next playground!
+          </p>
+        </div>
+      </div>
+      <aside class="notes">"One-way data flow" is a big React idea. We'll see in Class 16 how a child can <i>ask</i> the
+        parent to change something (by calling a function the parent passed down).</aside>
+    </section>
+
+    <!-- 8 -->
+    <section class="slide" data-title="Strings, numbers, arrays">
+      <header>
+        <span class="kicker">Types of props · 15–25 min</span>
+        <h2>Passing strings, numbers and arrays 🔢</h2>
+        <p class="lead">Simple rule: <b style="color:var(--text)">text goes in quotes</b>, <b
+            style="color:var(--text)">everything else goes in curly braces</b>.</p>
+      </header>
+      <div class="split">
+        <script type="text/x-code" data-file="App.jsx" data-hl="2,3,4,5">
+        <StudentCard
+          name="Sneha"                         // string
+          age={20}                             // number
+          skills={["HTML", "CSS", "React"]}    // array
+          isHosteller={true}                   // boolean
+        />
+      </script>
+        <table class="table">
+          <tr>
+            <th>Type</th>
+            <th>How to pass</th>
+            <th>Use inside</th>
+          </tr>
+          <tr class="step">
+            <td>String</td>
+            <td><code>name="Sneha"</code></td>
+            <td><code>{name}</code></td>
+          </tr>
+          <tr class="step">
+            <td>Number</td>
+            <td><code>age={20}</code></td>
+            <td><code>{age + 1}</code> → 21</td>
+          </tr>
+          <tr class="step">
+            <td>Array</td>
+            <td><code>skills={[...]}</code></td>
+            <td><code>{skills.join(", ")}</code></td>
+          </tr>
+          <tr class="step">
+            <td>Boolean</td>
+            <td><code>isHosteller={true}</code></td>
+            <td><code>{isHosteller ? "Yes" : "No"}</code></td>
+          </tr>
+        </table>
+      </div>
+      <div class="callout warn step">
+        <p><code>age="20"</code> is the <b>text</b> "20", not the number 20. Then <code>age + 1</code> gives
+          <b>"201"</b> 😅. Numbers need braces: <code>age={20}</code>.
+        </p>
+      </div>
+      <aside class="notes">The "201" trick is memorable: try it live on the next playground. We'll learn to show arrays
+        as proper lists with <code>map()</code> in Class 9. For now, <code>join(", ")</code> is enough.</aside>
+    </section>
+
+    <!-- 9 -->
+    <section class="slide" data-title="Destructuring props">
+      <header>
+        <span class="kicker">Destructuring</span>
+        <h2>Destructuring: unpack the props parcel 📦</h2>
+      </header>
+      <div class="split">
+        <div class="tabs">
+          <div class="tab" data-label="Using props.">
+            <script type="text/x-code" data-file="StudentCard.jsx" data-hl="1,2">
+            function StudentCard(props) {
+              return <p>{props.name} - {props.course}</p>;
+            }
+            // works, but "props." everywhere is long
+          </script>
+          </div>
+          <div class="tab" data-label="✅ Destructured">
+            <script type="text/x-code" data-file="StudentCard.jsx" data-hl="1,2">
+            function StudentCard({ name, course }) {
+              return <p>{name} - {course}</p>;
+            }
+            // same result, cleaner code
+          </script>
+          </div>
+          <div class="tab" data-label="With a default">
+            <script type="text/x-code" data-file="StudentCard.jsx" data-hl="1">
+            function StudentCard({ name, course = "Not decided" }) {
+              return <p>{name} - {course}</p>;
+            }
+            // <StudentCard name="Rahul" />  →  Rahul - Not decided
+          </script>
+          </div>
+        </div>
+        <div class="analogy step" data-label="📦 Real-life example">
+          <span class="big-emoji">📦</span>
+          <h3>Opening a Flipkart parcel</h3>
+          <p>The props object is a <b>parcel</b>. With <code>props.name</code> you reach into the box every single time.
+          </p>
+          <p>Destructuring <code>{ name, course }</code> <b>unpacks</b> the parcel once and puts each item on the table,
+            ready to use.</p>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Click through the tabs. All three versions do the same job.</li>
+          <li>Most React code you will read online uses destructuring, so students must recognise it.</li>
+          <li>Common mistake: forgetting the curly braces: <code>function StudentCard(name, course)</code>. Then name is
+            the whole props object and course is undefined.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 10 -->
+    <section class="slide" data-title="Playground: props">
+      <header>
+        <span class="kicker">Live coding · Try it!</span>
+        <h2>Reuse one card with different data ✨</h2>
+        <p class="lead">Add a fourth student. Then change <code>age={20}</code> to <code>age="20"</code> and watch "next
+          year" break.</p>
+      </header>
+      <div class="playground" data-height="450">
+        <script type="text/x-playground">
+        function StudentCard({ name, course, age, skills, emoji = "🧑‍🎓" }) {
+          console.log("StudentCard got:", { name, course, age });
+          return (
+            <div className="card student">
+              <div className="avatar">{emoji}</div>
+              <h3>{name}</h3>
+              <p>📘 {course}</p>
+              <p>🎂 {age} now, {age + 1} next year</p>
+              <p className="skills">{skills.join(" · ")}</p>
+            </div>
+          );
+        }
+
+        function App() {
+          return (
+            <div className="row">
+              <StudentCard name="Arun" course="React" age={21}
+                skills={["HTML", "CSS"]} emoji="👨‍💻" />
+              <StudentCard name="Priya" course="JavaScript" age={20}
+                skills={["JS", "Git", "Figma"]} emoji="👩‍🎓" />
+              <StudentCard name="Rahul" course="Python" age={22}
+                skills={["Python", "SQL"]} />
+            </div>
+          );
+        }
+
+        export default App;
+      </script>
+        <script type="text/x-playground-css">
+        .row { display: flex; gap: 12px; flex-wrap: wrap; }
+        .student { width: 145px; text-align: center; margin: 0; padding: 14px 10px; }
+        .avatar { font-size: 2.4rem; }
+        .student p { margin: .2em 0; font-size: .9rem; }
+        .skills { color: #2563eb; font-weight: 600; }
+      </script>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Point at the console: each card logs the props it received.</li>
+          <li>Rahul has no emoji prop, so he gets the default 🧑‍🎓.</li>
+          <li>Change Priya's <code>age={20}</code> to <code>age="20"</code>: "next year" becomes 201. Ask: "Why?" (Text
+            + 1 joins the strings.)</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 11 -->
+    <section class="slide" data-title="Demo: props control panel" id="propsPanel">
+      <header>
+        <span class="kicker">Live demo · 25–35 min</span>
+        <h2>🎛️ Props control panel</h2>
+        <p class="lead">Change the props on the left. The card <b style="color:var(--text)">and</b> the JSX line update
+          together.</p>
+      </header>
+      <div class="pp">
+        <div class="stack">
+          <div class="pp-form">
+            <label>name <input data-p="name" value="Priya"><span class="tp"></span></label>
+            <label>course <select data-p="course">
+                <option>React</option>
+                <option>JavaScript</option>
+                <option>Python</option>
+                <option>UI Design</option>
+                <option>Data Science</option>
+              </select></label>
+            <label>rating <input data-p="rating" type="number" min="1" max="5" value="4"></label>
+            <label>emoji <span class="pp-emojis"><button
+                  class="on">👩‍🎓</button><button>👨‍💻</button><button>🧕</button><button>👨‍🎓</button><button>🦸</button></span></label>
+          </div>
+          <div class="row">
+            <button class="btn primary small" data-pp="add">➕ Use this card again with these props</button>
+            <button class="btn small" data-pp="clear">🗑 Clear</button>
+          </div>
+          <div class="pp-line pp-comp"></div>
+        </div>
+        <div class="pp-out">
+          <div class="pp-stage"></div>
+          <div class="pp-line pp-app" aria-live="polite"></div>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Type a student's name. Point out that the string goes in <b>quotes</b> while <code>rating</code> (a
+            number) goes in <b>braces</b>.</li>
+          <li>Click "Use this card again" 3–4 times with different values. The component code (bottom left) never
+            changes. Only the props change. That is reuse.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 12 -->
+    <section class="slide" data-title="Props are read-only">
+      <header>
+        <span class="kicker">Rule</span>
+        <h2>Props are <span class="grad">read-only</span> 🔒</h2>
+        <p class="lead">A child component must <b style="color:var(--text)">never change</b> the props it receives.</p>
+      </header>
+      <div class="grid cols-2">
+        <div class="card bad">
+          <h3>❌ Don't do this</h3>
+          <script type="text/x-code" data-file="StudentCard.jsx" data-hl="2">
+          function StudentCard(props) {
+            props.name = "Topper";   // changing a prop!
+            return <p>{props.name}</p>;
+          }
+        </script>
+          <p class="muted" style="margin-top:10px">React may throw <code>Cannot assign to read only property</code>, and
+            even when it doesn't, the parent's data gets out of sync.</p>
+        </div>
+        <div class="card good">
+          <h3>✅ Do this</h3>
+          <script type="text/x-code" data-file="StudentCard.jsx" data-hl="2">
+          function StudentCard({ name }) {
+            const title = name + " ⭐";   // make a NEW value
+            return <p>{title}</p>;
+          }
+        </script>
+          <p class="muted" style="margin-top:10px">Read the prop and create a <b>new</b> value from it. Want to change
+            the data? The <b>parent</b> changes it and passes new props.</p>
+        </div>
+      </div>
+      <div class="analogy step" data-label="📝 Real-life example">
+        <p><b>A sealed exam question paper:</b> every student gets the same paper. You <b>read</b> it and write your
+          answers on a separate answer sheet. You don't cross out the questions and write new ones! Only the examiner
+          (the parent) can change the paper.</p>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Why the rule? A component should give the <b>same output for the same props</b>, like a calculator: 2 + 3
+            is always 5. That makes apps predictable.</li>
+          <li>So how does data change on screen? With <b>state</b>, which comes in Class 7. Props = data from outside;
+            state = data a component owns.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 13 -->
+    <section class="slide" data-title="Exercise: product cards">
+      <header>
+        <span class="kicker">Class exercise · 35–50 min</span>
+        <h2>🧪 Three product cards, one component</h2>
+        <p class="lead">Make <code>ProductCard</code> use props so ShopKart can show <b
+            style="color:var(--text)">any</b> product.</p>
+      </header>
+      <div class="playground" data-height="420" data-url="http://localhost:5173/shopkart">
+        <script type="text/x-playground">
+        // TODO 1: receive { name, price, emoji } as props (destructure!)
+        function ProductCard() {
+          return (
+            <div className="card product">
+              {/* TODO 2: replace the fixed values with {emoji}, {name}, {price} */}
+              <div className="emoji">🎧</div>
+              <h3>Headphones</h3>
+              <p className="price">₹1499</p>
+              <button>Add to cart</button>
+            </div>
+          );
+        }
+
+        function App() {
+          return (
+            <div className="shop">
+              {/* TODO 3: pass different props to each card */}
+              <ProductCard />
+              <ProductCard />
+              <ProductCard />
+              {/* BONUS: add a rating={4} prop and show ⭐ rating */}
+            </div>
+          );
+        }
+
+        export default App;
+      </script>
+        <script type="text/x-playground-css">
+        .shop { display: flex; gap: 12px; flex-wrap: wrap; }
+        .product { width: 160px; text-align: center; margin: 0; }
+        .emoji { font-size: 2.6rem; }
+        .price { font-weight: 700; color: #059669; }
+        .product button { background: #f59e0b; color: #1e293b; white-space: nowrap; padding: 8px 12px; }
+      </script>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Suggested products: Headphones ₹1,499, Smart Watch ₹2,999, Sneakers ₹1,999.</li>
+          <li>Common mistakes: <code>price="1499"</code> vs <code>price={1499}</code> (both display fine, but math needs
+            a number), forgetting the <code>{ }</code> in the function parameters, misspelling a prop name
+            (<code>Name</code> vs <code>name</code> shows nothing, no error!).</li>
+          <li>Extra: students who finish early make three student cards with one component.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 14 -->
+    <section class="slide" data-title="Common mistakes">
+      <header>
+        <span class="kicker">Common mistakes</span>
+        <h2>⚠️ Props mistakes to avoid</h2>
+      </header>
+      <table class="table">
+        <tr>
+          <th>❌ Mistake</th>
+          <th>What happens</th>
+          <th>✅ Fix</th>
+        </tr>
+        <tr class="step">
+          <td><code>function Card(name)</code></td>
+          <td><code>name</code> is the whole props object</td>
+          <td><code>function Card({ name })</code></td>
+        </tr>
+        <tr class="step">
+          <td><code>&lt;Card Name="Arun" /&gt;</code> but reading <code>name</code></td>
+          <td>Nothing shows (props are case-sensitive)</td>
+          <td>Use the exact same spelling</td>
+        </tr>
+        <tr class="step">
+          <td><code>age="20"</code> then <code>{age + 1}</code></td>
+          <td>Shows <b>201</b></td>
+          <td><code>age={20}</code></td>
+        </tr>
+        <tr class="step">
+          <td><code>skills="HTML, CSS"</code> then <code>skills.join()</code></td>
+          <td>Error: join is not a function</td>
+          <td><code>skills={["HTML", "CSS"]}</code></td>
+        </tr>
+        <tr class="step">
+          <td><code>props.name = "New"</code> inside the child</td>
+          <td>Error or confusing bugs</td>
+          <td>Props are read-only. Make a new variable</td>
+        </tr>
+        <tr class="step">
+          <td>Passing props to a component that doesn't read them</td>
+          <td>Nothing happens</td>
+          <td>Destructure every prop you need</td>
+        </tr>
+      </table>
+      <aside class="notes">Ask students which mistake they made during the exercise. Normalise mistakes: everyone hits
+        these.</aside>
+    </section>
+
+    <!-- 15 -->
+    <section class="slide" data-title="Quick quiz">
+      <header>
+        <span class="kicker">Recap · 50–60 min</span>
+        <h2>⚡ Quick quiz</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="quiz" data-answer="b">
+          <p class="q">1. Which way do props flow?</p>
+          <div class="opts">
+            <button data-opt="a">Child → parent</button>
+            <button data-opt="b">Parent → child</button>
+            <button data-opt="c">Between siblings</button>
+          </div>
+          <p class="explain">✅ Like pocket money: <b>parent → child</b>, one way.</p>
+        </div>
+        <div class="quiz" data-answer="c">
+          <p class="q">2. How do you pass the number 25 as a prop?</p>
+          <div class="opts">
+            <button data-opt="a">age="25"</button>
+            <button data-opt="b">age=25</button>
+            <button data-opt="c">age={25}</button>
+          </div>
+          <p class="explain">✅ Numbers, arrays and booleans go in <b>curly braces</b>.</p>
+        </div>
+        <div class="quiz" data-answer="a">
+          <p class="q">3. Can a child change its props?</p>
+          <div class="opts">
+            <button data-opt="a">No, props are read-only</button>
+            <button data-opt="b">Yes, anytime</button>
+            <button data-opt="c">Only numbers</button>
+          </div>
+          <p class="explain">✅ Like a sealed exam paper: <b>read it, don't edit it</b>.</p>
+        </div>
+      </div>
+      <aside class="notes">Vote first, then click. For Q2, ask what <code>age="25"</code> would be (a string).</aside>
+    </section>
+
+    <!-- 16 -->
+    <section class="slide" data-title="Recap">
+      <header>
+        <span class="kicker">Recap</span>
+        <h2>Today you learned… ✅</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="flip">
+          <div class="front"><span class="icon">🎁</span>
+            <h3>Props</h3>
+          </div>
+          <div class="back">
+            <p>Values a <b>parent</b> passes to a <b>child</b>, like a chai order.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">⬇️</span>
+            <h3>One-way flow</h3>
+          </div>
+          <div class="back">
+            <p>Parent → child only, like pocket money.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🔢</span>
+            <h3>Types</h3>
+          </div>
+          <div class="back">
+            <p>Text in quotes; numbers, arrays and booleans in <code>{ }</code>.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">📦</span>
+            <h3>Destructuring</h3>
+          </div>
+          <div class="back">
+            <p><code>function Card({ name, price })</code> unpacks the props parcel.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">♻️</span>
+            <h3>Reuse</h3>
+          </div>
+          <div class="back">
+            <p>One component + different props = many different cards.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🔒</span>
+            <h3>Read-only</h3>
+          </div>
+          <div class="back">
+            <p>Never change props in the child. Create new values instead.</p>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">Ask students to explain each card before flipping it.</aside>
+    </section>
+
+    <!-- 17 -->
+    <section class="slide" data-title="Week 1 checkpoint" id="checkpoint">
+      <header>
+        <span class="kicker">🏁 Week 1 checkpoint</span>
+        <h2>Can you do all of this? <span class="grad">Self-check</span></h2>
+        <p class="lead">Students should be able to explain React, run a React project, write JSX, create components, and
+          pass props. Tap each item you are confident about.</p>
+      </header>
+      <div class="split">
+        <ul class="checklist self-check">
+          <li><b>Explain React</b>: a JavaScript library for building UIs from components <span class="muted">(Class
+              1)</span></li>
+          <li><b>Run a React project</b>: create it with Vite and start it with <code>npm run dev</code> <span
+              class="muted">(Class 2)</span></li>
+          <li><b>Write JSX</b>: curly braces, className, one root element <span class="muted">(Class 3)</span></li>
+          <li><b>Create components</b>: capital names, import and export <span class="muted">(Class 4)</span></li>
+          <li><b>Pass props</b>: parent → child, destructuring, read-only <span class="muted">(Class 5)</span></li>
+        </ul>
+        <div class="card center">
+          <span class="icon">🏆</span>
+          <h3 class="check-label">0 / 5 ticked</h3>
+          <div class="check-meter"><i></i></div>
+          <p class="muted check-msg" style="margin-top:12px">Be honest! Anything not ticked is your revision list for
+            the weekend.</p>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Read each item aloud and ask students to raise a hand if they are confident. Tick the item if most hands
+            go up.</li>
+          <li>Note any item with few hands. Do a 5-minute revision of it at the start of Class 6.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 18 -->
+    <section class="slide" data-title="To Practice">
+      <header>
+        <span class="kicker">To Practice</span>
+        <h2>📚 To Practice</h2>
+      </header>
+      <div class="grid cols-2">
+        <div class="card accent">
+          <span class="icon">👔</span>
+          <h3>Main task: five employee cards</h3>
+          <p>Create <b>one</b> <code>EmployeeCard</code> component and use it <b>five times</b> with different props.
+          </p>
+          <ul class="checklist">
+            <li>Props: <code>name</code>, <code>role</code>, <code>department</code>, <code>experience</code> (a number)
+            </li>
+            <li>Show "Senior" if experience is 5 or more (use <code>? :</code>)</li>
+            <li>Put the component in <code>src/components/EmployeeCard.jsx</code></li>
+          </ul>
+        </div>
+        <div class="card">
+          <span class="icon">⭐</span>
+          <h3>Extra practice</h3>
+          <p>Make three <b>student cards</b> using one component, with a <code>skills</code> array prop.</p>
+          <p class="muted">Bonus: add a default value for a prop, e.g. <code>{ city = "Bengaluru" }</code>.</p>
+        </div>
+      </div>
+      <div class="callout info">
+        <p><b>Next class:</b> Week 2 starts with <b>Class 6: Event handling</b>. We'll make buttons and inputs respond
+          to clicks and typing with <code>onClick</code> and <code>onChange</code>. 🖱️</p>
+      </div>
+      <aside class="notes">Example employees to suggest: Arun (Developer, IT, 3 years), Sneha (Designer, Product, 6
+        years), Rahul (Tester, QA, 1 year), Priya (Manager, HR, 8 years), Karthik (Analyst, Finance, 2 years).</aside>
+    </section>
+
+    <!-- 19 -->
+    <section class="slide title" data-title="Thank you">
+      <div class="react-logo"></div>
+      <h1>Week 1 done! <span class="grad">Questions?</span></h1>
+      <p class="lead">"Same component, different props, endless possibilities." 🎁</p>
+      <div class="row">
+        <a class="btn primary" href="index.html">📋 Course plan</a>
+      </div>
+      <aside class="notes">Congratulate the class on finishing Week 1. Ask each student to name one thing they can now
+        build that they couldn't five classes ago.</aside>
+    </section>
+
+  </main>
+
+  <script src="assets/deck.js"></script>
+  <script>
+    /* Demo: props control panel */
+    (() => {
+      const root = document.getElementById('propsPanel');
+      const stage = root.querySelector('.pp-stage');
+      const appOut = root.querySelector('.pp-app');
+      const compOut = root.querySelector('.pp-comp');
+      const nameIn = root.querySelector('[data-p="name"]');
+      const courseIn = root.querySelector('[data-p="course"]');
+      const ratingIn = root.querySelector('[data-p="rating"]');
+      const emojiBtns = root.querySelectorAll('.pp-emojis button');
+      const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      let emoji = '👩‍🎓',saved = [],lastKey = '';
+
+      const current = () => ({
+        name: nameIn.value || 'Student',
+        course: courseIn.value,
+        emoji,
+        rating: Math.max(1,Math.min(5,parseInt(ratingIn.value,10) || 1))
+      });
+      const cardHTML = (p,live) => `<div class="s-card${live ? ' live' : ''}"><div class="av">${p.emoji}</div><b>${esc(p.name)}</b><small>${esc(p.course)}</small><div class="stars">${'★'.repeat(p.rating)}${'☆'.repeat(5 - p.rating)}</div></div>`;
+      const lineHTML = (p,changed) => {
+        const f = k => (changed === k ? ' flash' : '');
+        return `<span class="t">&lt;StudentCard</span>` +
+          ` <span class="a">name</span>=<span class="s${f('name')}">"${esc(p.name)}"</span>` +
+          ` <span class="a">course</span>=<span class="s${f('course')}">"${esc(p.course)}"</span>` +
+          ` <span class="a">emoji</span>=<span class="s${f('emoji')}">"${p.emoji}"</span>` +
+          ` <span class="a">rating</span>=<span class="b">{</span><span class="n${f('rating')}">${p.rating}</span><span class="b">}</span>` +
+          ` <span class="t">/&gt;</span>`;
+      };
+      function render(changed) {
+        const p = current();
+        stage.innerHTML = saved.map(s => cardHTML(s)).join('') + cardHTML(p,true);
+        let s = '<span class="c">// App.jsx: the parent passes props</span>\n';
+        saved.forEach(x => { s += lineHTML(x) + '\n'; });
+        s += lineHTML(p,changed) + '  <span class="c">← live</span>';
+        appOut.innerHTML = s;
+      }
+      compOut.innerHTML =
+        '<span class="c">// StudentCard.jsx: never changes!</span>\n' +
+        '<span style="color:#c4a5ff">function</span> StudentCard(<span class="b">{</span> name, course, emoji, rating <span class="b">}</span>) {\n' +
+        '  <span style="color:#c4a5ff">return</span> (\n    <span class="t">&lt;div</span> <span class="a">className</span>=<span class="s">"card"</span><span class="t">&gt;</span>\n' +
+        '      <span class="b">{emoji}</span> <span class="t">&lt;b&gt;</span><span class="b">{name}</span><span class="t">&lt;/b&gt;</span> <span class="b">{course}</span>\n' +
+        '      <span class="b">{"★".repeat(rating)}</span>\n    <span class="t">&lt;/div&gt;</span>\n  );\n}';
+      nameIn.addEventListener('input',() => render('name'));
+      courseIn.addEventListener('change',() => render('course'));
+      ratingIn.addEventListener('input',() => render('rating'));
+      emojiBtns.forEach(b => b.addEventListener('click',() => {
+        emojiBtns.forEach(x => x.classList.remove('on')); b.classList.add('on');
+        emoji = b.textContent; render('emoji');
+      }));
+      root.querySelector('[data-pp="add"]').addEventListener('click',() => {
+        if (saved.length >= 4) saved.shift();
+        saved.push(current());
+        const names = ['Arun','Sneha','Rahul','Ayesha','Karthik','Divya'];
+        nameIn.value = names[(saved.length + names.indexOf(nameIn.value) + 1) % names.length] || 'Arun';
+        render('name');
+      });
+      root.querySelector('[data-pp="clear"]').addEventListener('click',() => { saved = []; render(); });
+      render();
+    })();
+
+    /* Week 1 checkpoint self-check */
+    (() => {
+      const root = document.getElementById('checkpoint');
+      const items = root.querySelectorAll('.self-check li');
+      const label = root.querySelector('.check-label');
+      const bar = root.querySelector('.check-meter i');
+      const msg = root.querySelector('.check-msg');
+      let celebrated = false;
+      function update() {
+        const n = root.querySelectorAll('.self-check li.ok').length;
+        label.textContent = `${n} / ${items.length} ticked`;
+        bar.style.width = (n / items.length * 100) + '%';
+        if (n === items.length) {
+          msg.textContent = '🎉 Week 1 complete! You are ready for events and state.';
+          if (!celebrated && window.Deck) { Deck.confetti(); celebrated = true; }
+        } else {
+          msg.textContent = 'Be honest! Anything not ticked is your revision list for the weekend.';
+          celebrated = false;
+        }
+      }
+      items.forEach(li => li.addEventListener('click',() => { li.classList.toggle('ok'); update(); }));
+      update();
+    })();
+  </script>
+</body>
+
+</html>

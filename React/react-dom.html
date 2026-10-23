@@ -1,0 +1,1274 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bonus · React DOM and How React Works</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <style>
+    /* --- Demo: HTML ↔ DOM tree ↔ screen --- */
+    .domtree {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    @media (max-width: 900px) {
+      .domtree {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .dt-col {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .dt-col h4 {
+      margin: 0 0 10px;
+      font-size: .95rem;
+    }
+
+    .dt-code {
+      font-family: var(--mono);
+      font-size: .85rem;
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .dt-code div {
+      padding: 2px 6px;
+      border-radius: 6px;
+      white-space: pre;
+    }
+
+    .tnode {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: .82rem;
+      padding: 6px 10px;
+      border-radius: 10px;
+      background: var(--surface2);
+      border: 2px solid var(--border);
+      margin: 4px 0;
+      cursor: pointer;
+    }
+
+    .tree-l1 {
+      margin-left: 26px;
+      border-left: 2px dashed var(--border);
+      padding-left: 10px;
+    }
+
+    .tree-l2 {
+      margin-left: 26px;
+      border-left: 2px dashed var(--border);
+      padding-left: 10px;
+    }
+
+    .screen {
+      background: #fff;
+      color: #111;
+      border-radius: 12px;
+      padding: 14px;
+      min-height: 160px;
+    }
+
+    .screen [data-n] {
+      border-radius: 8px;
+      padding: 4px 6px;
+      margin: 4px 0;
+      cursor: pointer;
+    }
+
+    .screen h3 {
+      margin: 0;
+    }
+
+    .screen button {
+      background: #2563eb;
+      color: #fff;
+      border: 0;
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-weight: 600;
+    }
+
+    .lit {
+      background: rgba(251, 191, 36, .35) !important;
+      border-color: var(--yellow) !important;
+      outline: 2px solid var(--yellow);
+    }
+
+    /* --- Demo: packages --- */
+    .duo {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 18px;
+      align-items: center;
+    }
+
+    @media (max-width: 800px) {
+      .duo {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .duo .mid {
+      text-align: center;
+      font-size: 2rem;
+      color: var(--accent);
+    }
+
+    /* --- Demo: mount the app --- */
+    .mount {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .mount {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .rootbox {
+      border: 3px dashed #94a3b8;
+      border-radius: 14px;
+      min-height: 220px;
+      background: #fff;
+      color: #111;
+      padding: 16px;
+      position: relative;
+      transition: border-color .4s, box-shadow .4s;
+    }
+
+    .rootbox::before {
+      content: '<div id="root">';
+      position: absolute;
+      top: -12px;
+      left: 12px;
+      background: #64748b;
+      color: #fff;
+      font: 600 .72rem var(--mono);
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+
+    .rootbox.found {
+      border-color: #f59e0b;
+      box-shadow: 0 0 0 6px rgba(245, 158, 11, .2);
+    }
+
+    .rootbox.ready {
+      border-color: #3b82f6;
+      border-style: solid;
+    }
+
+    .rootbox.ready::before {
+      background: #3b82f6;
+      content: '<div id="root">  ⚡ React root';
+    }
+
+    .rootbox.live {
+      border-color: #10b981;
+    }
+
+    .rootbox.live::before {
+      background: #10b981;
+    }
+
+    .rootbox .empty {
+      color: #94a3b8;
+      text-align: center;
+      padding-top: 70px;
+      font-style: italic;
+    }
+
+    .rootbox .app {
+      animation: fadeUp .5s ease;
+    }
+
+    .mstep {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      margin-bottom: 10px;
+      opacity: .55;
+      transition: .3s;
+    }
+
+    .mstep.on {
+      opacity: 1;
+      border-color: var(--accent);
+      box-shadow: var(--glow);
+    }
+
+    .mstep.done {
+      opacity: 1;
+    }
+
+    .mstep .num {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      background: var(--surface2);
+      flex-shrink: 0;
+    }
+
+    .mstep.done .num {
+      background: var(--green);
+      color: #fff;
+    }
+
+    .mstep code {
+      white-space: nowrap;
+    }
+
+    /* --- Demo: render cycle --- */
+    .cycle {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 18px;
+    }
+
+    @media (max-width: 900px) {
+      .cycle {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .stage {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: var(--surface);
+      border: 2px solid var(--border);
+      margin-bottom: 10px;
+      transition: .3s;
+    }
+
+    .stage .ico {
+      font-size: 1.6rem;
+    }
+
+    .stage b {
+      display: block;
+    }
+
+    .stage small {
+      color: var(--muted);
+    }
+
+    .stage.on {
+      border-color: var(--accent);
+      box-shadow: var(--glow);
+      transform: translateX(6px);
+    }
+
+    .stage.done {
+      border-color: var(--green);
+    }
+
+    .cycle-right {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    @media (max-width: 600px) {
+      .cycle-right {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .vbox {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+    }
+
+    .vbox h4 {
+      margin: 0 0 8px;
+      font-size: .9rem;
+    }
+
+    .vn {
+      font-family: var(--mono);
+      font-size: .8rem;
+      padding: 6px 9px;
+      margin: 5px 0;
+      border-radius: 8px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      transition: .3s;
+    }
+
+    .vn.ind {
+      margin-left: 18px;
+    }
+
+    .vn.diff {
+      background: rgba(251, 191, 36, .28);
+      border-color: var(--yellow);
+    }
+
+    .vn.patch {
+      background: rgba(52, 211, 153, .3);
+      border-color: var(--green);
+    }
+
+    .cycle-log {
+      grid-column: 1 / -1;
+      font: .85rem var(--mono);
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 12px;
+      padding: 10px 14px;
+      min-height: 64px;
+    }
+
+    .cycle-log div {
+      animation: fadeUp .3s ease;
+    }
+
+    /* --- Demo: innerHTML vs React --- */
+    .vs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    @media (max-width: 800px) {
+      .vs {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .mini {
+      background: #fff;
+      color: #111;
+      border-radius: 14px;
+      padding: 16px;
+      min-height: 150px;
+    }
+
+    .mini h3 {
+      margin: 0 0 8px;
+    }
+
+    .mini input {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font: inherit;
+    }
+
+    .mini .flash {
+      animation: patchflash 1s ease;
+    }
+
+    @keyframes patchflash {
+
+      0%,
+      50% {
+        background: #bbf7d0;
+      }
+    }
+
+    .verdict {
+      margin-top: 10px;
+      font-weight: 600;
+      min-height: 1.5em;
+    }
+  </style>
+</head>
+
+<body class="deck" data-title="Bonus: React DOM and How React Works" data-duration="60">
+  <main class="slides">
+
+    <!-- 1 -->
+    <section class="slide title" data-title="Welcome">
+      <div class="react-logo"></div>
+      <div>
+        <span class="kicker">Bonus lesson · best after Class 2</span>
+        <h1><span class="grad">React DOM</span> and how React works</h1>
+        <p class="lead">What happens between writing <code>&lt;App /&gt;</code> and seeing it on the screen? Let's open
+          the box and look inside.</p>
+      </div>
+      <div class="row">
+        <span class="pill blue">🌳 The DOM</span>
+        <span class="pill violet">📦 react vs react-dom</span>
+        <span class="pill pink">🚀 createRoot and render</span>
+        <span class="pill green">🔁 Trigger, Render, Commit</span>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Press <b>T</b> to start the timer.</li>
+          <li>Tell the class: "Today there is no new syntax. We are learning what React does <i>behind the scenes</i>,
+            so errors and behaviour make sense later."</li>
+          <li>Best taught after Class 2, because students have already seen <code>main.jsx</code>.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 2 -->
+    <section class="slide" data-title="Today's plan">
+      <header>
+        <span class="kicker">Agenda</span>
+        <h2>Today's plan</h2>
+      </header>
+      <ol class="timeline">
+        <li class="step"><span class="time">00–10</span>
+          <div><b>🌳 What is the DOM?</b><small>The browser's family tree of your page</small></div>
+        </li>
+        <li class="step"><span class="time">10–20</span>
+          <div><b>📦 react vs react-dom</b><small>The brain and the hands</small></div>
+        </li>
+        <li class="step"><span class="time">20–30</span>
+          <div><b>🚀 How the app gets on screen</b><small>index.html → main.jsx → createRoot → render</small></div>
+        </li>
+        <li class="step"><span class="time">30–45</span>
+          <div><b>🔁 How updates work</b><small>Trigger → Render → Commit, with live experiments</small></div>
+        </li>
+        <li class="step"><span class="time">45–60</span>
+          <div><b>✅ Quiz, recap and practice</b><small>Explain it in your own words</small></div>
+        </li>
+      </ol>
+      <aside class="notes">Reveal each row with →. Mention that the live experiment at 30–45 min is the most important
+        part of today.</aside>
+    </section>
+
+    <!-- 3 -->
+    <section class="slide" data-title="What is the DOM?">
+      <div class="split">
+        <div>
+          <span class="kicker">Part 1 · The DOM</span>
+          <h2>What is the <span class="grad">DOM</span>?</h2>
+          <p class="lead"><b style="color:var(--text)">DOM = Document Object Model.</b> When the browser reads your
+            HTML, it builds a <b style="color:var(--text)">tree of objects</b> in memory. JavaScript can read and change
+            this tree.</p>
+          <ul class="checklist">
+            <li class="step">HTML is the <b>text file</b> you write</li>
+            <li class="step">The DOM is the <b>live tree</b> the browser builds from it</li>
+            <li class="step">Change the DOM and the <b>screen changes</b> immediately</li>
+          </ul>
+        </div>
+        <div class="analogy step" data-label="👨‍👩‍👧 Real-life example">
+          <span class="big-emoji">🌳</span>
+          <h3>A family tree</h3>
+          <p><b>&lt;html&gt;</b> is the grandparent. <b>&lt;body&gt;</b> is the parent. <b>&lt;h1&gt;</b> and
+            <b>&lt;button&gt;</b> are the children.</p>
+          <p class="muted">Every element has a parent, and can have children and siblings, just like a family.</p>
+        </div>
+      </div>
+      <aside class="notes">Ask: "Who has seen a family tree?" Draw a quick one on the board if you have one. The word
+        "tree" will come back many times today.</aside>
+    </section>
+
+    <!-- 4 -->
+    <section class="slide" data-title="Demo: HTML to DOM tree" id="treeDemo">
+      <header>
+        <span class="kicker">Interactive · hover or tap anything</span>
+        <h2>Same thing, three views 👀</h2>
+        <p class="lead">Hover over any line, node or element. The matching piece lights up in all three views.</p>
+      </header>
+      <div class="domtree">
+        <div class="dt-col">
+          <h4>📄 1. HTML you write</h4>
+          <div class="dt-code">
+            <div data-n="body">&lt;body&gt;</div>
+            <div data-n="div"> &lt;div class="card"&gt;</div>
+            <div data-n="h3"> &lt;h3&gt;Priya&lt;/h3&gt;</div>
+            <div data-n="p"> &lt;p&gt;React learner&lt;/p&gt;</div>
+            <div data-n="btn"> &lt;button&gt;Follow&lt;/button&gt;</div>
+            <div data-n="div"> &lt;/div&gt;</div>
+            <div data-n="body">&lt;/body&gt;</div>
+          </div>
+        </div>
+        <div class="dt-col">
+          <h4>🌳 2. DOM tree in memory</h4>
+          <span class="tnode" data-n="body">body</span>
+          <div class="tree-l1">
+            <span class="tnode" data-n="div">div.card</span>
+            <div class="tree-l2">
+              <span class="tnode" data-n="h3">h3 "Priya"</span><br>
+              <span class="tnode" data-n="p">p "React learner"</span><br>
+              <span class="tnode" data-n="btn">button "Follow"</span>
+            </div>
+          </div>
+        </div>
+        <div class="dt-col">
+          <h4>🖥️ 3. What you see on screen</h4>
+          <div class="screen" data-n="body">
+            <div data-n="div" style="border:1px solid #e2e8f0;padding:12px">
+              <h3 data-n="h3">Priya</h3>
+              <p data-n="p" style="margin:4px 0;color:#475569">React learner</p>
+              <div data-n="btn"><button>Follow</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Hover <b>h3 "Priya"</b> in the middle column and show that it matches one line of HTML and one thing on
+            screen.</li>
+          <li>Key sentence: "The browser shows the <b>DOM tree</b>, not your HTML file."</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 5 -->
+    <section class="slide" data-title="Changing the DOM by hand" id="manualDemo">
+      <header>
+        <span class="kicker">The old way</span>
+        <h2>Changing the DOM with plain JavaScript</h2>
+        <p class="lead">Before React, we found each element and changed it <b style="color:var(--text)">by hand</b>.
+          Click the buttons to run real DOM code.</p>
+      </header>
+      <div class="split">
+        <div class="stack">
+          <div class="row">
+            <button class="btn" data-run="name">1️⃣ Change the name</button>
+            <button class="btn" data-run="color">2️⃣ Change the colour</button>
+            <button class="btn" data-run="follow">3️⃣ Mark as followed</button>
+            <button class="btn ghost" data-run="reset">↺ Reset</button>
+          </div>
+          <div class="code">
+            <div class="code-head"><span class="dots"><i></i><i></i><i></i></span><span class="file">script.js · last
+                line that ran</span></div>
+            <pre><code><span class="line" id="manualCode"><span class="t-com">// click a button above</span></span></code></pre>
+          </div>
+          <div class="callout warn step">
+            <p>Fine for 3 changes. But a real app like Instagram changes <b>hundreds</b> of things. Doing every change
+              by hand is slow, repetitive and easy to get wrong.</p>
+          </div>
+        </div>
+        <div class="screen" style="min-height:200px">
+          <div style="border:1px solid #e2e8f0;padding:14px;border-radius:10px">
+            <h3 id="mName">Priya</h3>
+            <p style="margin:4px 0;color:#475569">React learner</p>
+            <button id="mBtn">Follow</button>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">Click each button and read the code line aloud: "find the element… change its text". Then
+        ask: "Imagine doing this for every like, comment and notification. Tiring, right?" That is the problem React
+        solves.</aside>
+    </section>
+
+    <!-- 6 -->
+    <section class="slide" data-title="react vs react-dom">
+      <header>
+        <span class="kicker">Part 2 · Two packages</span>
+        <h2>React is really <span class="grad">two</span> packages</h2>
+        <p class="lead">Open <code>package.json</code> in your Vite project and you will find both of them.</p>
+      </header>
+      <div class="duo">
+        <div class="card accent step">
+          <span class="icon">🧠</span>
+          <h3><code>react</code>: the brain</h3>
+          <ul class="clean">
+            <li>Components, JSX, props, state</li>
+            <li>Decides <b>what</b> the UI should look like</li>
+            <li>Works out what changed</li>
+            <li>Does <b>not</b> touch the browser</li>
+          </ul>
+        </div>
+        <div class="mid step">🤝</div>
+        <div class="card step" style="border-color:rgba(167,139,250,.5)">
+          <span class="icon">🖐️</span>
+          <h3><code>react-dom</code>: the hands</h3>
+          <ul class="clean">
+            <li>Connects React to the <b>browser DOM</b></li>
+            <li>Creates, updates and removes real elements</li>
+            <li>Attaches events like <code>onClick</code></li>
+            <li>Gives us <code>createRoot()</code></li>
+          </ul>
+        </div>
+      </div>
+      <div class="analogy step" data-label="🍛 Real-life example">
+        <p><b>Chef and waiter:</b> the <b>chef</b> (react) decides what goes on the plate. The <b>waiter</b> (react-dom)
+          carries it to your table. In a mobile app, a different waiter (<b>React Native</b>) serves the same chef's
+          food to a phone screen.</p>
+      </div>
+      <script type="text/x-code" data-file="package.json" data-lang="js" data-hl="3,4" class="step">
+      {
+        "dependencies": {
+          "react": "^19.0.0",
+          "react-dom": "^19.0.0"
+        }
+      }
+    </script>
+      <aside class="notes">
+        <ul>
+          <li>Version numbers may differ in their project. That's fine.</li>
+          <li>Ask: "Which package would change if we built a mobile app instead?" Answer: only react-dom gets swapped
+            (for React Native). The brain stays the same.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 7 -->
+    <section class="slide" data-title="index.html: the empty stage">
+      <header>
+        <span class="kicker">Part 3 · Getting on screen</span>
+        <h2>Step 0: <code>index.html</code> has an empty box</h2>
+      </header>
+      <div class="split">
+        <script type="text/x-code" data-file="index.html" data-lang="html" data-hl="6,7">
+        <!doctype html>
+        <html lang="en">
+          <head>
+            <title>My React App</title>
+          </head>
+          <body>
+            <div id="root"></div>
+            <script type="module" src="/src/main.jsx"><\/script>
+          </body>
+        </html>
+      </script>
+        <div class="stack">
+          <div class="card step"><span class="icon">📦</span><b><code>&lt;div id="root"&gt;</code></b> is an <b>empty
+              box</b>. Your whole React app will live inside it.</div>
+          <div class="card step"><span class="icon">▶️</span>The <b>script tag</b> loads <code>main.jsx</code>, which is
+            where React starts.</div>
+          <div class="analogy step" data-label="🎭 Real-life example">
+            <p>An <b>empty stage</b> in an auditorium. The lights are on, but no actors yet. React will bring the
+              actors.</p>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">Show this file in their Vite project if VS Code is open. Point out that the body is almost
+        empty. Everything they see on the page comes from React.</aside>
+    </section>
+
+    <!-- 8 -->
+    <section class="slide" data-title="main.jsx line by line">
+      <header>
+        <span class="kicker">Part 3 · Getting on screen</span>
+        <h2><code>main.jsx</code>: where React meets the DOM</h2>
+      </header>
+      <div class="split">
+        <script type="text/x-code" data-file="src/main.jsx" data-hl="2,5,6">
+        import { StrictMode } from "react";
+        import { createRoot } from "react-dom/client";
+        import App from "./App.jsx";
+
+        createRoot(document.getElementById("root")).render(
+          <StrictMode>
+            <App />
+          </StrictMode>
+        );
+      </script>
+        <div class="stack">
+          <div class="card step"><b>Line 2:</b> bring in <code>createRoot</code> from <b>react-dom</b> (the hands).
+          </div>
+          <div class="card step"><b>Line 5, part 1:</b> <code>document.getElementById("root")</code> finds the <b>empty
+              box</b>.</div>
+          <div class="card step"><b>Line 5, part 2:</b> <code>createRoot(...)</code> tells React: "<b>you own this box
+              now</b>".</div>
+          <div class="card step"><b>Line 5, part 3:</b> <code>.render(&lt;App /&gt;)</code> says "<b>put my App inside
+              it</b>".</div>
+          <div class="callout info step">
+            <p><code>StrictMode</code> is a helper for development only. It double-checks your components for mistakes
+              and is not shown on screen.</p>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">Read the long line slowly, in three parts. A handy summary: "find the box → React owns the
+        box → put App in the box". Students write this file once and rarely touch it again.</aside>
+    </section>
+
+    <!-- 9 -->
+    <section class="slide" data-title="Demo: mount the app" id="mountDemo">
+      <header>
+        <span class="kicker">Interactive</span>
+        <h2>Let's mount the app, one step at a time 🚀</h2>
+        <p class="lead">Press <b style="color:var(--text)">Next step</b> and watch the box on the right.</p>
+      </header>
+      <div class="mount">
+        <div>
+          <div class="mstep" data-s="1"><span class="num">1</span>
+            <div><b>Find the box</b><br><code>document.getElementById("root")</code></div>
+          </div>
+          <div class="mstep" data-s="2"><span class="num">2</span>
+            <div><b>React takes ownership</b><br><code>createRoot(box)</code></div>
+          </div>
+          <div class="mstep" data-s="3"><span class="num">3</span>
+            <div><b>Run App() → get JSX</b><br><code>root.render(&lt;App /&gt;)</code></div>
+          </div>
+          <div class="mstep" data-s="4"><span class="num">4</span>
+            <div><b>react-dom creates real elements</b><br>h1, p and button appear on screen</div>
+          </div>
+          <div class="row">
+            <button class="btn primary" id="mountNext">Next step →</button>
+            <button class="btn ghost" id="mountReset">↺ Start again</button>
+          </div>
+        </div>
+        <div>
+          <div class="rootbox" id="rootbox">
+            <div class="empty">The box is empty… waiting for React</div>
+          </div>
+          <p class="muted" id="mountMsg" style="margin-top:10px">This is what the browser shows before React runs: a
+            blank page.</p>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Let a student press the button. Before each click, ask "what happens next?"</li>
+          <li>Step 3 is pure React (the brain makes a plan). Step 4 is react-dom (the hands build it).</li>
+          <li>This first time is called <b>mounting</b>: putting the app on screen for the first time.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 10 -->
+    <section class="slide section-slide" data-title="How updates work">
+      <span class="big-emoji">🔁</span>
+      <span class="kicker" style="justify-content:center">Part 4</span>
+      <h1>OK, it's on screen. <span class="grad">What happens when something changes?</span></h1>
+      <p class="lead">A user clicks a button, types, or new data arrives. How does React update the page?</p>
+      <aside class="notes">Pause here and take guesses from the class. Common guess: "it reloads everything". We are
+        about to prove it doesn't.</aside>
+    </section>
+
+    <!-- 11 -->
+    <section class="slide" data-title="Trigger, Render, Commit">
+      <header>
+        <span class="kicker">Part 4 · The 3 steps</span>
+        <h2>Every update has 3 steps</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="card step"><span class="icon">🔔</span>
+          <h3>1. Trigger</h3>
+          <p class="muted">Something asks for an update. Usually a <b>state change</b>, like <code>setCount(1)</code>.
+          </p>
+          <p class="pill yellow" style="margin:0">🍽️ You place an order</p>
+        </div>
+        <div class="card step"><span class="icon">🧠</span>
+          <h3>2. Render</h3>
+          <p class="muted"><b>React</b> calls your component again, gets new JSX, and <b>compares</b> it with the old
+            one (Virtual DOM).</p>
+          <p class="pill yellow" style="margin:0">👨‍🍳 Chef cooks the dish</p>
+        </div>
+        <div class="card step"><span class="icon">✅</span>
+          <h3>3. Commit</h3>
+          <p class="muted"><b>react-dom</b> changes <b>only the parts that are different</b> in the real DOM.</p>
+          <p class="pill yellow" style="margin:0">🛎️ Waiter serves only the new dish</p>
+        </div>
+      </div>
+      <div class="callout tip step">
+        <p><b>"Render" does not mean "paint the screen".</b> In React, render means "call the component to find out what
+          the UI should look like". The screen only changes in the <b>commit</b> step.</p>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Restaurant story: you order (trigger), the chef cooks (render), the waiter brings only the new dish to
+            your table, without clearing your whole table (commit).</li>
+          <li>Make students repeat the three words aloud: <b>Trigger, Render, Commit</b>.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 12 -->
+    <section class="slide" data-title="Demo: watch an update" id="cycleDemo">
+      <header>
+        <span class="kicker">Interactive · slow motion</span>
+        <h2>Watch one click, in slow motion 🐢</h2>
+      </header>
+      <div class="cycle">
+        <div>
+          <div class="stage" data-st="1"><span class="ico">🔔</span>
+            <div><b>1. Trigger</b><small>setLikes(likes + 1)</small></div>
+          </div>
+          <div class="stage" data-st="2"><span class="ico">🧠</span>
+            <div><b>2. Render</b><small>App() runs again → new JSX</small></div>
+          </div>
+          <div class="stage" data-st="3"><span class="ico">🔍</span>
+            <div><b>Compare (diffing)</b><small>old tree vs new tree</small></div>
+          </div>
+          <div class="stage" data-st="4"><span class="ico">✅</span>
+            <div><b>3. Commit</b><small>update only what changed</small></div>
+          </div>
+          <div class="row">
+            <button class="btn primary" id="cycleBtn">👍 Click "Like" (+1)</button>
+          </div>
+        </div>
+        <div class="cycle-right">
+          <div class="vbox">
+            <h4>🧠 Virtual DOM: old → new</h4>
+            <div class="vn">div.post</div>
+            <div class="vn ind">h3 "Sunset at Marina Beach"</div>
+            <div class="vn ind">img</div>
+            <div class="vn ind" id="vLikes">span "❤️ 10 likes"</div>
+            <div class="vn ind">button "Like"</div>
+          </div>
+          <div class="vbox">
+            <h4>🌐 Real DOM (screen)</h4>
+            <div class="screen" style="min-height:0">
+              <h3 style="font-size:1rem">Sunset at Marina Beach</h3>
+              <div
+                style="height:60px;border-radius:8px;background:linear-gradient(135deg,#fbbf24,#f472b6);margin:6px 0">
+              </div>
+              <span id="rLikes" style="display:inline-block;padding:2px 6px;border-radius:6px">❤️ 10 likes</span>
+              <div><button style="margin-top:6px">Like</button></div>
+            </div>
+          </div>
+          <div class="cycle-log" id="cycleLog">
+            <div>// Click the button to start</div>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Click once and narrate each stage as it lights up.</li>
+          <li>Point at the log: <b>5 elements</b> in the tree, but only <b>1</b> was touched on the real screen.</li>
+          <li>Click again a few times. It is always the same 3 steps.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 13 -->
+    <section class="slide" data-title="Experiment: redraw vs React" id="vsDemo">
+      <header>
+        <span class="kicker">Experiment · prove it!</span>
+        <h2>Redraw everything vs update only what changed</h2>
+        <p class="lead">1️⃣ Type your name in <b style="color:var(--text)">both</b> boxes. 2️⃣ Click <b
+            style="color:var(--text)">+1</b> on both. What happens to your text?</p>
+      </header>
+      <div class="vs">
+        <div class="card">
+          <h3>🧨 Redraw the whole thing</h3>
+          <p class="muted" style="font-size:.9rem">Replaces all the HTML every time (<code>innerHTML = ...</code>)</p>
+          <div class="mini" id="vsOld"></div>
+          <div class="row" style="margin-top:10px"><button class="btn" id="vsOldBtn">+1</button></div>
+          <div class="verdict" id="vsOldMsg"></div>
+        </div>
+        <div class="card accent">
+          <h3>⚛️ The React way</h3>
+          <p class="muted" style="font-size:.9rem">Changes only the number (what react-dom does)</p>
+          <div class="mini" id="vsNew">
+            <h3>Count: <span id="vsNewCount">0</span></h3>
+            <input placeholder="Type your name here">
+          </div>
+          <div class="row" style="margin-top:10px"><button class="btn primary" id="vsNewBtn">+1</button></div>
+          <div class="verdict" id="vsNewMsg"></div>
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Invite a student to type in both boxes and click +1.</li>
+          <li>On the left the typed text <b>disappears</b>, because the input box was destroyed and recreated. On the
+            right it stays, because only the number changed.</li>
+          <li>This is exactly why React's "update only what changed" approach matters.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 14 -->
+    <section class="slide" data-title="Live: real React proof">
+      <header>
+        <span class="kicker">Live code · real React</span>
+        <h2>Now prove it with real React 🧪</h2>
+        <p class="lead">Type in the input, then click <b style="color:var(--text)">+1</b>. Watch the <b
+            style="color:var(--text)">Console</b> under the preview.</p>
+      </header>
+      <div class="playground" data-height="420">
+        <script type="text/x-playground">
+        import { useState } from "react";
+
+        function App() {
+          const [count, setCount] = useState(0);
+
+          // This runs on EVERY render
+          console.log("🧠 App rendered. count =", count);
+
+          return (
+            <div className="card">
+              <h2>Count: {count}</h2>
+              <input placeholder="Type your name, then click +1" />
+              <button onClick={() => setCount(count + 1)}>+1</button>
+              <p>Rendered at: {new Date().toLocaleTimeString()}</p>
+            </div>
+          );
+        }
+
+        export default App;
+      </script>
+      </div>
+      <div class="grid cols-3">
+        <div class="card step"><b>🔁 Console:</b> a new line appears on every click, so <b>App() really runs again</b>
+          (render).</div>
+        <div class="card step"><b>⌨️ Your typed text stays:</b> react-dom did <b>not</b> recreate the input box.</div>
+        <div class="card step"><b>⏰ The time updates:</b> only the parts whose values changed were updated (commit).
+        </div>
+      </div>
+      <aside class="notes">
+        <ul>
+          <li>Steps: type a name, then click +1 three times. Show the console lines and that the name is still there.
+          </li>
+          <li>Extra: change the <code>&lt;h2&gt;</code> text in the code. It re-runs and logs "App rendered" again.</li>
+        </ul>
+      </aside>
+    </section>
+
+    <!-- 15 -->
+    <section class="slide" data-title="What react-dom translates">
+      <header>
+        <span class="kicker">Under the hood</span>
+        <h2>What react-dom translates for you</h2>
+        <p class="lead">You write JSX. react-dom turns it into real browser DOM work.</p>
+      </header>
+      <table class="table">
+        <tr>
+          <th>You write (JSX)</th>
+          <th>react-dom does (real DOM)</th>
+        </tr>
+        <tr class="step">
+          <td><code>&lt;h1&gt;Hi&lt;/h1&gt;</code></td>
+          <td>Creates an h1 element and puts "Hi" inside it</td>
+        </tr>
+        <tr class="step">
+          <td><code>className="card"</code></td>
+          <td>Sets the real <code>class="card"</code> attribute</td>
+        </tr>
+        <tr class="step">
+          <td><code>onClick={handleClick}</code></td>
+          <td>Listens for clicks (like <code>addEventListener</code>)</td>
+        </tr>
+        <tr class="step">
+          <td><code>style={{ color: "red" }}</code></td>
+          <td>Sets <code>style.color = "red"</code></td>
+        </tr>
+        <tr class="step">
+          <td><code>{count}</code> changes 0 → 1</td>
+          <td>Updates only that text, nothing else</td>
+        </tr>
+        <tr class="step">
+          <td><code>{show &amp;&amp; &lt;Popup /&gt;}</code> becomes false</td>
+          <td>Removes the popup elements from the page</td>
+        </tr>
+      </table>
+      <div class="callout warn step">
+        <p><b>Golden rule:</b> in React, <b>don't</b> change the page with
+          <code>document.getElementById(...).innerText = ...</code>. Change <b>state</b>, and let react-dom update the
+          DOM for you.</p>
+      </div>
+      <aside class="notes">Students will learn onClick, state and conditional rendering in Week 2. This table is a
+        preview, so just point out that react-dom does the boring DOM work.</aside>
+    </section>
+
+    <!-- 16 -->
+    <section class="slide" data-title="Common mistakes">
+      <header>
+        <span class="kicker">Watch out</span>
+        <h2>Common mistakes 🚧</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="card bad step">
+          <h3>❌ Wrong id</h3>
+          <p><code>index.html</code> has <code>id="app"</code> but <code>main.jsx</code> looks for <code>"root"</code>.
+          </p>
+          <p class="muted" style="font-size:.88rem">Result: a blank page and an error saying the target container is not
+            a DOM element.</p>
+          <p style="margin:0">✅ The two ids must <b>match</b>.</p>
+        </div>
+        <div class="card bad step">
+          <h3>❌ Editing the DOM by hand</h3>
+          <p>Using <code>document.querySelector</code> to change text inside a React component.</p>
+          <p class="muted" style="font-size:.88rem">React doesn't know about the change and may overwrite it on the next
+            render.</p>
+          <p style="margin:0">✅ Use <b>state</b> instead.</p>
+        </div>
+        <div class="card bad step">
+          <h3>❌ "Why does it log twice?"</h3>
+          <p>In development, <code>StrictMode</code> runs components twice on purpose to catch bugs.</p>
+          <p class="muted" style="font-size:.88rem">This is normal. It doesn't happen in the final production build.</p>
+          <p style="margin:0">✅ Don't panic, it is a helper.</p>
+        </div>
+      </div>
+      <aside class="notes">The "logs twice" question comes up a lot once students start using console.log in their Vite
+        apps, so answering it now saves time later.</aside>
+    </section>
+
+    <!-- 17 -->
+    <section class="slide" data-title="Quick quiz">
+      <header>
+        <span class="kicker">Check your understanding</span>
+        <h2>⚡ Quick quiz</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="quiz" data-answer="b">
+          <p class="q">1. Which package connects React to the browser?</p>
+          <div class="opts">
+            <button data-opt="a">react</button>
+            <button data-opt="b">react-dom</button>
+            <button data-opt="c">vite</button>
+          </div>
+          <p class="explain">✅ <b>react-dom</b> is the "hands". It creates and updates real browser elements.</p>
+        </div>
+        <div class="quiz" data-answer="c">
+          <p class="q">2. What does <code>createRoot(document.getElementById("root"))</code> do?</p>
+          <div class="opts">
+            <button data-opt="a">Creates a new HTML file</button>
+            <button data-opt="b">Deletes the page</button>
+            <button data-opt="c">Lets React take control of the root box</button>
+          </div>
+          <p class="explain">✅ It finds the empty <code>#root</code> box and gives React ownership of it. Then
+            <code>.render(&lt;App /&gt;)</code> fills it.</p>
+        </div>
+        <div class="quiz" data-answer="a">
+          <p class="q">3. In which step does the real screen change?</p>
+          <div class="opts">
+            <button data-opt="a">Commit</button>
+            <button data-opt="b">Trigger</button>
+            <button data-opt="c">Render</button>
+          </div>
+          <p class="explain">✅ <b>Commit.</b> Render only works out the plan, and commit applies the changes to the real
+            DOM.</p>
+        </div>
+      </div>
+      <aside class="notes">Take a show of hands for each option first. Question 3 is the tricky one, because many
+        students think "render" means drawing the screen.</aside>
+    </section>
+
+    <!-- 18 -->
+    <section class="slide" data-title="Recap">
+      <header>
+        <span class="kicker">Recap</span>
+        <h2>Today you learned… ✅</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="flip">
+          <div class="front"><span class="icon">🌳</span>
+            <h3>The DOM</h3>
+          </div>
+          <div class="back">
+            <p>The browser's <b>tree of elements</b> built from HTML. Change it and the screen changes.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">📦</span>
+            <h3>react vs react-dom</h3>
+          </div>
+          <div class="back">
+            <p><b>react</b> = brain (what to show). <b>react-dom</b> = hands (changes the browser).</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🎭</span>
+            <h3>#root</h3>
+          </div>
+          <div class="back">
+            <p>The empty box in <code>index.html</code> where the whole app lives.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🚀</span>
+            <h3>createRoot().render()</h3>
+          </div>
+          <div class="back">
+            <p>Find the box → React owns it → put <code>&lt;App /&gt;</code> inside it.</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🔁</span>
+            <h3>3 steps of an update</h3>
+          </div>
+          <div class="back">
+            <p><b>Trigger</b> (state changes) → <b>Render</b> (App runs again) → <b>Commit</b> (only the changes go to
+              the screen).</p>
+          </div>
+        </div>
+        <div class="flip">
+          <div class="front"><span class="icon">🏆</span>
+            <h3>Golden rule</h3>
+          </div>
+          <div class="back">
+            <p>Change <b>state</b>, not the DOM. Let react-dom do the DOM work.</p>
+          </div>
+        </div>
+      </div>
+      <aside class="notes">Pick a different student to explain each card before flipping it.</aside>
+    </section>
+
+    <!-- 19 -->
+    <section class="slide" data-title="Practice and To Practice">
+      <header>
+        <span class="kicker">Practice</span>
+        <h2>📚 Try this in your Vite project</h2>
+      </header>
+      <div class="grid cols-3">
+        <div class="card"><span class="icon">🔍</span>
+          <h3>1. Explore</h3>
+          <p>Open <code>index.html</code> and find <code>&lt;div id="root"&gt;</code>. Open <code>main.jsx</code> and
+            find <code>createRoot</code>.</p>
+        </div>
+        <div class="card"><span class="icon">🧪</span>
+          <h3>2. Break it (on purpose)</h3>
+          <p>Change the id to <code>"app"</code> in <b>only</b> index.html. Read the error in the browser console, then
+            fix it.</p>
+        </div>
+        <div class="card"><span class="icon">🛠️</span>
+          <h3>3. Inspect</h3>
+          <p>Right-click the page → <b>Inspect</b>. In the Elements tab, find your App's elements inside
+            <code>#root</code>.</p>
+        </div>
+      </div>
+      <div class="card accent">
+        <h3>✍️ To Practice</h3>
+        <p style="margin:0">In your own words, explain <b>Trigger → Render → Commit</b> using a real-life example that
+          is <b>not</b> a restaurant (ideas: a cricket scoreboard, an online order, a class attendance register).</p>
+      </div>
+      <aside class="notes">Exercise 2 is the most valuable one. Seeing a real error and fixing it builds confidence. Let
+        them do it in class if time allows.</aside>
+    </section>
+
+    <!-- 20 -->
+    <section class="slide title" data-title="Thank you">
+      <div class="react-logo"></div>
+      <h1>Now you know <span class="grad">what happens inside</span> ⚛️</h1>
+      <p class="lead">"React decides <b>what</b> to show. react-dom makes it <b>happen</b> on the screen."</p>
+      <div class="row">
+        <a class="btn" href="index.html">📋 Course plan</a>
+        <a class="btn primary" href="class-03.html">Next: Class 3 (JSX) →</a>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="assets/deck.js"></script>
+  <script>
+    /* Demo: HTML ↔ DOM tree ↔ screen highlight */
+    (() => {
+      const root = document.getElementById('treeDemo');
+      const items = root.querySelectorAll('[data-n]');
+      const light = n => items.forEach(x => x.classList.toggle('lit',x.dataset.n === n));
+      items.forEach(el => {
+        el.addEventListener('mouseenter',e => { e.stopPropagation(); light(el.dataset.n); });
+        el.addEventListener('click',e => { e.stopPropagation(); light(el.dataset.n); });
+      });
+      root.querySelectorAll('.domtree [data-n]').forEach(el => el.addEventListener('mouseleave',() => {
+        const parent = el.parentElement.closest('[data-n]');
+        parent ? light(parent.dataset.n) : light(null);
+      }));
+    })();
+
+    /* Demo: changing the DOM by hand */
+    (() => {
+      const root = document.getElementById('manualDemo');
+      const name = root.querySelector('#mName'),btn = root.querySelector('#mBtn'),code = root.querySelector('#manualCode');
+      const show = html => { code.innerHTML = html; code.closest('.code').animate([{ boxShadow: '0 0 0 3px #61dafb' },{ boxShadow: 'none' }],700); };
+      const actions = {
+        name: () => { name.textContent = 'Priya Sharma'; show('document.<span class="t-fn">getElementById</span>(<span class="t-str">"mName"</span>).textContent = <span class="t-str">"Priya Sharma"</span>;'); },
+        color: () => { name.style.color = '#db2777'; show('document.<span class="t-fn">getElementById</span>(<span class="t-str">"mName"</span>).style.color = <span class="t-str">"#db2777"</span>;'); },
+        follow: () => { btn.textContent = 'Following ✓'; btn.style.background = '#16a34a'; show('btn.textContent = <span class="t-str">"Following ✓"</span>;  btn.style.background = <span class="t-str">"green"</span>;'); },
+        reset: () => { name.textContent = 'Priya'; name.style.color = ''; btn.textContent = 'Follow'; btn.style.background = ''; show('<span class="t-com">// back to the start</span>'); }
+      };
+      root.querySelectorAll('[data-run]').forEach(b => b.addEventListener('click',() => actions[b.dataset.run]()));
+    })();
+
+    /* Demo: mount the app step by step */
+    (() => {
+      const steps = document.querySelectorAll('#mountDemo .mstep');
+      const box = document.getElementById('rootbox'),msg = document.getElementById('mountMsg');
+      let s = 0;
+      const text = [
+        'This is what the browser shows before React runs: a blank page.',
+        '🔍 Found it! document.getElementById("root") returns the empty box.',
+        '⚡ createRoot(box): React now owns this box. Still empty, though.',
+        '🧠 React called App() and got back a plan (JSX). Nothing on screen yet!',
+        '🎉 react-dom created real h1, p and button elements. The app is mounted!'
+      ];
+      function paint() {
+        steps.forEach((el,i) => { el.classList.toggle('on',i === s - 1); el.classList.toggle('done',i < s - 1); });
+        box.className = 'rootbox' + (s >= 1 ? ' found' : '') + (s >= 2 ? ' ready' : '') + (s >= 4 ? ' live' : '');
+        if (s < 3) box.innerHTML = '<div class="empty">The box is empty… waiting for React</div>';
+        if (s === 3) box.innerHTML = '<pre style="margin:0;font:13px/1.6 Consolas,monospace;color:#7c3aed">// React\'s plan (not on screen yet)\n{ type: "div", children: [\n  { type: "h1", text: "Welcome, Arun 👋" },\n  { type: "p",  text: "My first React app" },\n  { type: "button", text: "Start" }\n]}</pre>';
+        if (s === 4) {
+          box.innerHTML = '<div class="app"><h1 style="margin:0 0 6px">Welcome, Arun 👋</h1><p style="margin:0 0 10px;color:#475569">My first React app</p><button style="background:#2563eb;color:#fff;border:0;border-radius:8px;padding:8px 14px;font-weight:600">Start</button></div>';
+          window.Deck && Deck.confetti(20);
+        }
+        msg.textContent = text[s];
+        document.getElementById('mountNext').disabled = s >= 4;
+      }
+      document.getElementById('mountNext').addEventListener('click',() => { if (s < 4) { s++; paint(); } });
+      document.getElementById('mountReset').addEventListener('click',() => { s = 0; paint(); });
+      paint();
+    })();
+
+    /* Demo: render cycle in slow motion */
+    (() => {
+      const stages = document.querySelectorAll('#cycleDemo .stage');
+      const vLikes = document.getElementById('vLikes'),rLikes = document.getElementById('rLikes');
+      const log = document.getElementById('cycleLog'),btn = document.getElementById('cycleBtn');
+      let likes = 10,busy = false;
+      const say = t => { const d = document.createElement('div'); d.textContent = t; log.appendChild(d); while (log.children.length > 4) log.firstChild.remove(); };
+      const wait = ms => new Promise(r => setTimeout(r,ms));
+      btn.addEventListener('click',async () => {
+        if (busy) return; busy = true; btn.disabled = true;
+        log.innerHTML = '';
+        stages.forEach(s => s.classList.remove('on','done'));
+        const go = async (i,t,fn) => {
+          if (i > 0) { stages[i - 1].classList.remove('on'); stages[i - 1].classList.add('done'); }
+          stages[i].classList.add('on'); say(t); if (fn) fn(); await wait(1100);
+        };
+        await go(0,`🔔 setLikes(${likes + 1}) called`);
+        await go(1,`🧠 App() runs again → new JSX with ${likes + 1} likes`,() => { vLikes.textContent = `span "❤️ ${likes} → ${likes + 1} likes"`; });
+        await go(2,'🔍 Compared 5 elements → 1 is different',() => { vLikes.classList.add('diff'); });
+        likes++;
+        await go(3,'✅ Updated 1 element on screen. The other 4 were not touched',() => {
+          vLikes.classList.remove('diff'); vLikes.classList.add('patch'); vLikes.textContent = `span "❤️ ${likes} likes"`;
+          rLikes.textContent = `❤️ ${likes} likes`;
+          rLikes.animate([{ background: '#bbf7d0' },{ background: 'transparent' }],1200);
+        });
+        stages[3].classList.remove('on'); stages[3].classList.add('done');
+        vLikes.classList.remove('patch');
+        busy = false; btn.disabled = false;
+      });
+    })();
+
+    /* Demo: redraw everything vs React way */
+    (() => {
+      const old = document.getElementById('vsOld');
+      let oc = 0,nc = 0;
+      const template = n => `<h3>Count: ${n}</h3><input placeholder="Type your name here">`;
+      old.innerHTML = template(0);
+      document.getElementById('vsOldBtn').addEventListener('click',() => {
+        const typed = old.querySelector('input').value;
+        old.innerHTML = template(++oc);
+        old.querySelector('h3').classList.add('flash');
+        document.getElementById('vsOldMsg').textContent = typed ? `😱 "${typed}" disappeared! The input box was destroyed and rebuilt.` : 'Type something in the box first, then click +1.';
+      });
+      document.getElementById('vsNewBtn').addEventListener('click',() => {
+        const span = document.getElementById('vsNewCount');
+        const typed = document.querySelector('#vsNew input').value;
+        span.textContent = ++nc;
+        span.parentElement.classList.remove('flash'); void span.offsetWidth; span.parentElement.classList.add('flash');
+        document.getElementById('vsNewMsg').textContent = typed ? `😎 "${typed}" is still there. Only the number changed.` : 'Type something in the box first, then click +1.';
+      });
+    })();
+  </script>
+</body>
+
+</html>
